@@ -80,7 +80,7 @@ The left side of the settings shows a **live preview** of a wallpaper with your 
 
 Sofadrop includes **Sofascreen**, a screensaver that shows your wallpapers full screen with a clock (and the weather, if you want). It works with or without Projectivy. Set it up in *Settings → Screensaver*; **Try it** shows it right away. While it runs, **OK** opens the title on screen (*What the wallpaper opens*), the **left and right arrows** go to the previous and next wallpaper, and any other button stops it.
 
-Sofascreen also has its own tile among the TV's apps: open it whenever you want your TV to show posters, no setup needed. It stays on until you press a button. Launchers can start it too.
+**Try it** also works as a poster mode where the screensaver can't be switched on: it stays on until you press a button, with no setup. Launchers can start it too.
 
 To make it the TV's screensaver, choose *Settings → Screensaver → Switch it on*:
 

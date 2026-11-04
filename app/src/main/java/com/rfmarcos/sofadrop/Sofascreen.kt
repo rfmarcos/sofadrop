@@ -65,6 +65,8 @@ class SofascreenView(context: Context) : FrameLayout(context) {
     private var position = -1
     /** The wallpaper on screen, for [openShown]. */
     private var shown: StoredWallpaper? = null
+    /** Ends the running transition at once, as an arrow may arrive during one; null when there is none. */
+    private var settle: Runnable? = null
     private var running = false
     private val next = Runnable { showNext() }
     private val drift = object : Runnable {
@@ -110,7 +112,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         buildClock()
         position = -1
         playlist = emptyList()
-        showNext(animate = false)
+        showNext(transition = 0)
         if (Settings.screensaverClock != Settings.CLOCK_OFF) {
             tick.run()
             handler.postDelayed(drift, 60_000)
@@ -121,6 +123,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
     fun stop() {
         running = false
         shown = null
+        settle = null
         handler.removeCallbacksAndMessages(null)
         for (view in listOf(front, back, clock)) view.animate().cancel()
         front.setImageDrawable(null)
@@ -151,18 +154,18 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         ClickTargets.candidates(context, wallpaper).any { intent -> runCatching { context.startActivity(intent) }.isSuccess }
     }
 
-    /** Straight to the next or the previous wallpaper of the round, without a transition. */
+    /** Straight to the next or the previous wallpaper of the round, with a quicker transition. */
     private fun skip(forward: Boolean) {
         if (playlist.isEmpty()) return
         handler.removeCallbacks(next)
         if (!forward) position = (position - 1 + playlist.size) % playlist.size - 1
-        showNext(animate = false)
+        showNext(SKIP_MILLIS)
     }
 
     // --- Wallpapers ---
 
     /** The next wallpaper; a new round re-reads the set, so a newly published one is used. */
-    private fun showNext(animate: Boolean = true) {
+    private fun showNext(transition: Long = TRANSITION_MILLIS) {
         if (!running) return
         if (position + 1 >= playlist.size) {
             val current = store.current()
@@ -189,7 +192,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
                 when {
                     bitmap != null -> {
                         shown = wallpaper
-                        show(bitmap, animate)
+                        show(bitmap, transition)
                     }
                     // Removed by a newer set: start the round again from that one
                     !exists -> {
@@ -203,7 +206,8 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         }
     }
 
-    private fun show(bitmap: Bitmap, animate: Boolean) {
+    private fun show(bitmap: Bitmap, duration: Long) {
+        settle?.run()
         val incoming = back
         val outgoing = front
         reset(incoming)
@@ -217,13 +221,14 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         val transition = Settings.screensaverTransition.let {
             if (it == Settings.TRANSITION_RANDOM) Settings.TRANSITIONS.filter { t -> t != Settings.TRANSITION_RANDOM }.random() else it
         }
-        val duration = if (animate) TRANSITION_MILLIS else 0L
         val done = Runnable {
-            outgoing.animate().cancel()
+            settle = null
+            reset(incoming)
             reset(outgoing)
             outgoing.setImageDrawable(null)
             slowZoom(incoming)
         }
+        settle = done
         val ease = AccelerateDecelerateInterpolator()
         when {
             duration == 0L -> done.run()
@@ -402,6 +407,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
 
     companion object {
         private const val TRANSITION_MILLIS = 1500L
+        private const val SKIP_MILLIS = 500L
         private const val SLOW_ZOOM = 1.06f
 
         /** Decode an image subsampled close to [width], like the wallpaper viewer. */
@@ -458,10 +464,10 @@ class SofascreenService : DreamService() {
 }
 
 /**
- * Sofascreen on demand: from the settings to try it, or from its own tile on the TV's home screen, the way
- * in where the system screensaver takes a computer (see [ScreensaverSetupFragment]). Exported so launchers
- * can start it when idle, which they can't do with another app's [SofascreenService]. It keeps the screen
- * on until a key closes it. The remote works as with the real screensaver, see [SofascreenView.onKey].
+ * Sofascreen on demand, from the settings: the way in where the system screensaver takes a computer (see
+ * [ScreensaverSetupFragment]). Exported so launchers can start it when idle, which they can't do with
+ * another app's [SofascreenService]. It keeps the screen on until a key closes it. The remote works as
+ * with the real screensaver, see [SofascreenView.onKey].
  */
 class SofascreenActivity : AppCompatActivity() {
 
