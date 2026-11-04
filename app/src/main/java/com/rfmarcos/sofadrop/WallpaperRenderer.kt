@@ -55,6 +55,8 @@ class WallpaperRenderer(
     private val position: String = Settings.POSITION_TOP_LEFT,
     /** Black shading instead of the backdrop's colour, see [Settings.SHADES]. */
     private val black: Boolean = false,
+    /** Nothing goes over it (Sofascreen, or no launcher to share it with): no shade for the launcher's rows. */
+    private val fullScreen: Boolean = false,
 ) {
 
     private val height = width * 9 / 16
@@ -123,13 +125,19 @@ class WallpaperRenderer(
     }
 
     /**
-     * Gradients tinted with the backdrop's colour (or black): on the info's side, bottom (launcher rows),
-     * top (clock). Black ones reach full black at the edges, so an OLED screen turns those pixels off.
+     * Gradients tinted with the backdrop's colour (or black): on the info's side, bottom (launcher rows, a
+     * lighter one at full screen), top (clock). Black ones reach full black at the edges, so an OLED screen
+     * turns those pixels off.
      */
     private fun drawGradients(canvas: Canvas, tint: Int, right: Boolean) {
         drawSideGradient(canvas, tint, right)
-        val bottom = if (black) 1f else 0.98f
-        drawGradient(canvas, tint, horizontal = false) { t -> bottom * smoothstep((t - 0.42f) / 0.46f) }
+        if (fullScreen) {
+            val bottom = if (black) 1f else 0.7f
+            drawGradient(canvas, tint, horizontal = false) { t -> bottom * smoothstep((t - 0.62f) / 0.38f) }
+        } else {
+            val bottom = if (black) 1f else 0.98f
+            drawGradient(canvas, tint, horizontal = false) { t -> bottom * smoothstep((t - 0.42f) / 0.46f) }
+        }
         drawGradient(canvas, tint, horizontal = false) { t -> 0.45f * (1 - smoothstep(t / 0.22f)) }
     }
 

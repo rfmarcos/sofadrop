@@ -38,7 +38,7 @@ class Profile private constructor(val id: String) {
         set(value) = preferences.edit { putStringSet(lists(KEY_LISTS), value) }
 
     var titlesPerList: Int
-        get() = preferences.getInt(lists(KEY_COUNT), 10)
+        get() = preferences.getInt(lists(KEY_COUNT), 20)
         set(value) = preferences.edit { putInt(lists(KEY_COUNT), value) }
 
     var globalHitsOnly: Boolean

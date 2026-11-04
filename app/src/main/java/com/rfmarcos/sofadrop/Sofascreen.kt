@@ -13,6 +13,7 @@ import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -62,6 +63,8 @@ class SofascreenView(context: Context) : FrameLayout(context) {
 
     private var playlist: List<StoredWallpaper> = emptyList()
     private var position = -1
+    /** The wallpaper on screen, for [openShown]. */
+    private var shown: StoredWallpaper? = null
     private var running = false
     private val next = Runnable { showNext() }
     private val drift = object : Runnable {
@@ -117,6 +120,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
 
     fun stop() {
         running = false
+        shown = null
         handler.removeCallbacksAndMessages(null)
         for (view in listOf(front, back, clock)) view.animate().cancel()
         front.setImageDrawable(null)
@@ -130,6 +134,14 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         super.onDetachedFromWindow()
     }
 
+    /** Open the title on screen as Projectivy would (see [ClickTargets]); false when there's nothing to open. */
+    fun openShown(): Boolean {
+        val wallpaper = shown ?: return false
+        return ClickTargets.candidates(context, wallpaper).any { intent ->
+            runCatching { context.startActivity(intent) }.isSuccess
+        }
+    }
+
     // --- Wallpapers ---
 
     /** The next wallpaper; a new round re-reads the set, so a newly published one is used. */
@@ -141,13 +153,15 @@ class SofascreenView(context: Context) : FrameLayout(context) {
             position = -1
         }
         if (playlist.isEmpty()) {
+            empty.setText(if (Profile.SCREENSAVER.source.generating) R.string.screensaver_preparing else R.string.screensaver_empty)
             empty.visibility = VISIBLE
-            handler.postDelayed(next, 30_000) // nothing generated yet: look again later
+            handler.postDelayed(next, 10_000) // nothing generated yet: look again later
             return
         }
         empty.visibility = GONE
         position++
-        val file = store.fileOf(playlist[position])
+        val wallpaper = playlist[position]
+        val file = store.fileOf(wallpaper)
         val width = resources.displayMetrics.widthPixels
         decoder.execute {
             val exists = file?.isFile == true
@@ -156,7 +170,10 @@ class SofascreenView(context: Context) : FrameLayout(context) {
             handler.post {
                 if (!running) return@post
                 when {
-                    bitmap != null -> show(bitmap, animate)
+                    bitmap != null -> {
+                        shown = wallpaper
+                        show(bitmap, animate)
+                    }
                     // Removed by a newer set: start the round again from that one
                     !exists -> {
                         playlist = emptyList()
@@ -370,6 +387,10 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         private const val TRANSITION_MILLIS = 1500L
         private const val SLOW_ZOOM = 1.06f
 
+        /** The remote's OK button, which opens the title on screen; any other one just stops Sofascreen. */
+        fun opensTitle(keyCode: Int) =
+            keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER
+
         /** Decode an image subsampled close to [width], like the wallpaper viewer. */
         private fun decode(path: String, width: Int): Bitmap? {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -389,7 +410,7 @@ class SofascreenService : DreamService() {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         Settings.init(this)
-        isInteractive = false
+        isInteractive = true // for OK; every input stops it below, as without this
         isFullscreen = true
         isScreenBright = true
         view = SofascreenView(this).also { setContentView(it) }
@@ -397,16 +418,27 @@ class SofascreenService : DreamService() {
 
     override fun onDreamingStarted() {
         super.onDreamingStarted()
+        GenerateWallpapersWorker.refreshForScreensaver(this)
         view?.start()
         Settings.screensaverShownAt = System.currentTimeMillis()
-        askForSet()
     }
 
-    /** Nothing generated yet for the set it shows (e.g. without Projectivy, which asks for the wallpapers): make it. */
-    private fun askForSet() {
-        val set = Profile.SCREENSAVER.source
-        if (set.lastGeneration != 0L || set.generating || WallpaperStore(this, set).current().isNotEmpty()) return
-        GenerateWallpapersWorker.runNow(this, set)
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            if (SofascreenView.opensTitle(event.keyCode)) view?.openShown()
+            finish()
+        }
+        return true
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        finish()
+        return true
+    }
+
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        finish()
+        return true
     }
 
     override fun onDreamingStopped() {
@@ -415,7 +447,12 @@ class SofascreenService : DreamService() {
     }
 }
 
-/** Sofascreen started from the settings, to try it; any key closes it, as with the real screensaver. */
+/**
+ * Sofascreen on demand: from the settings to try it, or from its own tile on the TV's home screen, the way
+ * in where the system screensaver takes a computer (see [ScreensaverSetupFragment]). Exported so launchers
+ * can start it when idle, which they can't do with another app's [SofascreenService]. It keeps the screen
+ * on until a key is pressed: OK opens the title, any other key closes it, as with the real screensaver.
+ */
 class SofascreenActivity : AppCompatActivity() {
 
     private lateinit var view: SofascreenView
@@ -430,6 +467,7 @@ class SofascreenActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        GenerateWallpapersWorker.refreshForScreensaver(this)
         view.start()
     }
 
@@ -439,6 +477,7 @@ class SofascreenActivity : AppCompatActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (SofascreenView.opensTitle(keyCode)) view.openShown()
         finish()
         return true
     }

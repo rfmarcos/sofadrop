@@ -60,8 +60,8 @@ class SettingsFragment : PreviewSettingsFragment() {
             .hasNext(true).build()
         actions += action(ID_DETAILS, R.drawable.ic_act_tv, getString(R.string.setting_details_title), DetailsFragment.summary(context, profile))
             .hasNext(true).build()
-        // Part of the wallpapers, before the screensaver
-        if (hasProjectivy) actions += action(ID_CLICK, R.drawable.ic_act_play, getString(R.string.click_action_title), ClickActionFragment.summary(context))
+        // Part of the wallpapers, before the screensaver (which opens them with OK, also without Projectivy)
+        actions += action(ID_CLICK, R.drawable.ic_act_play, getString(R.string.click_action_title), ClickActionFragment.summary(context))
             .hasNext(true).build()
         actions += action(ID_SCREENSAVER, R.drawable.ic_act_screensaver, getString(R.string.screensaver_title), ScreensaverFragment.summary(context))
             .hasNext(true).build()

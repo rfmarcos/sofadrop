@@ -331,6 +331,19 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
             }
         }
 
+        /**
+         * Sofascreen is starting: without Projectivy, which asks for its set and so keeps it fresh, nothing
+         * else may have scheduled the refresh, or noticed that the set it shows is empty or expired.
+         */
+        fun refreshForScreensaver(context: Context) {
+            Settings.init(context)
+            schedule(context)
+            val set = Profile.SCREENSAVER.source
+            val expired = System.currentTimeMillis() - set.lastGeneration > Settings.refreshIntervalMillis
+            // By the files and not the date: a restored backup has the date but not the images
+            if (expired || WallpaperStore(context, set).current().isEmpty()) runNow(context, set)
+        }
+
         /** Keep the periodic refresh in sync with the "update every" setting. */
         fun schedule(context: Context, settingsChanged: Boolean = false) {
             Settings.init(context)

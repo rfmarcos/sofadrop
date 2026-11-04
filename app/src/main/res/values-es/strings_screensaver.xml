@@ -4,8 +4,9 @@
     <string name="screensaver_title">Salvapantallas</string>
     <string name="screensaver_description">Sofascreen muestra fondos como salvapantallas de Android, también sin Projectivy: los mismos que recibe Projectivy, o de sus propias listas y con su propio aspecto.</string>
     <string name="screensaver_empty">Aún no hay fondos: abre Sofadrop y elige tus listas</string>
+    <string name="screensaver_preparing">Preparando los primeros fondos…</string>
     <string name="screensaver_try">Probarlo</string>
-    <string name="screensaver_try_desc">Cualquier botón lo detiene</string>
+    <string name="screensaver_try_desc">OK abre el título; cualquier otro botón lo detiene</string>
     <string name="screensaver_system_title">Activarlo</string>
     <string name="screensaver_system_off">Sin activar</string>
     <string name="screensaver_system_on">Activado: Sofascreen es el salvapantallas de la TV</string>
@@ -13,7 +14,7 @@
     <string name="screensaver_system_opens_steps">cómo activarlo</string>
     <string name="screensaver_system_opens_path">abre los ajustes de Android: Preferencias del dispositivo → Salvapantallas</string>
     <string name="screensaver_system_explain">Elige Sofascreen en los ajustes de salvapantallas de Android.</string>
-    <string name="screensaver_system_explain_steps">Google TV no deja elegir los salvapantallas de otras apps en sus ajustes: se activa una vez desde un ordenador. Pulsa OK para ver los pasos.</string>
+    <string name="screensaver_system_explain_steps">Google TV no deja elegir los salvapantallas de otras apps en sus ajustes: se activa una vez desde un ordenador. Pulsa OK para ver los pasos. Sin ordenador, puedes abrir Sofascreen desde las apps de la TV.</string>
     <string name="screensaver_system_explain_path">En los ajustes de Android, ve a Preferencias del dispositivo → Salvapantallas y elige Sofascreen. Los nombres pueden cambiar según la marca de la TV.</string>
     <string name="screensaver_set_header">Fondos</string>
     <string name="screensaver_lists_title">Listas</string>

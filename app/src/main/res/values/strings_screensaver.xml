@@ -5,8 +5,9 @@
     <string name="screensaver_title">Screensaver</string>
     <string name="screensaver_description">Sofascreen shows wallpapers as Android\'s screensaver, also without Projectivy: the same ones Projectivy gets, or from lists and with a look of its own.</string>
     <string name="screensaver_empty">No wallpapers yet: open Sofadrop and choose your lists</string>
+    <string name="screensaver_preparing">Preparing the first wallpapers…</string>
     <string name="screensaver_try">Try it</string>
-    <string name="screensaver_try_desc">Any button stops it</string>
+    <string name="screensaver_try_desc">OK opens the title, any other button stops it</string>
     <string name="screensaver_system_title">Switch it on</string>
     <string name="screensaver_system_off">Not on yet</string>
     <string name="screensaver_system_on">On: Sofascreen is the TV\'s screensaver</string>
@@ -14,7 +15,7 @@
     <string name="screensaver_system_opens_steps">how to switch it on</string>
     <string name="screensaver_system_opens_path">opens Android\'s settings: Device Preferences → Screen saver</string>
     <string name="screensaver_system_explain">Choose Sofascreen in Android\'s screensaver settings.</string>
-    <string name="screensaver_system_explain_steps">Google TV doesn\'t list other apps\' screensavers in its settings: it\'s switched on once from a computer. Press OK for the steps.</string>
+    <string name="screensaver_system_explain_steps">Google TV doesn\'t list other apps\' screensavers in its settings: it\'s switched on once from a computer. Press OK for the steps. Without a computer, open Sofascreen yourself from the TV\'s apps.</string>
     <string name="screensaver_system_explain_path">In Android\'s settings, go to Device Preferences → Screen saver and choose Sofascreen. The names can change with the TV\'s brand.</string>
     <string name="screensaver_set_header">Wallpapers</string>
     <string name="screensaver_lists_title">Lists</string>

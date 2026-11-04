@@ -37,7 +37,7 @@ class AboutFragment : BaseSettingsFragment() {
         val log = GenerationLog.read(requireContext())
         actions += action(ID_LOG, R.drawable.ic_act_status, getString(R.string.about_log),
             log?.lines()?.lastOrNull() ?: getString(R.string.about_log_none)).hasNext(log != null).enabled(log != null).build()
-        actions += action(ID_CREDITS, R.drawable.ic_act_movie, getString(R.string.about_credits), getString(R.string.about_credits_short)).build()
+        actions += action(ID_CREDITS, R.drawable.badge_tmdb, getString(R.string.about_credits), getString(R.string.about_credits_short)).build()
         explanations[ID_CREDITS] = getString(R.string.about_credits_desc)
     }
 

@@ -192,7 +192,7 @@
     <string name="about_source">Broncode</string>
     <string name="about_source_scan">Scan met je telefoon om de projectpagina te openen.</string>
     <string name="about_credits">Vermeldingen</string>
-    <string name="about_credits_desc">Dit product gebruikt de TMDB API, maar is niet goedgekeurd of gecertificeerd door TMDB. Sofadrop gebruikt Trakt, maar is niet goedgekeurd of gecertificeerd door Trakt. Lijsten en kijkgeschiedenis van Simkl (simkl.com). De namen en logo\'s van Trakt, Simkl en MDBList zijn eigendom van hun eigenaars. Lijsten van MDBList. Achtergronden voor Projectivy Launcher. Scores van MDBList en Trakt. Informatie met dank aan IMDb (imdb.com), gebruikt met toestemming; de namen en logo\'s van IMDb, Rotten Tomatoes, Metacritic, Letterboxd en MyAnimeList zijn eigendom van hun eigenaars. Sofascreen, de screensaver, door schumi2004, met dank aan Sofadrop Screensaver van ilee; weer van Open-Meteo (open-meteo.com).</string>
+    <string name="about_credits_desc">Dit product gebruikt de TMDB API, maar is niet goedgekeurd of gecertificeerd door TMDB (themoviedb.org). Waar te bekijken: gegevens van JustWatch. Sofadrop gebruikt Trakt, maar is niet goedgekeurd of gecertificeerd door Trakt. Lijsten en kijkgeschiedenis van Simkl (simkl.com). De namen en logo\'s van Trakt, Simkl en MDBList zijn eigendom van hun eigenaars. Lijsten van MDBList. Achtergronden voor Projectivy Launcher. Scores van MDBList en Trakt. Informatie met dank aan IMDb (imdb.com), gebruikt met toestemming; de namen en logo\'s van IMDb, Rotten Tomatoes, Metacritic, Letterboxd en MyAnimeList zijn eigendom van hun eigenaars. Sofascreen, de screensaver, door schumi2004, met dank aan Sofadrop Screensaver van ilee; weer van Open-Meteo (open-meteo.com).</string>
     <string name="qr_link_hint">Scan de code met je telefoon</string>
     <string name="setting_accounts_title">Accounts</string>
     <string name="accounts_description">Verbind diensten door met je telefoon een QR-code te scannen. Geen enkele is verplicht: de TMDB-lijsten en de scores van TMDB, IMDb en Trakt werken zonder account. Als je de verbinding met een dienst verbreekt, worden ook de lijsten uitgevinkt die hem nodig hebben.</string>
@@ -338,7 +338,7 @@
     <string name="cast_summary_names">cast</string>
     <string name="cast_summary_photos">cast met foto\'s</string>
     <string name="footer_desc">De onderste regel: de streamingdiensten die elke titel hebben, in het land dat je kiest, en de lijst waar hij vandaan komt.</string>
-    <string name="click_action_desc">In Projectivy opent het ▶-pictogram in de statusbalk (of “Over deze achtergrond”) de titel die je ziet.</string>
+    <string name="click_action_desc">In Projectivy opent het ▶-pictogram in de statusbalk (of “Over deze achtergrond”) de titel die je ziet; in Sofascreen de OK-knop.</string>
     <string name="click_target_title">Wat het opent</string>
     <string name="click_open_app">Openen in %1$s</string>
     <string name="click_app_missing">Openen in %1$s (niet geïnstalleerd: de trailer opent)</string>

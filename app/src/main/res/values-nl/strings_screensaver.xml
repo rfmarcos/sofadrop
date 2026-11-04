@@ -4,8 +4,9 @@
     <string name="screensaver_title">Screensaver</string>
     <string name="screensaver_description">Sofascreen toont achtergronden als screensaver van Android, ook zonder Projectivy: dezelfde als Projectivy krijgt, of uit eigen lijsten en met een eigen uiterlijk.</string>
     <string name="screensaver_empty">Nog geen achtergronden: open Sofadrop en kies je lijsten</string>
+    <string name="screensaver_preparing">De eerste achtergronden worden voorbereid…</string>
     <string name="screensaver_try">Uitproberen</string>
-    <string name="screensaver_try_desc">Elke knop stopt hem</string>
+    <string name="screensaver_try_desc">OK opent de titel, elke andere knop stopt hem</string>
     <string name="screensaver_system_title">Inschakelen</string>
     <string name="screensaver_system_off">Nog niet aan</string>
     <string name="screensaver_system_on">Aan: Sofascreen is de screensaver van de tv</string>
@@ -13,7 +14,7 @@
     <string name="screensaver_system_opens_steps">hoe je hem inschakelt</string>
     <string name="screensaver_system_opens_path">opent de instellingen van Android: Apparaatvoorkeuren → Screensaver</string>
     <string name="screensaver_system_explain">Kies Sofascreen in de screensaverinstellingen van Android.</string>
-    <string name="screensaver_system_explain_steps">Google TV toont geen screensavers van andere apps in zijn instellingen: hij wordt eenmalig vanaf een computer ingeschakeld. Druk op OK voor de stappen.</string>
+    <string name="screensaver_system_explain_steps">Google TV toont geen screensavers van andere apps in zijn instellingen: hij wordt eenmalig vanaf een computer ingeschakeld. Druk op OK voor de stappen. Zonder computer open je Sofascreen zelf vanuit de apps van de tv.</string>
     <string name="screensaver_system_explain_path">Ga in de instellingen van Android naar Apparaatvoorkeuren → Screensaver en kies Sofascreen. De namen kunnen per tv-merk verschillen.</string>
     <string name="screensaver_set_header">Achtergronden</string>
     <string name="screensaver_lists_title">Lijsten</string>

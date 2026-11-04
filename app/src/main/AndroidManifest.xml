@@ -116,11 +116,19 @@
                 android:resource="@xml/sofascreen" />
         </service>
 
-        <!-- Sofascreen started from the settings to try it -->
+        <!-- Sofascreen on demand: from the settings, its own tile on the home screen, or a launcher when idle -->
         <activity
             android:name=".SofascreenActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Sofadrop.Preview" />
+            android:exported="true"
+            android:label="@string/screensaver_name"
+            android:taskAffinity="${applicationId}.sofascreen"
+            android:theme="@style/Theme.Sofadrop.Preview">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
 
 
         <service
