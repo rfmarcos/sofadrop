@@ -6,7 +6,7 @@
     <string name="screensaver_empty">Nog geen achtergronden: open Sofadrop en kies je lijsten</string>
     <string name="screensaver_preparing">De eerste achtergronden worden voorbereid…</string>
     <string name="screensaver_try">Uitproberen</string>
-    <string name="screensaver_try_desc">OK opent de titel, elke andere knop stopt hem</string>
+    <string name="screensaver_try_desc">OK opent de titel, ← → wisselen, elke andere knop stopt hem</string>
     <string name="screensaver_system_title">Inschakelen</string>
     <string name="screensaver_system_off">Nog niet aan</string>
     <string name="screensaver_system_on">Aan: Sofascreen is de screensaver van de tv</string>

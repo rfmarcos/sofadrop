@@ -134,12 +134,29 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         super.onDetachedFromWindow()
     }
 
-    /** Open the title on screen as Projectivy would (see [ClickTargets]); false when there's nothing to open. */
-    fun openShown(): Boolean {
-        val wallpaper = shown ?: return false
-        return ClickTargets.candidates(context, wallpaper).any { intent ->
-            runCatching { context.startActivity(intent) }.isSuccess
-        }
+    /**
+     * The remote: the arrows change the wallpaper, OK opens the title on screen, any other button stops
+     * Sofascreen. True when it goes on. Held arrows don't repeat: each step decodes a whole image.
+     */
+    fun onKey(event: KeyEvent): Boolean = when (event.keyCode) {
+        KeyEvent.KEYCODE_DPAD_RIGHT -> true.also { if (event.repeatCount == 0) skip(forward = true) }
+        KeyEvent.KEYCODE_DPAD_LEFT -> true.also { if (event.repeatCount == 0) skip(forward = false) }
+        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> false.also { openShown() }
+        else -> false
+    }
+
+    /** The title on screen, as Projectivy would open it (see [ClickTargets]). */
+    private fun openShown() {
+        val wallpaper = shown ?: return
+        ClickTargets.candidates(context, wallpaper).any { intent -> runCatching { context.startActivity(intent) }.isSuccess }
+    }
+
+    /** Straight to the next or the previous wallpaper of the round, without a transition. */
+    private fun skip(forward: Boolean) {
+        if (playlist.isEmpty()) return
+        handler.removeCallbacks(next)
+        if (!forward) position = (position - 1 + playlist.size) % playlist.size - 1
+        showNext(animate = false)
     }
 
     // --- Wallpapers ---
@@ -387,10 +404,6 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         private const val TRANSITION_MILLIS = 1500L
         private const val SLOW_ZOOM = 1.06f
 
-        /** The remote's OK button, which opens the title on screen; any other one just stops Sofascreen. */
-        fun opensTitle(keyCode: Int) =
-            keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER
-
         /** Decode an image subsampled close to [width], like the wallpaper viewer. */
         private fun decode(path: String, width: Int): Bitmap? {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -410,7 +423,7 @@ class SofascreenService : DreamService() {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         Settings.init(this)
-        isInteractive = true // for OK; every input stops it below, as without this
+        isInteractive = true // for the remote, see [dispatchKeyEvent]; any other input stops it, as without this
         isFullscreen = true
         isScreenBright = true
         view = SofascreenView(this).also { setContentView(it) }
@@ -424,10 +437,7 @@ class SofascreenService : DreamService() {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.action == KeyEvent.ACTION_DOWN) {
-            if (SofascreenView.opensTitle(event.keyCode)) view?.openShown()
-            finish()
-        }
+        if (event.action == KeyEvent.ACTION_DOWN && view?.onKey(event) != true) finish()
         return true
     }
 
@@ -451,7 +461,7 @@ class SofascreenService : DreamService() {
  * Sofascreen on demand: from the settings to try it, or from its own tile on the TV's home screen, the way
  * in where the system screensaver takes a computer (see [ScreensaverSetupFragment]). Exported so launchers
  * can start it when idle, which they can't do with another app's [SofascreenService]. It keeps the screen
- * on until a key is pressed: OK opens the title, any other key closes it, as with the real screensaver.
+ * on until a key closes it. The remote works as with the real screensaver, see [SofascreenView.onKey].
  */
 class SofascreenActivity : AppCompatActivity() {
 
@@ -476,9 +486,8 @@ class SofascreenActivity : AppCompatActivity() {
         super.onStop()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (SofascreenView.opensTitle(keyCode)) view.openShown()
-        finish()
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (!view.onKey(event)) finish()
         return true
     }
 }

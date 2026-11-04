@@ -6,7 +6,7 @@
     <string name="screensaver_empty">Aún no hay fondos: abre Sofadrop y elige tus listas</string>
     <string name="screensaver_preparing">Preparando los primeros fondos…</string>
     <string name="screensaver_try">Probarlo</string>
-    <string name="screensaver_try_desc">OK abre el título; cualquier otro botón lo detiene</string>
+    <string name="screensaver_try_desc">OK abre el título, ← → lo cambian, cualquier otro botón lo detiene</string>
     <string name="screensaver_system_title">Activarlo</string>
     <string name="screensaver_system_off">Sin activar</string>
     <string name="screensaver_system_on">Activado: Sofascreen es el salvapantallas de la TV</string>

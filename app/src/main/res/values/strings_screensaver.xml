@@ -7,7 +7,7 @@
     <string name="screensaver_empty">No wallpapers yet: open Sofadrop and choose your lists</string>
     <string name="screensaver_preparing">Preparing the first wallpapers…</string>
     <string name="screensaver_try">Try it</string>
-    <string name="screensaver_try_desc">OK opens the title, any other button stops it</string>
+    <string name="screensaver_try_desc">OK opens the title, ← → change it, any other button stops it</string>
     <string name="screensaver_system_title">Switch it on</string>
     <string name="screensaver_system_off">Not on yet</string>
     <string name="screensaver_system_on">On: Sofascreen is the TV\'s screensaver</string>
