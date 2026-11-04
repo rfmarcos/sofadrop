@@ -13,7 +13,7 @@ import androidx.leanback.widget.GuidedAction
 class DetailsFragment : PreviewSettingsFragment() {
 
     override fun onCreateGuidance(savedInstanceState: Bundle?) = Guidance(
-        getString(if (profile.isScreensaver) R.string.screensaver_edit_look else R.string.setting_details_title),
+        getString(R.string.setting_details_title),
         getString(R.string.details_description),
         getString(R.string.plugin_name),
         AppCompatResources.getDrawable(requireActivity(), R.mipmap.ic_launcher),
@@ -33,7 +33,7 @@ class DetailsFragment : PreviewSettingsFragment() {
             action(ID_POSITION, R.drawable.ic_act_place, getString(R.string.position_title), positionLabel(context, profile.position))
                 .subActions(options(ID_POSITION, Settings.POSITIONS.map { positionLabel(context, it) }, positionLabel(context, profile.position),
                     // Down where the launcher rows are, in Projectivy's usual layout (no rows over the screensaver)
-                    Settings.POSITIONS.map { if (it.startsWith("top") || profile.isScreensaver) null else getString(R.string.position_rows_note) }))
+                    Settings.POSITIONS.map { if (it.startsWith("top") || profile.isScreensaver || !Projectivy.isInstalled(requireContext())) null else getString(R.string.position_rows_note) }))
                 .build().hiddenBy(profile.drawsLogo),
             action(ID_SHADE, R.drawable.ic_act_layout, getString(R.string.shade_title), shadeLabel(context, profile.shade))
                 .subActions(options(ID_SHADE, Settings.SHADES.map { shadeLabel(context, it) }, shadeLabel(context, profile.shade),

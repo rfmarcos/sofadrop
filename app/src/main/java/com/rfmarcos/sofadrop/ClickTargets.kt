@@ -6,7 +6,7 @@ import androidx.core.net.toUri
 
 /**
  * What a wallpaper opens: the user's platforms that have the title, in their order (see [Platform]), then
- * the fallback ([Settings.clickFallback]): an app (the trailer when it isn't installed), the trailer or
+ * the fallback ([Profile.clickFallback]): an app (the trailer when it isn't installed), the trailer or
  * nothing.
  */
 object ClickTargets {
@@ -35,11 +35,11 @@ object ClickTargets {
             if (key in this) this[key] else find().also { this[key] = it }
     }
 
-    /** Intents that open [wallpaper], best first; only those an installed app takes. */
-    fun candidates(context: Context, wallpaper: StoredWallpaper, apps: Apps = Apps(context)): List<Intent> {
-        val platforms = Platform.pick(Settings.clickPlatforms, wallpaper.providerIds, wallpaper.platformLinks) { apps.of(it) != null }
+    /** Intents that open [wallpaper] in [profile]'s place, best first; only those an installed app takes. */
+    fun candidates(context: Context, wallpaper: StoredWallpaper, profile: Profile, apps: Apps = Apps(context)): List<Intent> {
+        val platforms = Platform.pick(profile.clickPlatforms, wallpaper.providerIds, wallpaper.platformLinks) { apps.of(it) != null }
             .map { (platform, link) -> Intent(Intent.ACTION_VIEW, link.toUri()).setPackage(apps.of(platform)) }
-        val fallback = Settings.clickFallback
+        val fallback = profile.clickFallback
         val app = Settings.clickApp(fallback)?.let { app -> apps.of(app)?.let { app.intent(context, it, wallpaper) } }
         // Also after an app, harmless: only the first one is served
         val trailer = wallpaper.trailerKey?.takeIf { fallback != Settings.CLICK_NONE }?.let { key ->

@@ -41,7 +41,7 @@ class WallpaperProviderService : Service() {
             Log.i(TAG, "getWallpapers: ${current.size} wallpapers, stale=$stale, pendingChanges=${Profile.WALLPAPER.hasPendingChanges}")
             store.markServed()
             val apps = ClickTargets.Apps(this@WallpaperProviderService)
-            return (if (Settings.mixLists) current.shuffled() else current).mapNotNull { wallpaper ->
+            return (if (Profile.WALLPAPER.mixed) current.shuffled() else current).mapNotNull { wallpaper ->
                 val uri = store.uriOf(wallpaper) ?: return@mapNotNull null
                 Wallpaper(
                     uri = uri.toString(),
@@ -72,6 +72,6 @@ class WallpaperProviderService : Service() {
          * regenerating (except the platforms' pages).
          */
         fun actionUri(context: Context, wallpaper: StoredWallpaper, apps: ClickTargets.Apps = ClickTargets.Apps(context)): String? =
-            ClickTargets.candidates(context, wallpaper, apps).firstOrNull()?.toUri(Intent.URI_INTENT_SCHEME)
+            ClickTargets.candidates(context, wallpaper, Profile.WALLPAPER, apps).firstOrNull()?.toUri(Intent.URI_INTENT_SCHEME)
     }
 }

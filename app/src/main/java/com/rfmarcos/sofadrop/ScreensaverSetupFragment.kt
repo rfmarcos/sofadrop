@@ -21,7 +21,8 @@ import java.net.Inet4Address
 
 /**
  * How to make Sofascreen the screensaver where Android lists no other apps' ones (Google TV): once, with adb
- * from a computer. The QR opens the same guide, with pictures, on a phone.
+ * from a computer. The QR opens the same guide, with pictures, on a phone. Without one, Sofascreen can still
+ * be started by hand from the main screen.
  */
 class ScreensaverSetupFragment : BaseSettingsFragment() {
 

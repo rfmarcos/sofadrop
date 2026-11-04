@@ -65,7 +65,7 @@ class PluginServiceTest {
         }
 
         // Trailers: "Watch" in Projectivy opens YouTube; a title without one has no action
-        assertEquals(Settings.CLICK_TRAILER, Settings.clickFallback)
+        assertEquals(Settings.CLICK_TRAILER, Profile.GENERAL.clickFallback)
         val trailers = wallpapers.mapNotNull { it.actionUri }
         assertTrue("no wallpaper has a trailer", trailers.isNotEmpty())
         for (actionUri in trailers) {
@@ -73,11 +73,11 @@ class PluginServiceTest {
             assertEquals(Intent.ACTION_VIEW, intent.action)
             assertTrue(actionUri, intent.dataString.orEmpty().startsWith("https://www.youtube.com/watch?v="))
         }
-        Settings.clickFallback = Settings.CLICK_NONE
+        Profile.GENERAL.clickFallback = Settings.CLICK_NONE
         try {
             assertTrue(service.getWallpapers(Event.TimeElapsed).all { it.actionUri == null })
         } finally {
-            Settings.clickFallback = Settings.CLICK_TRAILER
+            Profile.GENERAL.clickFallback = Settings.CLICK_TRAILER
         }
 
         // Projectivy backup round-trip
@@ -117,10 +117,10 @@ class PluginServiceTest {
             assertEquals(Intent.ACTION_VIEW, intent.action)
             assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ", intent.dataString)
 
-            Settings.clickFallback = Settings.CLICK_NONE
+            Profile.GENERAL.clickFallback = Settings.CLICK_NONE
             assertTrue(service.getWallpapers(Event.TimeElapsed).all { it.actionUri == null })
         } finally {
-            Settings.clickFallback = Settings.CLICK_TRAILER
+            Profile.GENERAL.clickFallback = Settings.CLICK_TRAILER
             Profile.WALLPAPER.lastGeneration = lastGeneration
         }
     }

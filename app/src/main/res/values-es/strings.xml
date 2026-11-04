@@ -7,7 +7,7 @@
     <string name="not_set">Sin configurar</string>
     <string name="cancel">Cancelar</string>
 
-    <string name="status_never">Aún no hay fondos · elige para crearlos</string>
+    <string name="status_never">Aún no hay fondos · pulsa OK para crearlos</string>
     <string name="status_ok">%1$d fondos · actualizado %2$s</string>
     <string name="status_generating">Generando fondos…</string>
     <string name="status_error">La última actualización falló: %1$s</string>
@@ -88,7 +88,7 @@
     <string name="mdblist_failed">Error de MDBList: %1$s</string>
 
     <string name="error_no_token">Falta la clave de TMDB</string>
-    <string name="error_no_lists">No hay listas elegidas · se mantienen los fondos actuales</string>
+    <string name="error_no_lists">No hay listas elegidas</string>
     <string name="error_no_titles">Las listas elegidas no devolvieron títulos</string>
     <string name="error_memory">No hay memoria suficiente · prueba con 1080p</string>
     <string name="error_network">Sin conexión: revisa la conexión a internet de la TV</string>
@@ -100,7 +100,7 @@
     <!-- QR, accounts, selection, watched, explorer -->
     <string name="close">Cerrar</string>
     <string name="setting_tmdb_account_title">Cuenta de TMDB</string>
-    <string name="tmdb_account_connected">Conectado como %1$s</string>
+    <string name="tmdb_account_connected">Cuenta: %1$s</string>
     <string name="tmdb_disconnect">Desconectar</string>
     <string name="tmdb_login_ok">TMDB conectado como %1$s</string>
     <string name="tmdb_login_failed">No se pudo conectar con TMDB (%1$s)</string>
@@ -153,7 +153,7 @@
     <string name="qr_expires">El código caduca en %1$dm %2$02ds</string>
     <string name="qr_instructions_code">Escanea el código QR, o ve a %1$s e introduce este código:</string>
     <string name="mdblist_login_ok">MDBList conectado como %1$s</string>
-    <string name="mdblist_connected">Conectado como %1$s · %2$s</string>
+    <string name="mdblist_connected">Cuenta: %1$s · %2$s</string>
     <string name="mdblist_key_mode">Clave de API · %1$s</string>
     <string name="trakt_unavailable">No disponible en esta compilación (faltan las credenciales de Trakt de la app)</string>
     <!-- Filtros -->
@@ -299,7 +299,7 @@
     <string name="cast_photos_disabled">Solo se usa si se muestra el reparto</string>
     <string name="cast_photos_each">Cada una junto a su nombre</string>
     <string name="cast_photos_each_desc">Cada cara justo antes de su nombre. Pueden caber menos nombres en la línea.</string>
-    <string name="click_action_title">Qué abre el fondo</string>
+    <string name="click_action_title">Al abrir un título</string>
     <string name="click_trailer">Ver el tráiler</string>
     <string name="click_trailer_desc">En YouTube</string>
     <string name="click_none">Nada</string>
@@ -470,7 +470,6 @@
     <string name="synopsis_mode_skip">Descartar el título</string>
     <string name="synopsis_mode_skip_desc">Se usa otro título en su lugar; hay menos donde elegir</string>
     <string name="exclusion_no_synopsis">Descartado: sin sinopsis en el idioma elegido</string>
-    <string name="setting_mix_title">Orden en el launcher</string>
     <string name="mix_on">Todas las listas mezcladas</string>
     <string name="mix_off">Una lista tras otra</string>
     <string name="update_title">Actualización disponible</string>
@@ -523,7 +522,7 @@
     <string name="viewer_blocked_toast">Bloqueado: no estará en el próximo conjunto (se crea al salir de los ajustes)</string>
     <string name="viewer_unblocked_toast">Desbloqueado: puede volver a aparecer desde el próximo conjunto</string>
     <string name="status_waiting_network">Esperando conexión a internet…</string>
-    <string name="general_language_shared">%1$s · compartido con los fondos, se cambia en Detalles del fondo</string>
+    <string name="general_language_shared">%1$s · se cambia en Ajustes comunes → Detalles del fondo</string>
     <string name="provider_summary_selected">%1$d elegidas</string>
     <string name="filters_age_replaced">Sustituida por Desde el año</string>
     <string name="click_add_after">Se prueba después de las de arriba.</string>
@@ -555,4 +554,15 @@
     <string name="settings_import_unreadable">No se ha podido leer el archivo</string>
     <string name="wizard_import">Importar los ajustes de otra TV</string>
     <string name="accounts_reconnect">Ajustes importados. Conecta de nuevo lo que tenía la otra TV: %1$s. Las cuentas no van en el archivo de ajustes.</string>
+    <string name="wallpapers_title">Fondos de pantalla</string>
+    <string name="main_more_header">Más</string>
+    <string name="projectivy_description">Fondos para la pantalla de inicio de Projectivy Launcher. Los plugins de fondos son una función de su versión Premium. El salvapantallas no lo necesita.</string>
+    <string name="projectivy_status_in_use">En uso en Projectivy</string>
+    <string name="projectivy_status_pick">Projectivy instalado: elige Sofadrop</string>
+    <string name="projectivy_get">Conseguir Projectivy</string>
+    <string name="projectivy_get_desc">Para ver estos fondos también en el inicio de la TV</string>
+    <string name="projectivy_get_scan">Escanéalo con el móvil para abrir la página de Projectivy.</string>
+    <string name="click_action_desc_alone">En Sofascreen, el botón OK abre el título que se ve.</string>
+    <string name="general_header">Ajustes comunes</string>
+    <string name="projectivy_status_optional">Para Projectivy Launcher Premium</string>
 </resources>

@@ -20,10 +20,6 @@ class AboutFragment : BaseSettingsFragment() {
         // Where updates are possible, pressing the version checks for one right away
         actions += action(ID_VERSION, R.drawable.ic_act_status, getString(R.string.about_version), versionText())
             .focusable(Updater.canCheck).build()
-        if (Projectivy.isInstalled(requireContext())) {
-            actions += action(ID_USE_IN_PROJECTIVY, R.drawable.ic_act_tv, getString(R.string.use_in_projectivy_title),
-                getString(R.string.use_in_projectivy_desc)).multilineDescription(true).build()
-        }
         actions += action(ID_WIZARD, R.drawable.ic_act_check, getString(R.string.wizard_title), getString(R.string.wizard_desc)).build()
         actions += action(ID_SETTINGS_FILE, R.drawable.ic_act_download, getString(R.string.settings_file_title), getString(R.string.settings_file_desc))
             .hasNext(true).build()
@@ -45,7 +41,6 @@ class AboutFragment : BaseSettingsFragment() {
         when (action.id) {
             ID_VERSION -> checkForUpdate()
             ID_LOG -> open(GenerationLogFragment())
-            ID_USE_IN_PROJECTIVY -> Projectivy.openWallpaperSettings(requireContext())
             ID_WIZARD -> Wizard.start(parentFragmentManager)
             ID_SETTINGS_FILE -> open(SettingsFileFragment())
             ID_SUPPORT -> LinkQrDialog.newInstance(BuildConfig.SUPPORT_URL, R.string.about_support, R.string.about_support_scan)
@@ -81,7 +76,6 @@ class AboutFragment : BaseSettingsFragment() {
         private const val ID_SUPPORT = 2L
         private const val ID_SOURCE = 3L
         private const val ID_CREDITS = 4L
-        private const val ID_USE_IN_PROJECTIVY = 5L
         private const val ID_LOG = 6L
         private const val ID_WIZARD = 7L
         private const val ID_SETTINGS_FILE = 8L

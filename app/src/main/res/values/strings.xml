@@ -9,7 +9,7 @@
     <string name="cancel">Cancel</string>
 
     <!-- Status -->
-    <string name="status_never">No wallpapers yet · choose to create them</string>
+    <string name="status_never">No wallpapers yet · press OK to create them</string>
     <string name="status_ok">%1$d wallpapers · updated %2$s</string>
     <string name="status_generating">Generating wallpapers…</string>
     <string name="status_error">Last update failed: %1$s</string>
@@ -98,7 +98,7 @@
 
     <!-- Errors -->
     <string name="error_no_token">TMDB key missing</string>
-    <string name="error_no_lists">No lists selected · current wallpapers kept</string>
+    <string name="error_no_lists">No lists selected</string>
     <string name="error_no_titles">The selected lists returned no titles</string>
     <string name="error_memory">Not enough memory · try 1080p</string>
     <string name="error_network">No connection: check the TV\'s internet</string>
@@ -317,7 +317,7 @@
     <string name="cast_photos_disabled">Only used when the cast is shown</string>
     <string name="cast_photos_each">Each one next to its name</string>
     <string name="cast_photos_each_desc">Each face just before its name. Fewer names may fit on the line.</string>
-    <string name="click_action_title">What the wallpaper opens</string>
+    <string name="click_action_title">Opening a title</string>
     <string name="click_trailer">Watch the trailer</string>
     <string name="click_trailer_desc">On YouTube</string>
     <string name="click_none">Nothing</string>
@@ -488,7 +488,6 @@
     <string name="synopsis_mode_skip">Skip the title</string>
     <string name="synopsis_mode_skip_desc">Another title takes its place; fewer to choose from</string>
     <string name="exclusion_no_synopsis">Skipped: no synopsis in the chosen language</string>
-    <string name="setting_mix_title">Order in the launcher</string>
     <string name="mix_on">All lists mixed</string>
     <string name="mix_off">One list after another</string>
     <string name="update_title">Update available</string>
@@ -541,7 +540,7 @@
     <string name="viewer_blocked_toast">Blocked: left out of the next set (made when you leave the settings)</string>
     <string name="viewer_unblocked_toast">Unblocked: it can show again from the next set</string>
     <string name="status_waiting_network">Waiting for an internet connection…</string>
-    <string name="general_language_shared">%1$s · shared with the wallpapers, change it in Wallpaper details</string>
+    <string name="general_language_shared">%1$s · change it in Shared settings → Wallpaper details</string>
     <string name="provider_summary_selected">%1$d selected</string>
     <string name="filters_age_replaced">Replaced by From year</string>
     <string name="click_add_after">It\'s tried after the ones above.</string>
@@ -573,4 +572,15 @@
     <string name="settings_import_unreadable">Couldn\'t read the file</string>
     <string name="wizard_import">Import settings from another TV</string>
     <string name="accounts_reconnect">Settings imported. Connect again what the other TV had: %1$s. Accounts aren\'t in the settings file.</string>
+    <string name="wallpapers_title">Wallpapers</string>
+    <string name="main_more_header">More</string>
+    <string name="projectivy_description">Wallpapers for the home screen of Projectivy Launcher. Wallpaper plugins are one of its Premium features. The screensaver doesn\'t need it.</string>
+    <string name="projectivy_status_in_use">In use in Projectivy</string>
+    <string name="projectivy_status_pick">Projectivy installed: choose Sofadrop</string>
+    <string name="projectivy_get">Get Projectivy</string>
+    <string name="projectivy_get_desc">To have these wallpapers on the TV\'s home screen too</string>
+    <string name="projectivy_get_scan">Scan with your phone to open Projectivy\'s page.</string>
+    <string name="click_action_desc_alone">In Sofascreen, the OK button opens the title on screen.</string>
+    <string name="general_header">Shared settings</string>
+    <string name="projectivy_status_optional">For Projectivy Launcher Premium</string>
 </resources>

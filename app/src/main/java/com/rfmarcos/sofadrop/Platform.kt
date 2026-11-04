@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Streaming services a wallpaper can open its title on (the ones the user picks, in their order: see
- * [Settings.clickPlatforms]). TMDB says which ones have it in the streaming country (by provider id),
+ * [Profile.clickPlatforms]). TMDB says which ones have it in the streaming country (by provider id),
  * Wikidata gives the title's id on each one (when someone added it: TMDB and JustWatch don't share them)
  * and the service's app opens that page.
  */

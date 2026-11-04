@@ -7,7 +7,7 @@
     <string name="cancel">Annuleren</string>
 
     <!-- Status -->
-    <string name="status_never">Nog geen achtergronden · kies om ze te maken</string>
+    <string name="status_never">Nog geen achtergronden · druk op OK om ze te maken</string>
     <string name="status_ok">%1$d achtergronden · bijgewerkt %2$s</string>
     <string name="status_generating">Achtergronden maken…</string>
     <string name="status_error">Laatste update mislukt: %1$s</string>
@@ -96,7 +96,7 @@
 
     <!-- Errors -->
     <string name="error_no_token">TMDB-sleutel ontbreekt</string>
-    <string name="error_no_lists">Geen lijsten gekozen · huidige achtergronden blijven staan</string>
+    <string name="error_no_lists">Geen lijsten gekozen</string>
     <string name="error_no_titles">De gekozen lijsten gaven geen titels</string>
     <string name="error_memory">Niet genoeg geheugen · probeer 1080p</string>
     <string name="error_network">Geen verbinding: controleer het internet van de tv</string>
@@ -307,7 +307,7 @@
     <string name="cast_photos_disabled">Alleen gebruikt als de cast wordt getoond</string>
     <string name="cast_photos_each">Elk naast de eigen naam</string>
     <string name="cast_photos_each_desc">Elk gezicht vlak voor de naam. Er passen misschien minder namen op de regel.</string>
-    <string name="click_action_title">Wat de achtergrond opent</string>
+    <string name="click_action_title">Een titel openen</string>
     <string name="click_trailer">Trailer bekijken</string>
     <string name="click_trailer_desc">Op YouTube</string>
     <string name="click_none">Niets</string>
@@ -478,7 +478,6 @@
     <string name="synopsis_mode_skip">De titel overslaan</string>
     <string name="synopsis_mode_skip_desc">Een andere titel neemt zijn plaats in; er is minder keus</string>
     <string name="exclusion_no_synopsis">Overgeslagen: geen samenvatting in de gekozen taal</string>
-    <string name="setting_mix_title">Volgorde in de launcher</string>
     <string name="mix_on">Alle lijsten door elkaar</string>
     <string name="mix_off">De ene lijst na de andere</string>
     <string name="update_title">Update beschikbaar</string>
@@ -531,7 +530,7 @@
     <string name="viewer_blocked_toast">Geblokkeerd: niet meer in de volgende set (die wordt gemaakt als je de instellingen verlaat)</string>
     <string name="viewer_unblocked_toast">Gedeblokkeerd: kan vanaf de volgende set weer verschijnen</string>
     <string name="status_waiting_network">Wachten op een internetverbinding…</string>
-    <string name="general_language_shared">%1$s · gedeeld met de achtergronden, wijzig het in Achtergronddetails</string>
+    <string name="general_language_shared">%1$s · wijzig het in Gedeelde instellingen → Achtergronddetails</string>
     <string name="provider_summary_selected">%1$d gekozen</string>
     <string name="filters_age_replaced">Vervangen door Vanaf jaar</string>
     <string name="click_add_after">Wordt geprobeerd na de platforms hierboven.</string>
@@ -563,4 +562,15 @@
     <string name="settings_import_unreadable">Kan het bestand niet lezen</string>
     <string name="wizard_import">Instellingen van een andere tv importeren</string>
     <string name="accounts_reconnect">Instellingen geïmporteerd. Verbind opnieuw wat de andere tv had: %1$s. Accounts staan niet in het instellingenbestand.</string>
+    <string name="wallpapers_title">Achtergronden</string>
+    <string name="main_more_header">Meer</string>
+    <string name="projectivy_description">Achtergronden voor het startscherm van Projectivy Launcher. Achtergrondplug-ins zijn een Premium-functie. De screensaver heeft het niet nodig.</string>
+    <string name="projectivy_status_in_use">In gebruik in Projectivy</string>
+    <string name="projectivy_status_pick">Projectivy geïnstalleerd: kies Sofadrop</string>
+    <string name="projectivy_get">Projectivy downloaden</string>
+    <string name="projectivy_get_desc">Om deze achtergronden ook op het startscherm van de tv te zien</string>
+    <string name="projectivy_get_scan">Scan met je telefoon om de pagina van Projectivy te openen.</string>
+    <string name="click_action_desc_alone">In Sofascreen opent de OK-knop de titel die je ziet.</string>
+    <string name="general_header">Gedeelde instellingen</string>
+    <string name="projectivy_status_optional">Voor Projectivy Launcher Premium</string>
 </resources>

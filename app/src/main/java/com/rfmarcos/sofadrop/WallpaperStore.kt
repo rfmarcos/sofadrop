@@ -47,12 +47,16 @@ class WallpaperStore(private val context: Context, profile: Profile = Profile.WA
      * its own wallpaper when they fail to load. Before anything was served, the previous set is kept.
      * The screensaver reads its files directly, so its previous set goes.
      */
-    fun publish(generation: File, wallpapers: List<StoredWallpaper>) {
-        File(generation, INDEX).writeText(json.encodeToString(wallpapers))
+    fun publish(generation: File, wallpapers: List<StoredWallpaper>, partial: Boolean = false) {
+        // Atomically: a first set is published again and again while Sofascreen reads it
+        val index = File(generation, "$INDEX.tmp")
+        index.writeText(json.encodeToString(wallpapers))
+        index.renameTo(File(generation, INDEX))
         val keep = if (set.isScreensaver) null else servedFile.takeIf { it.exists() }?.readText()?.trim() ?: currentDir()?.name
         val tmp = File(root, "current.tmp")
         tmp.writeText(generation.name)
         tmp.renameTo(currentFile)
+        if (partial) return
         // Only older sets: a newer one may be another generation still being written (two can overlap)
         root.listFiles()?.filter { it.isDirectory && it.name != keep && startedAt(it) < startedAt(generation) }?.forEach { it.deleteRecursively() }
     }

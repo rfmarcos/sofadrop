@@ -81,12 +81,11 @@ object Settings {
     private const val KEY_WATCH_SOURCE = "watch_source"
     private const val KEY_BLOCKED = "blocked_titles"
     private const val KEY_MIX_LISTS = "mix_lists"
-    private const val KEY_SCREENSAVER_OWN_LISTS = "screensaver_own_lists"
-    private const val KEY_SCREENSAVER_OWN_LOOK = "screensaver_own_look"
+    private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
+    private const val KEY_ORDER_MOVED = "order_moved"
     private const val KEY_SCREENSAVER_SECONDS = "screensaver_seconds"
     private const val KEY_SCREENSAVER_TRANSITION = "screensaver_transition"
     private const val KEY_SCREENSAVER_ZOOM = "screensaver_zoom"
-    private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
     private const val KEY_SCREENSAVER_CLOCK = "screensaver_clock"
     private const val KEY_SCREENSAVER_DATE = "screensaver_date"
     private const val KEY_SCREENSAVER_CLOCK_BOTTOM = "screensaver_clock_bottom"
@@ -95,8 +94,6 @@ object Settings {
     private const val KEY_SCREENSAVER_WEATHER = "screensaver_weather"
     private const val KEY_WEATHER_PLACE = "weather_place"
     private const val KEY_WEATHER_COORDINATES = "weather_coordinates"
-    private const val KEY_CLICK_PLATFORMS = "click_platforms"
-    private const val KEY_CLICK_FALLBACK = "click_fallback"
     private const val KEY_TRAILER_LANGUAGE = "trailer_language"
     private const val KEY_TRAILER_FALLBACK = "trailer_fallback"
     private const val KEY_TMDB_SESSION = "_tmdb_session_id"
@@ -180,7 +177,6 @@ object Settings {
     private const val KEY_PROJECTIVY_ASKED = "_projectivy_asked_at"
     private const val KEY_WIZARD_SHOWN = "_wizard_shown"
     private const val KEY_FRESH_INSTALL = "_fresh_install"
-    private const val KEY_SCREENSAVER_SHOWN = "_screensaver_shown_at"
     private const val KEY_UPDATE_APK = "_update_apk"
     private const val KEY_UPDATE_NOTES = "_update_notes"
     private const val KEY_UPDATE_CHECKED = "_update_checked_at"
@@ -218,6 +214,11 @@ object Settings {
             if (preferences.all.isEmpty()) {
                 preferences.edit { putBoolean(KEY_FRESH_INSTALL, true) }
                 Profile.WALLPAPER.showCast = true
+            }
+            // Until 1.2 the screensaver mixed its lists unless told otherwise; now that would follow the general order
+            if (!preferences.contains(KEY_ORDER_MOVED)) preferences.edit {
+                if (!mixLists && !preferences.contains(KEY_SCREENSAVER_SHUFFLE)) putBoolean(KEY_SCREENSAVER_SHUFFLE, true)
+                putBoolean(KEY_ORDER_MOVED, true)
             }
             // Scopes of earlier versions (replaced by per-list filters) and the dropped launcher guide
             preferences.edit { OLD_FILTER_KEYS.forEach(::remove) }
@@ -292,24 +293,8 @@ object Settings {
         else -> partLanguage
     }
 
-    /**
-     * Streaming platforms the user pays for, in the order a wallpaper tries them (see [ClickTargets]); their
-     * pages are looked up when generating, so adding the first one needs a new set.
-     */
-    var clickPlatforms: List<Platform>
-        get() = preferences.getString(KEY_CLICK_PLATFORMS, null).orEmpty().split(',').mapNotNull(Platform::of).distinct()
-        set(value) = preferences.edit { putString(KEY_CLICK_PLATFORMS, value.joinToString(",") { it.key }) }
-
-    /**
-     * What a wallpaper opens when its title is on none of [clickPlatforms]: see [CLICK_FALLBACKS] and
-     * [CLICK_APP_PREFIX] (an app not installed opens the trailer). Applied when served, without a new set.
-     */
-    var clickFallback: String
-        get() = preferences.getString(KEY_CLICK_FALLBACK, null)?.takeIf { it in CLICK_FALLBACKS || clickApp(it) != null } ?: CLICK_TRAILER
-        set(value) = preferences.edit { putString(KEY_CLICK_FALLBACK, value) }
-
     /** The app of a click fallback that opens the title in one ("app:nuvio"), else null. */
-    fun clickApp(action: String = clickFallback): TitleApp? =
+    fun clickApp(action: String): TitleApp? =
         action.takeIf { it.startsWith(CLICK_APP_PREFIX) }?.let { TitleApp.of(it.removePrefix(CLICK_APP_PREFIX)) }
 
     /** See [PART_LANGUAGES]: "Automatic" is the wallpaper language; [trailerFallback] applies when there is none in it. */
@@ -543,22 +528,6 @@ object Settings {
 
     // --- Screensaver ---
 
-    /** The screensaver has lists and filters of its own (see [Profile]); they start as the wallpapers'. */
-    var screensaverOwnLists: Boolean
-        get() = preferences.getBoolean(KEY_SCREENSAVER_OWN_LISTS, false)
-        set(value) = preferences.edit {
-            if (value && !screensaverOwnLists) copyToScreensaver(Profile.LISTS_KEYS)
-            putBoolean(KEY_SCREENSAVER_OWN_LISTS, value)
-        }
-
-    /** The screensaver has a look of its own (see [Profile]); it starts as the wallpapers'. */
-    var screensaverOwnLook: Boolean
-        get() = preferences.getBoolean(KEY_SCREENSAVER_OWN_LOOK, false)
-        set(value) = preferences.edit {
-            if (value && !screensaverOwnLook) copyToScreensaver(Profile.LOOK_KEYS)
-            putBoolean(KEY_SCREENSAVER_OWN_LOOK, value)
-        }
-
     // How Sofascreen shows the set (see SofascreenView), after PR #13 by schumi2004
     val SCREENSAVER_SECONDS_OPTIONS = listOf(10, 20, 30, 60, 120, 300)
     const val TRANSITION_FADE = "fade"
@@ -592,11 +561,6 @@ object Settings {
         get() = preferences.getBoolean(KEY_SCREENSAVER_ZOOM, true)
         set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_ZOOM, value) }
 
-    /** Random order instead of the set's. */
-    var screensaverShuffle: Boolean
-        get() = preferences.getBoolean(KEY_SCREENSAVER_SHUFFLE, true)
-        set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_SHUFFLE, value) }
-
     /** See [CLOCK_STYLES]. */
     var screensaverClock: String
         get() = preferences.getString(KEY_SCREENSAVER_CLOCK, null)?.takeIf { it in CLOCK_STYLES } ?: CLOCK_STACKED
@@ -621,11 +585,6 @@ object Settings {
         get() = preferences.getInt(KEY_SCREENSAVER_BRIGHTNESS, 100)
         set(value) = preferences.edit { putInt(KEY_SCREENSAVER_BRIGHTNESS, value) }
 
-    /** When Android last started Sofascreen as the screensaver (0: never), to tell whether it's switched on. */
-    var screensaverShownAt: Long
-        get() = preferences.getLong(KEY_SCREENSAVER_SHOWN, 0L)
-        set(value) = preferences.edit { putLong(KEY_SCREENSAVER_SHOWN, value) }
-
     /** The weather at [weatherPlace] under the clock (Open-Meteo, no account). */
     var screensaverWeather: Boolean
         get() = preferences.getBoolean(KEY_SCREENSAVER_WEATHER, false)
@@ -646,23 +605,6 @@ object Settings {
         } else {
             putString(KEY_WEATHER_PLACE, place.name)
             putString(KEY_WEATHER_COORDINATES, "${place.latitude},${place.longitude}")
-        }
-    }
-
-    /** The wallpapers' values of [keys] as the screensaver's own. */
-    private fun SharedPreferences.Editor.copyToScreensaver(keys: List<String>) {
-        val values = preferences.all
-        for (key in keys) {
-            val own = Profile.OWN_PREFIX + key
-            when (val value = values[key]) {
-                is String -> putString(own, value)
-                is Boolean -> putBoolean(own, value)
-                is Int -> putInt(own, value)
-                is Long -> putLong(own, value)
-                is Float -> putFloat(own, value)
-                is Set<*> -> putStringSet(own, value.map { it.toString() }.toSet())
-                else -> remove(own)
-            }
         }
     }
 

@@ -1,32 +1,86 @@
 package com.rfmarcos.sofadrop
 
+import android.content.SharedPreferences
 import androidx.core.content.edit
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
- * The settings of one set of wallpapers: [WALLPAPER], the one Projectivy gets (with the keys every version
- * used), or [SCREENSAVER]. The screensaver uses the wallpaper's lists and look until the user gives it its
- * own ([Settings.screensaverOwnLists], [Settings.screensaverOwnLook]); then they're stored apart, with "ss_".
- * Accounts, keys, language, blocked titles and what a click opens are shared, in [Settings].
+ * The settings of one place the wallpapers show: [WALLPAPER] (Projectivy's home screen) or [SCREENSAVER]. Both
+ * use [GENERAL], with the keys every version used, until they're given their own lists, look, click action or
+ * order; those are stored apart, with their prefix ("wp_", "ss_"). Accounts, keys, language and blocked titles
+ * are shared by all. There are two sets on disk only when lists or look differ (see [twoSets]).
  */
-class Profile private constructor(val id: String) {
+class Profile private constructor(val id: String, private val prefix: String) {
 
     val isScreensaver: Boolean get() = this === SCREENSAVER
+    val isGeneral: Boolean get() = this === GENERAL
 
-    /** The screensaver has its own set: lists or look of its own. */
-    val separate: Boolean get() = isScreensaver && (Settings.screensaverOwnLists || Settings.screensaverOwnLook)
+    private fun own(name: String) = "${id}_own_$name"
+    private fun isOwn(name: String) = !isGeneral && preferences.getBoolean(own(name), false)
 
-    /** The profile whose set this one shows: the screensaver shows the wallpapers' unless it has its own. */
-    val source: Profile get() = if (isScreensaver && !separate) WALLPAPER else this
+    /** Turned on, it starts as the general settings' [keys]. */
+    private fun setOwn(name: String, on: Boolean, keys: List<String>) {
+        if (isGeneral) return
+        preferences.edit {
+            if (on && !isOwn(name)) copyGeneral(keys)
+            putBoolean(own(name), on)
+        }
+    }
+
+    private fun SharedPreferences.Editor.copyGeneral(keys: List<String>) {
+        val values = preferences.all
+        for (key in keys) {
+            val copy = prefix + key
+            when (val value = values[key]) {
+                is String -> putString(copy, value)
+                is Boolean -> putBoolean(copy, value)
+                is Int -> putInt(copy, value)
+                is Long -> putLong(copy, value)
+                is Float -> putFloat(copy, value)
+                is Set<*> -> putStringSet(copy, value.map { it.toString() }.toSet())
+                else -> remove(copy)
+            }
+        }
+    }
+
+    var ownLists: Boolean
+        get() = isOwn("lists")
+        set(value) = setOwn("lists", value, LISTS_KEYS)
+
+    var ownLook: Boolean
+        get() = isOwn("look")
+        set(value) = setOwn("look", value, LOOK_KEYS)
+
+    var ownClick: Boolean
+        get() = isOwn("click")
+        set(value) = setOwn("click", value, CLICK_KEYS)
+
+    /** Its wallpapers aren't the general ones: lists or look of its own. */
+    val ownSet: Boolean get() = ownLists || ownLook
+
+    /** The screensaver has a set of its own on disk. */
+    val separate: Boolean get() = isScreensaver && twoSets
+
+    /**
+     * The profile whose set this one shows. With one set, the wallpapers'. The general settings' is whichever
+     * place uses them (the wallpapers' when both or neither do).
+     */
+    val source: Profile
+        get() = when {
+            isGeneral -> if (SCREENSAVER.ownSet || !WALLPAPER.ownSet) WALLPAPER else SCREENSAVER
+            isScreensaver && !twoSets -> WALLPAPER
+            else -> this
+        }
 
     private val preferences get() = Settings.preferences
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
-    private fun lists(key: String) = if (isScreensaver && Settings.screensaverOwnLists) OWN_PREFIX + key else key
-    private fun look(key: String) = if (isScreensaver && Settings.screensaverOwnLook) OWN_PREFIX + key else key
+    private fun lists(key: String) = if (ownLists) prefix + key else key
+    private fun look(key: String) = if (ownLook) prefix + key else key
+    private fun click(key: String) = if (ownClick) prefix + key else key
     // "_last_generation" -> "_ss_last_generation"
-    private fun state(key: String) = if (isScreensaver) "_ss$key" else key
+    private fun state(key: String) = if ((if (isGeneral) source else this).isScreensaver) "_ss$key" else key
 
     private fun string(key: String, default: String = "") = preferences.getString(key, null)?.trim().orEmpty().ifEmpty { default }
 
@@ -259,6 +313,40 @@ class Profile private constructor(val id: String) {
         get() = preferences.getInt(look(KEY_MIN_RATINGS), 2)
         set(value) = preferences.edit { putInt(look(KEY_MIN_RATINGS), value) }
 
+    // --- What a wallpaper opens ---
+
+    /**
+     * Streaming platforms the user pays for, in the order a wallpaper tries them (see [ClickTargets]); their
+     * pages are looked up when generating, so adding the first one needs a new set.
+     */
+    var clickPlatforms: List<Platform>
+        get() = preferences.getString(click(KEY_CLICK_PLATFORMS), null).orEmpty().split(',').mapNotNull(Platform::of).distinct()
+        set(value) = preferences.edit { putString(click(KEY_CLICK_PLATFORMS), value.joinToString(",") { it.key }) }
+
+    /**
+     * What a wallpaper opens when its title is on none of [clickPlatforms]: see [Settings.CLICK_FALLBACKS] and
+     * [Settings.CLICK_APP_PREFIX] (an app not installed opens the trailer). Applied when served, without a new set.
+     */
+    var clickFallback: String
+        get() = preferences.getString(click(KEY_CLICK_FALLBACK), null)?.takeIf { it in Settings.CLICK_FALLBACKS || Settings.clickApp(it) != null }
+            ?: Settings.CLICK_TRAILER
+        set(value) = preferences.edit { putString(click(KEY_CLICK_FALLBACK), value) }
+
+    /** This set needs the platforms' pages: with one set, for either place. */
+    val opensPlatforms: Boolean
+        get() = if (twoSets) clickPlatforms.isNotEmpty() else WALLPAPER.clickPlatforms.isNotEmpty() || SCREENSAVER.clickPlatforms.isNotEmpty()
+
+    // --- Order ---
+
+    private val orderKey get() = if (isScreensaver) KEY_SCREENSAVER_SHUFFLE else KEY_WALLPAPER_MIX
+
+    /** Its own order (mixed, or one list after another); null follows the general one, [Settings.mixLists]. */
+    var ownMix: Boolean?
+        get() = if (!isGeneral && preferences.contains(orderKey)) preferences.getBoolean(orderKey, true) else null
+        set(value) = preferences.edit { if (value == null) remove(orderKey) else putBoolean(orderKey, value) }
+
+    val mixed: Boolean get() = ownMix ?: Settings.mixLists
+
     // --- Generation state ---
 
     var lastGeneration: Long
@@ -302,8 +390,8 @@ class Profile private constructor(val id: String) {
             // Only when changed, so existing installs don't see a pending change after updating
             ).plus(listOfNotNull(overviewLines.takeIf { it != 4 }, "nosource".takeIf { !showSource }, "fallback".takeIf { showSource && showProviders && sourceFallback },
                 "inline".takeIf { showSource && showProviders && !sourceFallback && sourceInline },
-                // Its pages are looked up when generating; nothing opens from the screensaver
-                "platform".takeIf { clickPlatforms.isNotEmpty() && !this@Profile.isScreensaver },
+                // Its pages are looked up when generating
+                "platform".takeIf { opensPlatforms },
                 "dups".takeIf { !skipDuplicates }, "logo:$logoMode".takeIf { logoMode != LOGO_TEXT }, "synopsis:$synopsisMode".takeIf { synopsisMode != SYNOPSIS_HIDE },
                 "titlelang:$titleLanguage".takeIf { titleLanguage != LANGUAGE_AUTO }, "synopsislang:$synopsisLanguage".takeIf { synopsisLanguage != LANGUAGE_AUTO },
                 "ratings:$ratingSourcesKey:$mdbListAvailable".takeIf { ratingSourcesKey != RatingSource.TMDB.key },
@@ -313,24 +401,29 @@ class Profile private constructor(val id: String) {
                 "minratings:$minRatings".takeIf { minRatings != 2 }, "cast".takeIf { showCast }, "castphotos:$castPhotos".takeIf { showCast && castPhotos != CAST_PHOTOS_GROUPED }, "style:$style".takeIf { style != STYLE_FULL },
                 "position:$position".takeIf { position != POSITION_TOP_LEFT && drawsLogo }, "shade:$shade".takeIf { shade != SHADE_TINT },
                 "latin".takeIf { latinOriginals },
-                "trailerlang:$trailerLanguage".takeIf { trailerLanguage != LANGUAGE_AUTO && !this@Profile.isScreensaver },
-                "trailerfallback:$trailerFallback".takeIf { trailerFallback != TRAILER_ENGLISH && !this@Profile.isScreensaver },
+                "trailerlang:$trailerLanguage".takeIf { trailerLanguage != LANGUAGE_AUTO },
+                "trailerfallback:$trailerFallback".takeIf { trailerFallback != TRAILER_ENGLISH },
                 "genres:${genreFilter.only}:${genreFilter.ids.sorted()}".takeIf { !genreFilter.isOff },
                 "blocked:${blockedTitles.map { "${it.type.path}:${it.tmdbId}" }.sorted().hashCode()}".takeIf { blockedTitles.isNotEmpty() })).joinToString("|")
         }
 
     /** True when the current wallpapers were generated with different settings. */
     val hasPendingChanges: Boolean
-        get() = lastGeneration > 0 && lastSignature != signature
+        get() = source.run { lastGeneration > 0 && lastSignature != signature }
 
     companion object {
-        val WALLPAPER = Profile("wallpaper")
-        val SCREENSAVER = Profile("screensaver")
+        val GENERAL = Profile("general", "")
+        val WALLPAPER = Profile("wallpaper", "wp_")
+        val SCREENSAVER = Profile("screensaver", "ss_")
 
-        fun of(id: String?): Profile = if (id == SCREENSAVER.id) SCREENSAVER else WALLPAPER
+        /** Each place has its own set, because the lists or look of one aren't the general ones. */
+        val twoSets: Boolean get() = WALLPAPER.ownSet || SCREENSAVER.ownSet
 
-        /** Before the keys of the screensaver's own lists and look ("ss_lists"). */
-        const val OWN_PREFIX = "ss_"
+        fun of(id: String?): Profile = when (id) {
+            SCREENSAVER.id -> SCREENSAVER
+            GENERAL.id -> GENERAL
+            else -> WALLPAPER
+        }
 
         private const val KEY_LISTS = "lists"
         private const val KEY_COUNT = "titles_per_list"
@@ -370,6 +463,11 @@ class Profile private constructor(val id: String) {
         private const val KEY_HEADER_ORDER = "header_order"
         private const val KEY_MIN_RATINGS = "min_ratings"
 
+        private const val KEY_CLICK_PLATFORMS = "click_platforms"
+        private const val KEY_CLICK_FALLBACK = "click_fallback"
+        private const val KEY_WALLPAPER_MIX = "wallpaper_mix"
+        private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
+
         private const val KEY_LAST_GENERATION = "_last_generation"
         private const val KEY_LAST_SIGNATURE = "_last_signature"
         private const val KEY_LAST_ERROR = "_last_error"
@@ -377,10 +475,11 @@ class Profile private constructor(val id: String) {
         private const val KEY_GENERATING = "_generating"
         private const val KEY_PROGRESS = "_generation_progress"
 
-        /** What "own lists" and "own look" copy from the wallpapers when they're turned on. */
-        val LISTS_KEYS = listOf(KEY_LISTS, KEY_COUNT, KEY_GLOBAL_HITS, KEY_MAX_AGE, KEY_EXCLUDE_ADULT, KEY_MAX_RATING_AGE, KEY_MIN_RATING,
+        /** What "own" copies from the general settings when it's turned on. */
+        private val CLICK_KEYS = listOf(KEY_CLICK_PLATFORMS, KEY_CLICK_FALLBACK)
+        private val LISTS_KEYS = listOf(KEY_LISTS, KEY_COUNT, KEY_GLOBAL_HITS, KEY_MAX_AGE, KEY_EXCLUDE_ADULT, KEY_MAX_RATING_AGE, KEY_MIN_RATING,
             KEY_GENRE_FILTER, KEY_SKIP_DUPLICATES, KEY_SELECTION, KEY_WATCHED, KEY_LIST_FILTERS)
-        val LOOK_KEYS = listOf(KEY_WIDTH, KEY_STYLE, KEY_POSITION, KEY_LOGO_MODE, KEY_LOGO_FALLBACK, KEY_REQUIRE_LOGO, KEY_SYNOPSIS_MODE,
+        private val LOOK_KEYS = listOf(KEY_WIDTH, KEY_STYLE, KEY_POSITION, KEY_LOGO_MODE, KEY_LOGO_FALLBACK, KEY_REQUIRE_LOGO, KEY_SYNOPSIS_MODE,
             KEY_TITLE_LANGUAGE, KEY_SYNOPSIS_LANGUAGE, KEY_PROVIDERS, KEY_OVERVIEW_LINES, KEY_CAST, KEY_CAST_PHOTOS, KEY_CAST_PHOTO_MODE,
             KEY_SOURCE_FALLBACK, KEY_SOURCE_INLINE, KEY_SHOW_SOURCE, KEY_RATINGS, KEY_HEADER_HIDDEN, KEY_HEADER_ORDER, KEY_MIN_RATINGS,
             KEY_SHADE, KEY_LATIN_ORIGINALS)

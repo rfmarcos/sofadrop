@@ -43,7 +43,7 @@ Sofadrop is a wallpaper plugin for [Projectivy Launcher](https://github.com/spoc
 2. Install it on your Android TV (Downloader does it for you; otherwise use *Send Files to TV* or `adb install`).
 3. In Projectivy go to **Settings → Appearance → Wallpaper → Launcher wallpaper** and pick **🔌 Sofadrop**.
 
-Then choose **Configure** in the same screen (or open Sofadrop from your apps): the first time, a short **guided setup** asks for your style, lists and amount, with a preview, and the first wallpapers are ready in a minute or two. You can open it again from *Settings → About*.
+Then choose **Configure** in the same screen (or open Sofadrop from your apps): the first time, a short **guided setup** asks for your lists and style, with a preview, and the first wallpapers are ready in a minute or two. You can open it again from *Settings → About*.
 
 ![The guided setup: pick a style and see it in the preview](docs/images/setup_en.jpg)
 
@@ -55,17 +55,20 @@ The left side of the settings shows a **live preview** of a wallpaper with your 
 
 ![Sofadrop settings with the live preview](docs/images/settings_en.jpg)
 
+* **Wallpapers**, for the home screen of Projectivy Launcher (wallpaper plugins are a Premium feature there). Inside: *Use in Projectivy* opens its settings to pick Sofadrop, and each of the settings below, shared or separate.
+* **Screensaver** says whether it's the TV's screensaver. Inside: *Start screensaver* (now, with no setup), *Use as the TV's screensaver*, each of the settings below, shared or separate, then time per wallpaper, transition, slow zoom, clock, date, brightness and weather. See [Screensaver](#screensaver).
+* **Shared settings**, what Wallpapers and Screensaver use unless you give them separate ones. Separate lists or wallpaper details make a second set of wallpapers, with about the same space and time again.
 * **Update now** also shows the status: how many wallpapers you have, when they were updated, or the progress while generating.
-* **View wallpapers** shows the current set full screen (◀ ▶ to browse, **OK** to use one in the preview, ▲ to open what the wallpaper opens from Projectivy, ▼ to block the title).
+* **View wallpapers** shows the current set full screen (◀ ▶ to browse, **OK** to open the title, ▲ to use it in the preview, ▼ to block it).
 * **Lists**
-  * *Wallpapers per list*, *Title picking* (at random or the top of each list) and *Order in the launcher* (mixed or one list after another). An update makes at most 200 wallpapers, shared among the lists; Projectivy shows 100 of them at a time, a different 100 at random each time it reloads.
+  * *Wallpapers per list* and *Title picking* (at random or the top of each list). An update makes at most 200 wallpapers, shared among the lists; Projectivy shows 100 of them at a time, a different 100 at random each time it reloads.
   * One screen per service, **TMDB**, **Trakt**, **Simkl** and **MDBList**, to tick lists and connect your account. Trakt and MDBList also take any public list by its URL or `user/list`.
   * **Filters & explore lists**: the filters for every list, then your lists. Open one to see its titles, block one, or give the list its own filters. *Blocked titles* lists the ones you blocked, to unblock them.
 * **Wallpaper details**: style (complete, logo only or backdrop only), position of the text, shading (the backdrop's colour or black for OLED) and resolution (1080p or 4K); then by parts: the language of each part, the header under the title (which ratings, in what order, and whether to show the year, runtime, genres and watched badge; hiding details leaves room for more ratings), synopsis length and cast (names only or with their photos), and the footer (streaming services and/or the list source, and the streaming country).
-* **What the wallpaper opens**: what the ▶ icon in Projectivy's status bar (or *About this wallpaper*) opens. Your streaming platforms in the order you pick, then, if the title is on none of them, its trailer (in the language you choose), Nuvio, Stremio or Jellyfin, or nothing.
-* **Screensaver**: the same wallpapers, or lists and a look of its own; time per wallpaper, transition, slow zoom, clock, date, brightness and weather. See [Screensaver](#screensaver).
-* **Accounts**: connect TMDB, Trakt, Simkl and MDBList with a QR code, see what each one adds, and update the IMDb ratings data.
+* **Opening a title**: what the **OK** button opens in the screensaver, and the ▶ icon in Projectivy's status bar (or *About this wallpaper*). Your streaming platforms in the order you pick, then, if the title is on none of them, its trailer (in the language you choose), Nuvio, Stremio or Jellyfin, or nothing.
+* **Order**: mixed, or one list after another.
 * **Update every**: how often a new set is generated (6 hours to 7 days). How often the wallpaper *changes on screen* is set in Projectivy itself.
+* **Accounts**: connect TMDB, Trakt, Simkl and MDBList with a QR code, see what each one adds, and update the IMDb ratings data.
 * **About**: the guided setup again, *Export and import settings*, the *Last generation log* (lists, failures and how long the last update took) and *Version*, which checks for updates.
   * **Export and import settings** sets up another TV the same way: save the settings in *Download/sofadrop-settings.json* or share the file (to a file manager, Google Drive…), take it to the other TV and import it there (also from the guided setup's first step). Google TV has no file picker of its own: install a file manager (File Manager+, for instance) and *Import* opens it, or open the file with Sofadrop from it. Accounts and API keys aren't in the file: after importing, Sofadrop opens *Accounts* and says which ones the other TV had connected.
 
@@ -78,11 +81,13 @@ The left side of the settings shows a **live preview** of a wallpaper with your 
 <a id="screensaver"></a>
 ## 🌙 Screensaver
 
-Sofadrop includes **Sofascreen**, a screensaver that shows your wallpapers full screen with a clock (and the weather, if you want). It works with or without Projectivy. Set it up in *Settings → Screensaver*; **Try it** shows it right away. While it runs, **OK** opens the title on screen (*What the wallpaper opens*), the **left and right arrows** go to the previous and next wallpaper, and any other button stops it.
+Sofadrop includes **Sofascreen**, a screensaver that shows your wallpapers full screen with a clock (and the weather, if you want). It works with or without Projectivy. Set it up in *Settings → Screensaver*; *Start screensaver*, there, shows it right away. While it runs, **OK** opens the title on screen (*Opening a title*), the **left and right arrows** go to the previous and next wallpaper, and any other button stops it.
 
-**Try it** also works as a poster mode where the screensaver can't be switched on: it stays on until you press a button, with no setup. Launchers can start it too.
+If you use Projectivy and the screensaver doesn't start: in Projectivy, turn off Settings › Appearance › Launcher Idle Mode › Prevent system screensaver, then restart the TV.
 
-To make it the TV's screensaver, choose *Settings → Screensaver → Switch it on*:
+*Start screensaver* also works as a poster mode where the screensaver can't be switched on: it stays on until you press a button, with no setup. Launchers can start it too.
+
+To make it the TV's screensaver, choose *Screensaver → Use as the TV's screensaver*:
 
 * **Android TV** devices that list other apps' screensavers open Android's screensaver settings: choose **Sofascreen**. On TVs without a direct link it opens Android's settings instead: go to *Device Preferences → Screen saver* (the names can change with the TV's brand).
 * **Google TV** (Chromecast with Google TV, Google TV Streamer, TVs with Google TV) only offers Google's own screensavers. Sofascreen is switched on **once** from a computer on the same Wi-Fi, with `adb` from Google's [platform-tools](https://developer.android.com/tools/releases/platform-tools). Sofadrop shows these same steps with your TV's address filled in:

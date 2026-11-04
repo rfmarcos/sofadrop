@@ -40,8 +40,8 @@ class PartLanguagesFragment : PreviewSettingsFragment() {
         val synopsisModes = synopsisModes(profile)
         val synopsisMode = shownSynopsisMode(profile)
         return listOf(
-            // One language for both sets: from the screensaver it would change the wallpapers' too
-            if (profile.isScreensaver) action(ID_LANGUAGE, R.drawable.ic_act_language, getString(R.string.general_language_title),
+            // One language for all the sets: from an own screen it would change the others too
+            if (!profile.isGeneral) action(ID_LANGUAGE, R.drawable.ic_act_language, getString(R.string.general_language_title),
                 getString(R.string.general_language_shared, Languages.displayName(Settings.language))).multilineDescription(true).enabled(false).build()
             else choice(ID_LANGUAGE, R.drawable.ic_act_language, R.string.general_language_title, Languages.displayName(Settings.language),
                 Languages.OPTIONS.values.toList()),
