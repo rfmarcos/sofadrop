@@ -34,10 +34,7 @@
         <package android:name="com.nuvio.app" />
         <package android:name="com.stremio.one" />
         <package android:name="org.jellyfin.androidtv" />
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="wuplay" />
-        </intent>
+        <package android:name="app.wuplay.androidtv" />
         <package android:name="com.google.android.youtube.tv" />
         <!-- Streaming platforms (Platform) -->
         <package android:name="com.netflix.ninja" />

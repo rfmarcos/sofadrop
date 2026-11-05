@@ -11,13 +11,13 @@ import androidx.core.net.toUri
  * Apps a wallpaper can open its title in (see [Profile.clickFallback]). Only some of them can go to the
  * title itself; the platforms (Netflix, Prime Video…) have no public way to, so they aren't here.
  */
-enum class TitleApp(val key: String, val label: String, private val packages: List<String>, val reach: Reach, private val scheme: String? = null) {
+enum class TitleApp(val key: String, val label: String, private val packages: List<String>, val reach: Reach) {
     /** nuvio://tmdb/movie/603, nuvio://tmdb/series/1399 (its DeepLinkParser). */
     NUVIO("nuvio", "Nuvio", listOf("com.nuvio.tv", "com.nuvio.app"), Reach.TITLE),
     /** stremio:///detail/movie/tt0133093 (Stremio's deep links), by IMDb id; its search without one. */
     STREMIO("stremio", "Stremio", listOf("com.stremio.one"), Reach.TITLE),
-    /** wuplay://detail/movie/tt0133093, or tmdb:603 without an IMDb id. Found by its links, as it doesn't publish its package. */
-    WUPLAY("wuplay", "WuPlay", emptyList(), Reach.TITLE, "wuplay"),
+    /** wuplay://detail/movie/tt0133093, or tmdb:603 without an IMDb id. */
+    WUPLAY("wuplay", "WuPlay", listOf("app.wuplay.androidtv"), Reach.TITLE),
     /** Its search screen with the title, through ACTION_SEARCH; items need the server's own ids. */
     JELLYFIN("jellyfin", "Jellyfin", listOf("org.jellyfin.androidtv"), Reach.SEARCH);
     // Plex and Kodi have no way in to a title: only opening the app, which isn't worth a wallpaper click
@@ -33,8 +33,6 @@ enum class TitleApp(val key: String, val label: String, private val packages: Li
         } catch (_: PackageManager.NameNotFoundException) {
             false
         }
-    } ?: scheme?.let {
-        context.packageManager.queryIntentActivities(Intent(Intent.ACTION_VIEW, "$it://detail/movie/tt0133093".toUri()), 0).firstOrNull()?.activityInfo?.packageName
     }
 
     /** What opens [wallpaper] in this app ([packageName], installed); null when the app can't be opened. */

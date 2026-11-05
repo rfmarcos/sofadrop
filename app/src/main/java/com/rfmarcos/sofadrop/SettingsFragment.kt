@@ -18,6 +18,8 @@ class SettingsFragment : PreviewSettingsFragment() {
 
     override val showsProjectivyNotice get() = hasProjectivy && Projectivy.inUse(requireContext())
 
+    private var startPlaced = false
+
     private val statusRefresher = object : Runnable {
         override fun run() {
             refreshStatus()
@@ -77,7 +79,9 @@ class SettingsFragment : PreviewSettingsFragment() {
         // The status is there to be read: start on the first place, not on a row that regenerates everything.
         // Without Projectivy, Wallpapers only offers to get it: start where there's something to do.
         val start = if (hasProjectivy) ID_WALLPAPERS.takeIf { !Updater.available } else ID_SCREENSAVER
-        if (savedInstanceState == null && start != null) handler.post {
+        // Only the first time: coming back from a sub-screen creates the view again, and keeps its place
+        if (savedInstanceState == null && !startPlaced && start != null) handler.post {
+            startPlaced = true
             if (isAdded) findActionPositionById(start).takeIf { it >= 0 }?.let(::setSelectedActionPosition)
         }
     }
