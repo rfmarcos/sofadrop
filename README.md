@@ -56,7 +56,7 @@ Sofadrop is free and does two things. Each one has its own needs, so check them 
 
 ## 📥 Installation
 
-1. **With [Downloader](https://www.aftvnews.com/downloader/)**, enter the code **`7882519`**. Or download the latest APK: [**sofadrop.apk**](https://github.com/rfmarcos/projectivy-plugin-sofadrop/releases/latest/download/sofadrop.apk) (this link always points to the newest version; see all [releases](../../releases)).
+1. **With [Downloader](https://www.aftvnews.com/downloader/)**, enter the code **`7882519`**. Or download the latest APK: [**sofadrop.apk**](https://github.com/rfmarcos/sofadrop/releases/latest/download/sofadrop.apk) (this link always points to the newest version; see all [releases](../../releases)).
 2. Install it on your Android TV (Downloader does it for you; otherwise use *Send Files to TV* or `adb install`).
 3. For wallpapers, in Projectivy go to **Settings → Appearance → Wallpaper → Launcher wallpaper** and pick **🔌 Sofadrop**. Only for the screensaver, skip this step.
 

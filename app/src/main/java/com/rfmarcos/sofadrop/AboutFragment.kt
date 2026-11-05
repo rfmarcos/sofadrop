@@ -23,7 +23,12 @@ class AboutFragment : BaseSettingsFragment() {
         actions += action(ID_WIZARD, R.drawable.ic_act_check, getString(R.string.wizard_title), getString(R.string.wizard_desc)).build()
         actions += action(ID_SETTINGS_FILE, R.drawable.ic_act_download, getString(R.string.settings_file_title), getString(R.string.settings_file_desc))
             .hasNext(true).build()
-        if (BuildConfig.SUPPORT_URL.isNotBlank()) {
+        // Fire TV has no Play Store
+        if (!BuildConfig.PLAY && ScreensaverSetupFragment.route(requireContext()) != ScreensaverSetupFragment.Route.BY_HAND) {
+            actions += action(ID_BETA, R.drawable.ic_act_phone, getString(R.string.about_beta), getString(R.string.about_beta_desc))
+                .multilineDescription(true).build()
+        }
+        if (BuildConfig.SUPPORT_URL.isNotBlank() && !BuildConfig.PLAY) {
             actions += action(ID_SUPPORT, R.drawable.ic_act_heart, getString(R.string.about_support), getString(R.string.about_support_desc)).build()
         }
         if (BuildConfig.SOURCE_URL.isNotBlank()) {
@@ -43,6 +48,7 @@ class AboutFragment : BaseSettingsFragment() {
             ID_LOG -> open(GenerationLogFragment())
             ID_WIZARD -> Wizard.start(parentFragmentManager)
             ID_SETTINGS_FILE -> open(SettingsFileFragment())
+            ID_BETA -> LinkQrDialog.newInstance(BETA_URL, R.string.about_beta, R.string.about_beta_scan).show(parentFragmentManager, "beta")
             ID_SUPPORT -> LinkQrDialog.newInstance(BuildConfig.SUPPORT_URL, R.string.about_support, R.string.about_support_scan)
                 .show(parentFragmentManager, "support")
             ID_SOURCE -> LinkQrDialog.newInstance(BuildConfig.SOURCE_URL, R.string.about_source, R.string.about_source_scan)
@@ -79,5 +85,7 @@ class AboutFragment : BaseSettingsFragment() {
         private const val ID_LOG = 6L
         private const val ID_WIZARD = 7L
         private const val ID_SETTINGS_FILE = 8L
+        private const val ID_BETA = 9L
+        private const val BETA_URL = "https://play.google.com/apps/testing/com.rfmarcos.sofadrop"
     }
 }

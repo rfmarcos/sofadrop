@@ -16,7 +16,7 @@ class ReleaseNotesTest {
             "- **Age rating** of your streaming country next to the year.\r\n" +
             "\r\n" +
             "## Improvements\r\n" +
-            "* Faster: see [the README](https://github.com/rfmarcos/projectivy-plugin-sofadrop#readme) for __details__.\r\n" +
+            "* Faster: see [the README](https://github.com/rfmarcos/sofadrop#readme) for __details__.\r\n" +
             "- Keeps snake_case_names and 5 * 3 as they are.\r\n" +
             "\r\n" +
             "Install with **Downloader code 7882519**, or download **sofadrop.apk** below.\r\n" +
@@ -38,7 +38,7 @@ class ReleaseNotesTest {
 
     @Test
     fun generatedChangelogAndEmptyBody() {
-        val markdown = "**Full Changelog**: https://github.com/rfmarcos/projectivy-plugin-sofadrop/compare/v1.0.2...v1.1.0"
+        val markdown = "**Full Changelog**: https://github.com/rfmarcos/sofadrop/compare/v1.0.2...v1.1.0"
         assertTrue(Updater.releaseNotes(markdown).isEmpty())
         assertTrue(Updater.releaseNotes("").isEmpty())
         assertTrue(Updater.releaseNotes("\n  \n").isEmpty())

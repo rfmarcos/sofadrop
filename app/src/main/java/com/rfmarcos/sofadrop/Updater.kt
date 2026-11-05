@@ -32,11 +32,11 @@ object Updater {
     fun repo(): String? =
         Regex("github\\.com/([^/]+/[^/#?]+)").find(BuildConfig.SOURCE_URL)?.groupValues?.get(1)?.removeSuffix(".git")
 
-    /** True when this build looks for updates: it has a repository, and it isn't the Dev build. */
-    val canCheck: Boolean get() = repo() != null && !BuildConfig.DEBUG
+    /** True when this build looks for updates: it has a repository, and it's neither the Dev build nor Google Play's. */
+    val canCheck: Boolean get() = repo() != null && !BuildConfig.DEBUG && !BuildConfig.PLAY
 
-    /** True when the last check found a release newer than this build. */
-    val available: Boolean get() = isNewer(Settings.updateVersion, BuildConfig.VERSION_NAME) && Settings.updateApkUrl.isNotBlank()
+    /** True when the last check found a release newer than this build (not one found by a GitHub APK replaced from Play). */
+    val available: Boolean get() = canCheck && isNewer(Settings.updateVersion, BuildConfig.VERSION_NAME) && Settings.updateApkUrl.isNotBlank()
 
     /** "1.0.10" > "1.0.9"; a leading "v" and any "-suffix" are ignored. */
     fun isNewer(candidate: String, current: String): Boolean {

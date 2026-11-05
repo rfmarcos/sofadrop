@@ -108,7 +108,7 @@ class Profile private constructor(val id: String, private val prefix: String) {
         set(value) = preferences.edit { putInt(lists(KEY_MAX_AGE), value) }
 
     var excludeAdult: Boolean
-        get() = preferences.getBoolean(lists(KEY_EXCLUDE_ADULT), true)
+        get() = BuildConfig.PLAY || preferences.getBoolean(lists(KEY_EXCLUDE_ADULT), true)
         set(value) = preferences.edit { putBoolean(lists(KEY_EXCLUDE_ADULT), value) }
 
     /** Skip titles certified for older viewers than this, in every list (see [Certifications.minimumAge]); 0 = no limit. */

@@ -76,7 +76,7 @@ class ScreensaverSetupFragment : BaseSettingsFragment() {
 
     companion object {
         private const val ID_UNDO = 10L
-        private const val GUIDE_URL = "https://github.com/rfmarcos/projectivy-plugin-sofadrop#screensaver"
+        private const val GUIDE_URL = "https://github.com/rfmarcos/sofadrop#screensaver"
         private const val GOOGLE_SCREENSAVER = "com.google.android.apps.tv.dreamx/.service.Backdrop"
         // Google TV (Chromecast); the older Android TV (Philips) doesn't have it
         private const val GOOGLE_TV_FEATURE = "com.google.android.feature.AMATI_EXPERIENCE"

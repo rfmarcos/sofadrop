@@ -186,13 +186,16 @@
 
     <!-- About -->
     <string name="setting_about_title">About</string>
-    <string name="setting_about_desc">Version %1$s · guided setup, support, source code and credits</string>
+    <string name="setting_about_desc">Version %1$s · guided setup, source code and credits</string>
     <string name="about_version">Version</string>
     <string name="about_support">Support the project</string>
     <string name="about_support_desc">If you like the plugin, you can buy me a coffee on Ko-fi</string>
     <string name="about_support_scan">Scan it with your phone to open the Ko-fi page. Thank you!</string>
     <string name="about_source">Source code</string>
     <string name="about_source_scan">Scan it with your phone to open the project page.</string>
+    <string name="about_beta">Test it on Google Play</string>
+    <string name="about_beta_desc">Sofadrop is coming to Google Play and needs testers with Google TV or Android TV</string>
+    <string name="about_beta_scan">Scan it with your phone, with the same Google account as your TV.</string>
     <string name="about_credits">Credits</string>
     <string name="about_credits_desc">This product uses the TMDB API but is not endorsed or certified by TMDB (themoviedb.org). Where to watch data by JustWatch. Sofadrop uses Trakt but is not endorsed or certified by Trakt. Lists and watch history from Simkl (simkl.com). Trakt, Simkl and MDBList names and logos belong to their owners. Lists from MDBList. Wallpapers for Projectivy Launcher. Scores from MDBList and Trakt. Information courtesy of IMDb (imdb.com), used with permission; IMDb, Rotten Tomatoes, Metacritic, Letterboxd and MyAnimeList names and logos belong to their owners. Sofascreen, the screensaver, by schumi2004, with thanks to ilee\'s Sofadrop Screensaver; weather by Open-Meteo (open-meteo.com).</string>
     <string name="qr_link_hint">Scan the code with your phone</string>

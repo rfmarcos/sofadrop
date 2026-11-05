@@ -120,7 +120,7 @@ enum class Platform(
 object Wikidata {
     private const val URL = "https://query.wikidata.org/sparql"
     // Wikidata asks for a user agent that says who is calling
-    private val USER_AGENT = "Sofadrop/${BuildConfig.VERSION_NAME} (https://github.com/rfmarcos/projectivy-plugin-sofadrop)"
+    private val USER_AGENT = "Sofadrop/${BuildConfig.VERSION_NAME} (https://github.com/rfmarcos/sofadrop)"
     private val PROPERTIES = Platform.entries.flatMap { platform -> platform.ids.map { it.property } }.distinct()
     /** Wikidata properties of TMDB ids. */
     private val TMDB_PROPERTY = mapOf(MediaType.MOVIE to "P4947", MediaType.TV to "P4983")
