@@ -148,9 +148,15 @@ object Settings {
     const val SHADE_TINT = "tint"
     const val SHADE_BLACK = "black"
     val SHADES = listOf(SHADE_TINT, SHADE_BLACK)
+
+    /** How far up the bottom shading reaches, in % of the usual height; the side one, behind the text, always stays. */
+    const val BOTTOM_SHADE_NORMAL = 100
+    val BOTTOM_SHADES = listOf(125, BOTTOM_SHADE_NORMAL, 50, 25, 0)
     /** Where the info block goes on the wallpaper. */
     const val POSITION_TOP_LEFT = "top_left"
     val POSITIONS = listOf(POSITION_TOP_LEFT, "center_left", "bottom_left", "top_right", "center_right", "bottom_right")
+    /** Each wallpaper at the next of [Profile.rotation], so the text doesn't stay in one place on the screen. */
+    const val POSITION_ROTATE = "rotate"
     /** What Projectivy opens from a wallpaper ("Watch" in About this wallpaper, play on its status bar). */
     const val CLICK_TRAILER = "trailer"
     const val CLICK_NONE = "none"
@@ -211,14 +217,18 @@ object Settings {
             preferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
             // A fresh install, whatever opens first (the settings or Projectivy's request): the guided setup is
             // due, and the cast is on. Someone updating keeps what they had
-            if (preferences.all.isEmpty()) {
+            val fresh = preferences.all.isEmpty()
+            if (fresh) {
                 preferences.edit { putBoolean(KEY_FRESH_INSTALL, true) }
                 Profile.WALLPAPER.showCast = true
             }
             // Until 1.2 the screensaver mixed its lists unless told otherwise; now that would follow the general order
-            if (!preferences.contains(KEY_ORDER_MOVED)) preferences.edit {
-                if (!mixLists && !preferences.contains(KEY_SCREENSAVER_SHUFFLE)) putBoolean(KEY_SCREENSAVER_SHUFFLE, true)
-                putBoolean(KEY_ORDER_MOVED, true)
+            if (!preferences.contains(KEY_ORDER_MOVED)) {
+                if (!fresh) Profile.keepOldCount()
+                preferences.edit {
+                    if (!mixLists && !preferences.contains(KEY_SCREENSAVER_SHUFFLE)) putBoolean(KEY_SCREENSAVER_SHUFFLE, true)
+                    putBoolean(KEY_ORDER_MOVED, true)
+                }
             }
             // Scopes of earlier versions (replaced by per-list filters) and the dropped launcher guide
             preferences.edit { OLD_FILTER_KEYS.forEach(::remove) }

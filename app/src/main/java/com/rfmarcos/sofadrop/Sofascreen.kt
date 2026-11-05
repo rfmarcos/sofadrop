@@ -40,8 +40,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
 
     private val store = WallpaperStore(context, Profile.SCREENSAVER)
     /** Where the wallpapers' text is, so the zoom keeps it in view and the clock goes on the other side. */
-    private val blockPosition = Profile.SCREENSAVER.position
-    private val textRight = blockPosition.endsWith("_right")
+    private val blockPosition = Profile.SCREENSAVER.position.takeIf { it != Settings.POSITION_ROTATE } ?: Settings.POSITION_TOP_LEFT
     private val handler = Handler(Looper.getMainLooper())
     private val decoder = Executors.newSingleThreadExecutor()
     private var front = image()
@@ -102,7 +101,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         if (running) return
         running = true
         dim.alpha = 1f - Settings.screensaverBrightness / 100f
-        clock.build(resources.displayMetrics.widthPixels.toFloat(), resources.displayMetrics.heightPixels.toFloat(), textRight)
+        clock.build(resources.displayMetrics.widthPixels.toFloat(), resources.displayMetrics.heightPixels.toFloat(), blockPosition.endsWith("_right"))
         position = -1
         playlist = emptyList()
         showNext(transition = 0)
@@ -227,6 +226,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
             slowZoom(incoming)
         }
         settle = done
+        shown?.position?.let(clock::moveAwayFrom)
         if (duration == 0L) done.run() else playTransition(incoming, outgoing, duration, width.toFloat(), done)
         handler.removeCallbacks(next)
         handler.postDelayed(next, Settings.screensaverSeconds * 1000L + duration)
@@ -239,10 +239,11 @@ class SofascreenView(context: Context) : FrameLayout(context) {
     private fun slowZoom(view: ImageView) {
         if (!Settings.screensaverZoom) return
         val screen = (if (height > 0) height else resources.displayMetrics.heightPixels).toFloat()
-        view.pivotX = if (textRight) (if (width > 0) width else resources.displayMetrics.widthPixels).toFloat() else 0f
+        val place = shown?.position ?: blockPosition
+        view.pivotX = if (place.endsWith("_right")) (if (width > 0) width else resources.displayMetrics.widthPixels).toFloat() else 0f
         view.pivotY = when {
-            blockPosition.startsWith("bottom") -> screen
-            blockPosition.startsWith("top") -> 0f
+            place.startsWith("bottom") -> screen
+            place.startsWith("top") -> 0f
             else -> screen / 2f
         }
         view.animate().scaleX(SLOW_ZOOM).scaleY(SLOW_ZOOM).setDuration(Settings.screensaverSeconds * 1000L)
@@ -319,6 +320,8 @@ class SofascreenView(context: Context) : FrameLayout(context) {
  * The clock block with the date and the weather, as the screensaver settings say, in a [FrameLayout]: on the
  * wallpaper in [SofascreenView], and on the settings' preview.
  */
+private const val CLOCK_MOVE_MILLIS = 300L
+
 class SofascreenClock(private val context: Context) {
 
     private val clock = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
@@ -394,6 +397,24 @@ class SofascreenClock(private val context: Context) {
         params.topMargin = (height * 0.07f).toInt()
         params.bottomMargin = (height * 0.07f).toInt()
         clock.layoutParams = params
+    }
+
+    /** To the corner away from text at [position], for wallpapers that each have theirs (the height stays with text in the middle). */
+    fun moveAwayFrom(position: String) {
+        val side = if (position.endsWith("_right")) Gravity.START else Gravity.END
+        val params = clock.layoutParams as FrameLayout.LayoutParams
+        val height = when {
+            position.startsWith("top") -> Gravity.BOTTOM
+            position.startsWith("bottom") -> Gravity.TOP
+            else -> params.gravity and Gravity.VERTICAL_GRAVITY_MASK
+        }
+        if (params.gravity == side or height) return
+        clock.animate().alpha(0f).setDuration(CLOCK_MOVE_MILLIS).withEndAction {
+            params.gravity = side or height
+            clock.layoutParams = params
+            if (Settings.screensaverClock == Settings.CLOCK_LINE) clock.gravity = side
+            clock.animate().alpha(1f).setDuration(CLOCK_MOVE_MILLIS).start()
+        }.start()
     }
 
     private fun clockText(pattern: String, sizePx: Float, font: android.graphics.Typeface?) = TextView(context).apply {

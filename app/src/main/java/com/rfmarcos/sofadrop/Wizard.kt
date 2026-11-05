@@ -5,9 +5,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.leanback.app.GuidedStepSupportFragment
 import androidx.leanback.widget.GuidanceStylist.Guidance
@@ -127,23 +130,33 @@ abstract class WizardStepFragment : PreviewSettingsFragment() {
     }
 }
 
+private const val ID_NEEDS = 90L
+
 class WizardWelcomeFragment : WizardStepFragment() {
     override val step = Wizard.Step.WELCOME
     override val titleRes = R.string.wizard_welcome_title
 
-    /** What it needs is said here, before any choice: Premium for Projectivy, a computer for Google TV's screensaver. */
-    override fun text(): String {
+    override fun text(): String =
+        getString(if (Projectivy.isInstalled(requireContext())) R.string.wizard_welcome_projectivy else R.string.wizard_welcome_lead)
+
+    /** What it needs, before any choice and where it can't be missed: a row that takes no focus. */
+    private fun needs(): GuidedAction {
         val context = requireContext()
-        val projectivy = Projectivy.isInstalled(context)
-        val notes = listOfNotNull(
-            getString(R.string.wizard_welcome_premium).takeIf { projectivy },
-            getString(R.string.wizard_welcome_google_tv).takeIf { ScreensaverSetupFragment.needsComputer(context) },
-        )
-        return getString(if (projectivy) R.string.wizard_welcome_projectivy else R.string.wizard_welcome_lead) + "\n\n" +
-            notes.joinToString(" ").ifEmpty { getString(R.string.wizard_welcome_text) }
+        val screensaver = when (ScreensaverSetupFragment.route(context)) {
+            ScreensaverSetupFragment.Route.COMPUTER -> R.string.wizard_welcome_google_tv
+            ScreensaverSetupFragment.Route.BY_HAND ->
+                if (ScreensaverSetupFragment.oldFireOs(context)) R.string.wizard_welcome_fire_tv_old else R.string.wizard_welcome_fire_tv
+            else -> R.string.wizard_welcome_android_tv
+        }
+        val notice = ContextCompat.getColor(context, R.color.notice)
+        fun coloured(text: String) = SpannableString(text).apply { setSpan(ForegroundColorSpan(notice), 0, length, 0) }
+        return action(ID_NEEDS, R.drawable.ic_act_info, coloured(getString(R.string.wizard_needs_title)),
+            coloured(getString(R.string.wizard_welcome_premium) + "\n" + getString(screensaver)))
+            .multilineDescription(true).infoOnly(true).focusable(false).build()
     }
 
     override fun onCreateActions(actions: MutableList<GuidedAction>, savedInstanceState: Bundle?) {
+        actions += needs()
         actions += action(ID_START, R.drawable.ic_act_play, getString(R.string.wizard_start), getString(R.string.wizard_start_desc)).build()
         actions += choice(ID_LANGUAGE, R.drawable.ic_act_language, R.string.general_language_title, Languages.displayName(Settings.language),
             Languages.OPTIONS.values.toList())
@@ -348,8 +361,8 @@ class WizardDoneFragment : WizardStepFragment() {
 
     override fun onCreateActions(actions: MutableList<GuidedAction>, savedInstanceState: Bundle?) {
         val context = requireContext()
-        actions += action(ID_SCREENSAVER, R.drawable.ic_act_screensaver, getString(R.string.sofascreen_switch_on),
-            ScreensaverSetupFragment.status(context)).multilineDescription(true).build()
+        actions += action(ID_SCREENSAVER, R.drawable.ic_act_screensaver, getString(R.string.sofascreen_switch_on), screensaverStatus())
+            .multilineDescription(true).enabled(ScreensaverSetupFragment.canSwitchOn(context)).build()
         if (Projectivy.isInstalled(context)) {
             actions += action(ID_PROJECTIVY, R.drawable.ic_act_tv, getString(R.string.use_in_projectivy_title), getString(R.string.use_in_projectivy_desc))
                 .multilineDescription(true).build()
@@ -364,10 +377,13 @@ class WizardDoneFragment : WizardStepFragment() {
         handler.post { if (isAdded) setSelectedActionPosition(actions.lastIndex) }
     }
 
+    private fun screensaverStatus() = if (ScreensaverSetupFragment.canSwitchOn(requireContext())) ScreensaverSetupFragment.status(requireContext())
+    else getString(if (ScreensaverSetupFragment.oldFireOs(requireContext())) R.string.wizard_screensaver_by_hand_old else R.string.wizard_screensaver_by_hand)
+
     override fun onResume() {
         super.onResume()
         // Back from Android's screensaver settings
-        updateDescription(ID_SCREENSAVER, ScreensaverSetupFragment.status(requireContext()))
+        updateDescription(ID_SCREENSAVER, screensaverStatus())
         handler.post(statusRefresher)
     }
 

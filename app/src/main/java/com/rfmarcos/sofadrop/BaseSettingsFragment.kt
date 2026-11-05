@@ -52,6 +52,9 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
 
     /** Long explanations shown in the left pane while their row is focused, so rows show only their value. */
     protected val explanations = mutableMapOf<Long, CharSequence>()
+
+    /** Rows that have no effect now: they still open, but they look off. */
+    protected val unusedRows = mutableSetOf<Long>()
     private var guidanceText: CharSequence? = null
 
     override fun onCreateActionsStylist(): GuidedActionsStylist = object : GuidedActionsStylist() {
@@ -65,6 +68,10 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
 
         override fun onBindViewHolder(vh: ViewHolder, action: GuidedAction) {
             super.onBindViewHolder(vh, action)
+            // Not the whole row: its focus animation puts the alpha back
+            val alpha = if (action.id in unusedRows) UNUSED_ROW_ALPHA else 1f
+            vh.contentView?.alpha = alpha
+            vh.iconView?.alpha = alpha
             vh.itemView.findViewById<View>(R.id.header_divider)?.visibility =
                 if (actions.firstOrNull()?.id == action.id) View.GONE else View.VISIBLE
         }
@@ -259,6 +266,7 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
         const val SUB_ID_BASE = 1000L
         private const val RADIO_SET_BASE = 100
         private const val VIEW_TYPE_HEADER = 1
+        private const val UNUSED_ROW_ALPHA = 0.5f
         private val executor = Executors.newCachedThreadPool()
         private const val ARG_PROFILE = "profile"
 

@@ -148,6 +148,8 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
     @Volatile
     private var width = 0
     private val memoryErrors = AtomicInteger()
+    /** Wallpapers started, for the position of the next one (see [Profile.positionAt]). */
+    private val started = AtomicInteger()
 
     /** Some title didn't fit in memory even at 1920. */
     @Volatile
@@ -248,14 +250,16 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
     private fun store(factory: WallpaperFactory, plan: ListPlan, ref: TitleRef, generation: File, log: GenerationLog): StoredWallpaper? =
         try {
             factory.build(ref, plan)?.let { info ->
-                val bitmap = render(factory, info, ref, log) ?: return null
+                val position = profile.positionAt(started.getAndIncrement())
+                val bitmap = render(factory, info, ref, log, position) ?: return null
                 val name = "${info.type.path}-${info.id}.jpg"
                 try {
                     FileOutputStream(File(generation, name)).use { bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, it) }
                 } finally {
                     bitmap.recycle()
                 }
-                StoredWallpaper(name, info.title, info.type.path, info.id, plan.source.key, info.trailerKey, info.imdbId, info.providerIds)
+                StoredWallpaper(name, info.title, info.type.path, info.id, plan.source.key, info.trailerKey, info.imdbId, info.providerIds,
+                    position = position.takeIf { profile.position == Settings.POSITION_ROTATE })
             }
         } catch (e: TmdbException) {
             throw e
@@ -273,10 +277,10 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
      * [info] drawn at [width]. A 4K wallpaper that doesn't fit in memory is drawn again at 1920, and after
      * the second one the rest of the generation goes straight to 1920. Null when not even that fits.
      */
-    private fun render(factory: WallpaperFactory, info: WallpaperInfo, ref: TitleRef, log: GenerationLog): Bitmap? {
+    private fun render(factory: WallpaperFactory, info: WallpaperInfo, ref: TitleRef, log: GenerationLog, position: String): Bitmap? {
         val width = this.width
         try {
-            return factory.render(info, width)
+            return factory.render(info, width, position)
         } catch (e: OutOfMemoryError) {
             Log.w(TAG, "Out of memory drawing ${ref.type.path}/${ref.tmdbId} at $width px", e)
             log.titleFailed(ref, e, width)
@@ -290,7 +294,7 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
             }
         }
         return try {
-            factory.render(info, FALLBACK_WIDTH)
+            factory.render(info, FALLBACK_WIDTH, position)
         } catch (e: OutOfMemoryError) {
             log.titleFailed(ref, e, FALLBACK_WIDTH)
             outOfMemory = true

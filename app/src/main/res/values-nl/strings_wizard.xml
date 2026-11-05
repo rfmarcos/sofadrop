@@ -7,7 +7,6 @@
     <string name="wizard_next">Volgende</string>
 
     <string name="wizard_welcome_title">Welkom</string>
-    <string name="wizard_welcome_text">Een paar vragen, en bij elke vraag zie je hoe het eruitziet. Alles is later te wijzigen in Instellingen.</string>
     <string name="wizard_start">Beginnen</string>
     <string name="wizard_start_desc">Ongeveer een minuut</string>
     <string name="wizard_skip">Overslaan en de standaardinstellingen gebruiken</string>
@@ -54,7 +53,13 @@
     <string name="setup_undo_desc">adb shell settings put secure screensaver_components %1$s</string>
     <string name="wizard_leave">Afsluiten zonder iets te wijzigen</string>
     <string name="wizard_welcome_lead">Sofadrop vult je tv met de films en series die je kiest, als screensaver.</string>
-    <string name="wizard_welcome_premium">Achtergronden in Projectivy vereisen Premium.</string>
-    <string name="wizard_welcome_google_tv">Op Google TV start je hem zelf: om hem vanzelf te laten starten heb je eenmalig een computer nodig.</string>
+    <string name="wizard_welcome_premium">Achtergronden: hebben Projectivy Launcher met Premium nodig.</string>
+    <string name="wizard_welcome_fire_tv">Screensaver: vanaf Fire OS 8.1 staat Fire TV alleen zijn eigen toe, dus je start hem met de hand.</string>
+    <string name="wizard_welcome_fire_tv_old">Screensaver: je start hem met de hand, of stelt hem in vanaf een computer met adb (stappen op de GitHub-pagina van Sofadrop).</string>
+    <string name="wizard_screensaver_by_hand">Vanaf Fire OS 8.1 staat Fire TV alleen zijn eigen toe: start hem met de hand via Screensaver in Sofadrop.</string>
+    <string name="wizard_screensaver_by_hand_old">Op deze Fire OS stel je hem in vanaf een computer: de stappen staan op de GitHub-pagina van Sofadrop. Je kunt hem ook met de hand starten via Screensaver in Sofadrop.</string>
+    <string name="wizard_welcome_google_tv">Screensaver: om vanzelf te starten moet hij eenmalig via adb op een computer worden ingesteld.</string>
+    <string name="wizard_welcome_android_tv">Screensaver: kies hem in de instellingen van de tv.</string>
     <string name="wizard_welcome_projectivy">Sofadrop vult je tv met de films en series die je kiest: als screensaver, en als achtergronden voor Projectivy.</string>
+    <string name="wizard_needs_title">Voordat je begint</string>
 </resources>

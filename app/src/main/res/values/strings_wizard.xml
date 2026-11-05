@@ -7,7 +7,6 @@
     <string name="wizard_next">Next</string>
 
     <string name="wizard_welcome_title">Welcome</string>
-    <string name="wizard_welcome_text">A few questions, and you see how it looks at each one. You can change everything later in Settings.</string>
     <string name="wizard_start">Start</string>
     <string name="wizard_start_desc">About a minute</string>
     <string name="wizard_skip">Skip and use the default settings</string>
@@ -54,7 +53,13 @@
     <string name="setup_undo_desc">adb shell settings put secure screensaver_components %1$s</string>
     <string name="wizard_leave">Leave without changes</string>
     <string name="wizard_welcome_lead">Sofadrop fills your TV with the movies and shows you choose, as a screensaver.</string>
-    <string name="wizard_welcome_premium">Wallpapers in Projectivy need Premium.</string>
-    <string name="wizard_welcome_google_tv">On Google TV you start it yourself: making it start on its own takes a computer, once.</string>
+    <string name="wizard_welcome_premium">Wallpapers: need Projectivy Launcher with Premium.</string>
+    <string name="wizard_welcome_fire_tv">Screensaver: from Fire OS 8.1 on, Fire TV only allows its own, so it\'s started by hand.</string>
+    <string name="wizard_welcome_fire_tv_old">Screensaver: it\'s started by hand, or set up from a computer with adb (steps on Sofadrop\'s GitHub page).</string>
+    <string name="wizard_screensaver_by_hand">From Fire OS 8.1 on, Fire TV only allows its own: start it by hand from Screensaver, in Sofadrop.</string>
+    <string name="wizard_screensaver_by_hand_old">On this Fire OS it\'s set up from a computer: the steps are on Sofadrop\'s GitHub page. It can also be started by hand from Screensaver, in Sofadrop.</string>
+    <string name="wizard_welcome_google_tv">Screensaver: to start on its own, it needs setting up once from a computer with adb.</string>
+    <string name="wizard_welcome_android_tv">Screensaver: pick it in the TV\'s settings.</string>
     <string name="wizard_welcome_projectivy">Sofadrop fills your TV with the movies and shows you choose: as a screensaver, and as wallpapers for Projectivy.</string>
+    <string name="wizard_needs_title">Before you start</string>
 </resources>

@@ -1,7 +1,6 @@
 package com.rfmarcos.sofadrop
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.leanback.widget.GuidedAction
@@ -44,7 +43,7 @@ abstract class OutputFragment : PreviewSettingsFragment() {
         for (id in listOf(ID_OWN_LISTS, ID_OWN_LOOK, ID_GENERATE)) explanations[id] = getString(R.string.output_own_explain)
         val orders = listOf(null, true, false).map { orderLabel(context, it) }
         return listOfNotNull(
-            header(ID_HEADER_SET, getString(R.string.screensaver_set_header)),
+            header(ID_HEADER_SET, getString(if (profile.isScreensaver) R.string.screensaver_set_header else R.string.wallpapers_set_header)),
             choice(ID_OWN_LISTS, R.drawable.ic_act_movie, R.string.setting_lists_title, ownLabel(context, profile.ownLists, LISTS), OWNS.map { ownLabel(context, it, LISTS) }),
             action(ID_LISTS, R.drawable.ic_act_list, getString(R.string.output_edit_lists), ListsFragment.summary(context, profile))
                 .hasNext(true).build().takeIf { profile.ownLists },
@@ -58,8 +57,6 @@ abstract class OutputFragment : PreviewSettingsFragment() {
             // The general set's state is on the main screen
             action(ID_GENERATE, R.drawable.ic_act_refresh, getString(R.string.action_generate_now), generationStatus())
                 .multilineDescription(true).build().takeIf { showsOwnSet },
-            action(ID_VIEW, R.drawable.ic_act_preview, getString(R.string.action_preview), getString(R.string.action_preview_desc))
-                .build().takeIf { showsOwnSet },
         )
     }
 
@@ -80,7 +77,6 @@ abstract class OutputFragment : PreviewSettingsFragment() {
             ID_LISTS -> open(ListsFragment())
             ID_DETAILS -> open(DetailsFragment())
             ID_CLICK -> open(ClickActionFragment())
-            ID_VIEW -> startActivity(Intent(requireContext(), PreviewActivity::class.java).putExtra(PreviewActivity.EXTRA_PROFILE, profile.id))
             ID_GENERATE -> {
                 if (Sources.selected(profile).isEmpty()) {
                     Toast.makeText(requireContext(), R.string.select_list_first, Toast.LENGTH_SHORT).show()
@@ -135,7 +131,6 @@ abstract class OutputFragment : PreviewSettingsFragment() {
         private const val ID_CLICK = 46L
         private const val ID_ORDER = 47L
         private const val ID_GENERATE = 48L
-        private const val ID_VIEW = 49L
 
         private const val LISTS = 1
         private const val DETAILS = 2

@@ -573,7 +573,7 @@
     <string name="wizard_import">Import settings from another TV</string>
     <string name="accounts_reconnect">Settings imported. Connect again what the other TV had: %1$s. Accounts aren\'t in the settings file.</string>
     <string name="wallpapers_title">Wallpapers</string>
-    <string name="main_more_header">More</string>
+    <string name="main_more_header">General</string>
     <string name="projectivy_description">Wallpapers for the home screen of Projectivy Launcher. Wallpaper plugins are one of its Premium features. The screensaver doesn\'t need it.</string>
     <string name="projectivy_status_in_use">In use in Projectivy</string>
     <string name="projectivy_status_pick">Projectivy installed: choose Sofadrop</string>
@@ -583,4 +583,19 @@
     <string name="click_action_desc_alone">In Sofascreen, the OK button opens the title on screen.</string>
     <string name="general_header">Shared settings</string>
     <string name="projectivy_status_optional">For Projectivy Launcher Premium</string>
+    <string name="position_rotate">Rotating</string>
+    <string name="position_rotate_desc">Each wallpaper in a different position</string>
+    <string name="position_rotation_title">Rotating positions</string>
+    <string name="position_rotation_desc">Each wallpaper takes the next ticked position. In the screensaver, the clock moves to the opposite corner.</string>
+    <string name="position_rotation_min">Keep at least two</string>
+    <string name="position_rotation_summary">%1$d positions</string>
+    <string name="bottom_shade_title">Bottom shading</string>
+    <string name="bottom_shade_high">High</string>
+    <string name="bottom_shade_normal">Normal</string>
+    <string name="bottom_shade_low">Low</string>
+    <string name="bottom_shade_minimal">Minimal</string>
+    <string name="bottom_shade_none">None</string>
+    <string name="bottom_shade_normal_desc">Darkens the bottom of the image</string>
+    <string name="bottom_shade_none_desc">The image reaches the bottom edge</string>
+    <string name="bottom_shade_summary">bottom shading: %1$s</string>
 </resources>

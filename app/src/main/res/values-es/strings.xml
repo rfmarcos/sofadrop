@@ -555,7 +555,7 @@
     <string name="wizard_import">Importar los ajustes de otra TV</string>
     <string name="accounts_reconnect">Ajustes importados. Conecta de nuevo lo que tenía la otra TV: %1$s. Las cuentas no van en el archivo de ajustes.</string>
     <string name="wallpapers_title">Fondos de pantalla</string>
-    <string name="main_more_header">Más</string>
+    <string name="main_more_header">General</string>
     <string name="projectivy_description">Fondos para la pantalla de inicio de Projectivy Launcher. Los plugins de fondos son una función de su versión Premium. El salvapantallas no lo necesita.</string>
     <string name="projectivy_status_in_use">En uso en Projectivy</string>
     <string name="projectivy_status_pick">Projectivy instalado: elige Sofadrop</string>
@@ -565,4 +565,19 @@
     <string name="click_action_desc_alone">En Sofascreen, el botón OK abre el título que se ve.</string>
     <string name="general_header">Ajustes comunes</string>
     <string name="projectivy_status_optional">Para Projectivy Launcher Premium</string>
+    <string name="position_rotate">Rotativa</string>
+    <string name="position_rotate_desc">Cada fondo en una posición distinta</string>
+    <string name="position_rotation_title">Posiciones de la rotación</string>
+    <string name="position_rotation_desc">Cada fondo usa la siguiente posición marcada. En el salvapantallas, el reloj se va a la esquina contraria.</string>
+    <string name="position_rotation_min">Deja al menos dos</string>
+    <string name="position_rotation_summary">%1$d posiciones</string>
+    <string name="bottom_shade_title">Sombreado inferior</string>
+    <string name="bottom_shade_high">Alto</string>
+    <string name="bottom_shade_normal">Normal</string>
+    <string name="bottom_shade_low">Bajo</string>
+    <string name="bottom_shade_minimal">Mínimo</string>
+    <string name="bottom_shade_none">Ninguno</string>
+    <string name="bottom_shade_normal_desc">Oscurece la parte de abajo de la imagen</string>
+    <string name="bottom_shade_none_desc">La imagen llega hasta el borde inferior</string>
+    <string name="bottom_shade_summary">sombreado inferior: %1$s</string>
 </resources>

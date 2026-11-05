@@ -563,7 +563,7 @@
     <string name="wizard_import">Instellingen van een andere tv importeren</string>
     <string name="accounts_reconnect">Instellingen geïmporteerd. Verbind opnieuw wat de andere tv had: %1$s. Accounts staan niet in het instellingenbestand.</string>
     <string name="wallpapers_title">Achtergronden</string>
-    <string name="main_more_header">Meer</string>
+    <string name="main_more_header">Algemeen</string>
     <string name="projectivy_description">Achtergronden voor het startscherm van Projectivy Launcher. Achtergrondplug-ins zijn een Premium-functie. De screensaver heeft het niet nodig.</string>
     <string name="projectivy_status_in_use">In gebruik in Projectivy</string>
     <string name="projectivy_status_pick">Projectivy geïnstalleerd: kies Sofadrop</string>
@@ -573,4 +573,19 @@
     <string name="click_action_desc_alone">In Sofascreen opent de OK-knop de titel die je ziet.</string>
     <string name="general_header">Gedeelde instellingen</string>
     <string name="projectivy_status_optional">Voor Projectivy Launcher Premium</string>
+    <string name="position_rotate">Wisselend</string>
+    <string name="position_rotate_desc">Elke achtergrond op een andere plek</string>
+    <string name="position_rotation_title">Wisselende posities</string>
+    <string name="position_rotation_desc">Elke achtergrond neemt de volgende aangevinkte positie. In de screensaver gaat de klok naar de tegenoverliggende hoek.</string>
+    <string name="position_rotation_min">Laat er minstens twee staan</string>
+    <string name="position_rotation_summary">%1$d posities</string>
+    <string name="bottom_shade_title">Schaduw onderaan</string>
+    <string name="bottom_shade_high">Hoog</string>
+    <string name="bottom_shade_normal">Normaal</string>
+    <string name="bottom_shade_low">Laag</string>
+    <string name="bottom_shade_minimal">Minimaal</string>
+    <string name="bottom_shade_none">Geen</string>
+    <string name="bottom_shade_normal_desc">Maakt de onderkant van de afbeelding donkerder</string>
+    <string name="bottom_shade_none_desc">De afbeelding loopt door tot de onderrand</string>
+    <string name="bottom_shade_summary">schaduw onderaan: %1$s</string>
 </resources>

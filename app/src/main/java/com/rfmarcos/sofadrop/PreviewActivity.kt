@@ -55,7 +55,8 @@ class PreviewActivity : AppCompatActivity() {
      * the text is at the bottom and on the left when it's on the right.
      */
     private fun placeOverlay() {
-        val textAt = if (profile.drawsLogo) profile.position else Settings.POSITION_TOP_LEFT
+        val textAt = wallpapers.getOrNull(position)?.position
+            ?: profile.position.takeIf { profile.drawsLogo && it != Settings.POSITION_ROTATE } ?: Settings.POSITION_TOP_LEFT
         val top = textAt.startsWith("bottom")
         val start = textAt.endsWith("_right")
         fun dp(v: Int) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v.toFloat(), resources.displayMetrics)
@@ -97,6 +98,7 @@ class PreviewActivity : AppCompatActivity() {
             title.setText(R.string.preview_empty)
             return
         }
+        placeOverlay()
         val wallpaper = wallpapers[position]
         val file = store.fileOf(wallpaper)
         val metrics = resources.displayMetrics

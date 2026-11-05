@@ -7,7 +7,6 @@
     <string name="wizard_next">Siguiente</string>
 
     <string name="wizard_welcome_title">Te damos la bienvenida</string>
-    <string name="wizard_welcome_text">Son unas pocas preguntas y en cada una ves cómo queda. Todo se puede cambiar después en Ajustes.</string>
     <string name="wizard_start">Empezar</string>
     <string name="wizard_start_desc">Cerca de un minuto</string>
     <string name="wizard_skip">Saltar y usar los ajustes por defecto</string>
@@ -54,7 +53,13 @@
     <string name="setup_undo_desc">adb shell settings put secure screensaver_components %1$s</string>
     <string name="wizard_leave">Salir sin cambiar nada</string>
     <string name="wizard_welcome_lead">Sofadrop llena tu TV con las películas y series que elijas, como salvapantallas.</string>
-    <string name="wizard_welcome_premium">Los fondos en Projectivy requieren Premium.</string>
-    <string name="wizard_welcome_google_tv">En Google TV lo inicias tú: para que arranque solo hace falta un ordenador, una vez.</string>
+    <string name="wizard_welcome_premium">Fondos de pantalla: requieren Projectivy Launcher con Premium.</string>
+    <string name="wizard_welcome_fire_tv">Salvapantallas: desde Fire OS 8.1, Fire TV solo permite los suyos, así que se inicia a mano.</string>
+    <string name="wizard_welcome_fire_tv_old">Salvapantallas: se inicia a mano, o se configura desde un ordenador mediante adb (pasos en la página de Sofadrop en GitHub).</string>
+    <string name="wizard_screensaver_by_hand">Desde Fire OS 8.1, Fire TV solo permite los suyos: se inicia a mano desde Salvapantallas, en Sofadrop.</string>
+    <string name="wizard_screensaver_by_hand_old">En esta versión de Fire OS se configura desde un ordenador: los pasos están en la página de Sofadrop en GitHub. También se puede iniciar a mano desde Salvapantallas, en Sofadrop.</string>
+    <string name="wizard_welcome_google_tv">Salvapantallas: para que arranque solo, requiere configurarlo una vez desde un ordenador mediante adb.</string>
+    <string name="wizard_welcome_android_tv">Salvapantallas: se elige en los ajustes de la TV.</string>
     <string name="wizard_welcome_projectivy">Sofadrop llena tu TV con las películas y series que elijas: como salvapantallas, y como fondos para Projectivy.</string>
+    <string name="wizard_needs_title">Antes de empezar</string>
 </resources>

@@ -38,7 +38,7 @@ class ClickActionFragment : PreviewSettingsFragment() {
         getString(if (Projectivy.isInstalled(requireContext())) R.string.click_action_desc else R.string.click_action_desc_alone),
         getString(R.string.click_trailer_note).takeIf { showsTrailer(requireContext(), profile) }).joinToString(" ")
 
-    /** The trailer, every app (one not installed opens the trailer) and nothing. */
+    /** The trailer, every app and nothing; an app that isn't installed can't be picked (it would open the trailer). */
     private fun fallbacks(): List<String> =
         listOf(Settings.CLICK_TRAILER) + TitleApp.entries.map { Settings.CLICK_APP_PREFIX + it.key } + Settings.CLICK_NONE
 
@@ -64,7 +64,9 @@ class ClickActionFragment : PreviewSettingsFragment() {
         ).joinToString(" · ")
         rows += action(ID_FALLBACK, if (fallback == Settings.CLICK_NONE) R.drawable.ic_act_block else R.drawable.ic_act_play, if (order.isEmpty()) getString(R.string.click_target_title) else step(order.size + 1, label), description)
             .subActions(options(ID_FALLBACK, fallbacks.map { clickLabel(context, it) }, label,
-                fallbacks.map { clickDescription(context, it) })).build()
+                fallbacks.map { clickDescription(context, it) }).onEachIndexed { index, option ->
+                    option.isEnabled = Settings.clickApp(fallbacks[index])?.let { it.installedPackage(context) != null } ?: true
+                }).build()
         // The trailer's language only matters when the wallpaper can open it
         if (showsTrailer(context, profile)) {
             val languages = Settings.PART_LANGUAGES

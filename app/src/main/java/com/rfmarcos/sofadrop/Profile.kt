@@ -190,10 +190,24 @@ class Profile private constructor(val id: String, private val prefix: String) {
         get() = preferences.getString(look(KEY_SHADE), null)?.takeIf { it in Settings.SHADES } ?: Settings.SHADE_TINT
         set(value) = preferences.edit { putString(look(KEY_SHADE), value) }
 
+    /** See [Settings.BOTTOM_SHADES]. */
+    var bottomShade: Int
+        get() = preferences.getInt(look(KEY_BOTTOM_SHADE), Settings.BOTTOM_SHADE_NORMAL).takeIf { it in Settings.BOTTOM_SHADES } ?: Settings.BOTTOM_SHADE_NORMAL
+        set(value) = preferences.edit { putInt(look(KEY_BOTTOM_SHADE), value) }
+
     /** See [Settings.POSITIONS]; Projectivy's rows may cover the bottom ones, depending on the user's layout. */
     var position: String
-        get() = preferences.getString(look(KEY_POSITION), null)?.takeIf { it in Settings.POSITIONS } ?: Settings.POSITION_TOP_LEFT
+        get() = preferences.getString(look(KEY_POSITION), null)?.takeIf { it in Settings.POSITIONS || it == Settings.POSITION_ROTATE } ?: Settings.POSITION_TOP_LEFT
         set(value) = preferences.edit { putString(look(KEY_POSITION), value) }
+
+    /** Where [Settings.POSITION_ROTATE] takes the text: at least two of [Settings.POSITIONS]; by default not under the launcher's rows. */
+    var rotation: List<String>
+        get() = preferences.getString(look(KEY_ROTATION), null)?.split(',').orEmpty().filter { it in Settings.POSITIONS }
+            .takeIf { it.size >= 2 } ?: Settings.POSITIONS.filter { isScreensaver || !it.startsWith("bottom") }
+        set(value) = preferences.edit { putString(look(KEY_ROTATION), value.joinToString(",")) }
+
+    /** Where the wallpaper number [index] of a set has its text. */
+    fun positionAt(index: Int): String = if (position == Settings.POSITION_ROTATE) rotation.let { it[index % it.size] } else position
 
     /** See [Settings.LOGO_MODES]; earlier versions stored "logo_fallback" and "require_logo" (read until changed). */
     var logoMode: String
@@ -399,7 +413,8 @@ class Profile private constructor(val id: String, private val prefix: String) {
                 "ratingage:$maxRatingAge".takeIf { maxRatingAge > 0 }, "minrating:$minRating".takeIf { minRating > 0 },
                 "order:${headerOrder.joinToString(",")}".takeIf { headerOrder != HEADER_BLOCKS },
                 "minratings:$minRatings".takeIf { minRatings != 2 }, "cast".takeIf { showCast }, "castphotos:$castPhotos".takeIf { showCast && castPhotos != CAST_PHOTOS_GROUPED }, "style:$style".takeIf { style != STYLE_FULL },
-                "position:$position".takeIf { position != POSITION_TOP_LEFT && drawsLogo }, "shade:$shade".takeIf { shade != SHADE_TINT },
+                "position:$position${if (position == Settings.POSITION_ROTATE) rotation else ""}".takeIf { position != POSITION_TOP_LEFT && drawsLogo }, "shade:$shade".takeIf { shade != SHADE_TINT },
+                "bottomshade:$bottomShade".takeIf { bottomShade != Settings.BOTTOM_SHADE_NORMAL },
                 "latin".takeIf { latinOriginals },
                 "trailerlang:$trailerLanguage".takeIf { trailerLanguage != LANGUAGE_AUTO },
                 "trailerfallback:$trailerFallback".takeIf { trailerFallback != TRAILER_ENGLISH },
@@ -441,7 +456,9 @@ class Profile private constructor(val id: String, private val prefix: String) {
         private const val KEY_WIDTH = "output_width"
         private const val KEY_STYLE = "style"
         private const val KEY_POSITION = "block_position"
+        private const val KEY_ROTATION = "block_rotation"
         private const val KEY_SHADE = "shade"
+        private const val KEY_BOTTOM_SHADE = "bottom_shade"
         private const val KEY_LATIN_ORIGINALS = "latin_originals"
         private const val KEY_LOGO_MODE = "logo_mode"
         private const val KEY_LOGO_FALLBACK = "logo_fallback"
@@ -475,13 +492,18 @@ class Profile private constructor(val id: String, private val prefix: String) {
         private const val KEY_GENERATING = "_generating"
         private const val KEY_PROGRESS = "_generation_progress"
 
+        /** Until 1.2 a list made 10 wallpapers unless told otherwise: whoever updates keeps that. */
+        fun keepOldCount() = Settings.preferences.edit {
+            for (key in listOf(KEY_COUNT, "ss_$KEY_COUNT")) if (!Settings.preferences.contains(key)) putInt(key, 10)
+        }
+
         /** What "own" copies from the general settings when it's turned on. */
         private val CLICK_KEYS = listOf(KEY_CLICK_PLATFORMS, KEY_CLICK_FALLBACK)
         private val LISTS_KEYS = listOf(KEY_LISTS, KEY_COUNT, KEY_GLOBAL_HITS, KEY_MAX_AGE, KEY_EXCLUDE_ADULT, KEY_MAX_RATING_AGE, KEY_MIN_RATING,
             KEY_GENRE_FILTER, KEY_SKIP_DUPLICATES, KEY_SELECTION, KEY_WATCHED, KEY_LIST_FILTERS)
-        private val LOOK_KEYS = listOf(KEY_WIDTH, KEY_STYLE, KEY_POSITION, KEY_LOGO_MODE, KEY_LOGO_FALLBACK, KEY_REQUIRE_LOGO, KEY_SYNOPSIS_MODE,
+        private val LOOK_KEYS = listOf(KEY_WIDTH, KEY_STYLE, KEY_POSITION, KEY_ROTATION, KEY_LOGO_MODE, KEY_LOGO_FALLBACK, KEY_REQUIRE_LOGO, KEY_SYNOPSIS_MODE,
             KEY_TITLE_LANGUAGE, KEY_SYNOPSIS_LANGUAGE, KEY_PROVIDERS, KEY_OVERVIEW_LINES, KEY_CAST, KEY_CAST_PHOTOS, KEY_CAST_PHOTO_MODE,
             KEY_SOURCE_FALLBACK, KEY_SOURCE_INLINE, KEY_SHOW_SOURCE, KEY_RATINGS, KEY_HEADER_HIDDEN, KEY_HEADER_ORDER, KEY_MIN_RATINGS,
-            KEY_SHADE, KEY_LATIN_ORIGINALS)
+            KEY_SHADE, KEY_BOTTOM_SHADE, KEY_LATIN_ORIGINALS)
     }
 }

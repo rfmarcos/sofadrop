@@ -43,17 +43,15 @@ class SettingsFragment : PreviewSettingsFragment() {
         Settings.init(context)
 
         if (Updater.available) actions += updateAction()
+        // "Update now" also carries the status, so there is a single place to look
+        actions += action(ID_GENERATE, R.drawable.ic_act_refresh, getString(R.string.action_generate_now), topStatus())
+            .multilineDescription(true).build()
         actions += action(ID_WALLPAPERS, R.drawable.ic_act_tv, getString(R.string.wallpapers_title), WallpapersFragment.summary(context))
             .multilineDescription(true).hasNext(true).build()
         actions += action(ID_SCREENSAVER, R.drawable.ic_act_screensaver, getString(R.string.screensaver_title), ScreensaverFragment.summary(context))
             .multilineDescription(true).hasNext(true).build()
 
         actions += header(ID_HEADER_GENERAL, getString(R.string.general_header))
-        // "Update now" also carries the status, so there is a single place to look
-        actions += action(ID_GENERATE, R.drawable.ic_act_refresh, getString(R.string.action_generate_now), generationStatus())
-            .multilineDescription(true).build()
-        actions += action(ID_PREVIEW, R.drawable.ic_act_preview, getString(R.string.action_preview), getString(R.string.action_preview_desc))
-            .enabled(WallpaperStore(context, shownSet).current().isNotEmpty()).build()
         actions += action(ID_LISTS, R.drawable.ic_act_movie, getString(R.string.setting_lists_title), listsText())
             .hasNext(true).build()
         actions += action(ID_DETAILS, R.drawable.ic_act_visibility, getString(R.string.setting_details_title), detailsText())
@@ -62,10 +60,10 @@ class SettingsFragment : PreviewSettingsFragment() {
             .hasNext(true).build()
         actions += choice(ID_ORDER, R.drawable.ic_act_shuffle, R.string.screensaver_order_title, orderText(),
             listOf(true, false).map { OutputFragment.mixLabel(context, it) })
-        actions += choice(ID_REFRESH, R.drawable.ic_act_schedule, R.string.setting_refresh_title, refreshLabel(Settings.refreshHours),
-            Settings.REFRESH_OPTIONS.map(::refreshLabel))
 
         actions += header(ID_HEADER_MORE, getString(R.string.main_more_header))
+        actions += choice(ID_REFRESH, R.drawable.ic_act_schedule, R.string.setting_refresh_title, refreshLabel(Settings.refreshHours),
+            Settings.REFRESH_OPTIONS.map(::refreshLabel))
         actions += action(ID_ACCOUNTS, R.drawable.ic_act_account, getString(R.string.setting_accounts_title), AccountsFragment.summary(context))
             .hasNext(true).build()
         actions += action(ID_ABOUT, R.drawable.ic_act_info, getString(R.string.setting_about_title),
@@ -76,9 +74,11 @@ class SettingsFragment : PreviewSettingsFragment() {
     override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         guidanceStylist.descriptionView?.visibility = android.view.View.VISIBLE
-        // Without Projectivy, Wallpapers only offers to get it: start where there's something to do
-        if (savedInstanceState == null && !hasProjectivy) handler.post {
-            if (isAdded) findActionPositionById(ID_SCREENSAVER).takeIf { it >= 0 }?.let(::setSelectedActionPosition)
+        // The status is there to be read: start on the first place, not on a row that regenerates everything.
+        // Without Projectivy, Wallpapers only offers to get it: start where there's something to do.
+        val start = if (hasProjectivy) ID_WALLPAPERS.takeIf { !Updater.available } else ID_SCREENSAVER
+        if (savedInstanceState == null && start != null) handler.post {
+            if (isAdded) findActionPositionById(start).takeIf { it >= 0 }?.let(::setSelectedActionPosition)
         }
     }
 
@@ -119,7 +119,6 @@ class SettingsFragment : PreviewSettingsFragment() {
                 Toast.makeText(requireContext(), R.string.generation_started, Toast.LENGTH_SHORT).show()
                 refreshStatus()
             }
-            ID_PREVIEW -> startActivity(Intent(requireContext(), PreviewActivity::class.java).putExtra(PreviewActivity.EXTRA_PROFILE, shownSet.id))
             // What's new first, when the release says
             ID_APP_UPDATE -> if (hasNotes()) open(UpdateFragment()) else installUpdate()
             ID_LISTS -> open(ListsFragment())
@@ -154,8 +153,13 @@ class SettingsFragment : PreviewSettingsFragment() {
     /** [text], saying so when every place that shows wallpapers has its [own] instead of this general setting. */
     private fun general(id: Long, text: String, own: (Profile) -> Boolean): String {
         val unused = own(Profile.SCREENSAVER) && (!hasProjectivy || own(Profile.WALLPAPER))
-        if (unused) explanations[id] = getString(if (hasProjectivy) R.string.general_unused_explain else R.string.general_unused_explain_alone)
-        else explanations.remove(id)
+        if (unused) {
+            explanations[id] = getString(if (hasProjectivy) R.string.general_unused_explain else R.string.general_unused_explain_alone)
+            unusedRows += id
+        } else {
+            explanations.remove(id)
+            unusedRows -= id
+        }
         return if (unused) getString(R.string.general_unused, text) else text
     }
 
@@ -202,20 +206,18 @@ class SettingsFragment : PreviewSettingsFragment() {
 
     private fun refreshStatus() {
         if (!isAdded) return
-        updateDescription(ID_GENERATE, generationStatus())
-        findActionById(ID_PREVIEW)?.let {
-            val enabled = WallpaperStore(requireContext(), shownSet).current().isNotEmpty()
-            if (it.isEnabled != enabled) {
-                it.isEnabled = enabled
-                notifyActionChanged(findActionPositionById(ID_PREVIEW))
-            }
-        }
+        updateDescription(ID_GENERATE, topStatus())
         refreshPending()
     }
 
+    /** With two sets, the one that needs a look: this row is the only status on the way in. */
+    private fun topStatus(): String = generationStatus(
+        listOf(Profile.WALLPAPER, Profile.SCREENSAVER).map { it.source }
+            .firstOrNull { hasProjectivy && it != shownSet && (it.generating || it.lastError.isNotEmpty()) } ?: shownSet
+    )
+
     companion object {
         private const val ID_GENERATE = 2L
-        private const val ID_PREVIEW = 3L
         private const val ID_LISTS = 4L
         private const val ID_REFRESH = 8L
         private const val ID_ABOUT = 18L

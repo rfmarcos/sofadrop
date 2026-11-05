@@ -29,14 +29,14 @@ class WallpaperFactory(context: Context, val width: Int, val profile: Profile) {
         profile.partLanguages, profile.drawsDetails && profile.showCast, Settings.resolve(Settings.trailerLanguage), Settings.trailerFallback, profile)
     /** Faces next to the cast names: only their images are downloaded, and only then. */
     private val castPhotos = if (profile.drawsDetails) profile.castPhotos else Settings.CAST_PHOTOS_NONE
-    private val renderers = mutableMapOf<Int, WallpaperRenderer>()
+    private val renderers = mutableMapOf<Pair<Int, String>, WallpaperRenderer>()
 
-    /** Renderer of [width]-pixel wallpapers: this factory's width, or 1920 when 4K runs out of memory. */
-    private fun renderer(width: Int) = synchronized(renderers) {
-        renderers.getOrPut(width) {
+    /** Renderer of [width]-pixel wallpapers (this factory's width, or 1920 when 4K runs out of memory) with the text at [position]. */
+    private fun renderer(width: Int, position: String) = synchronized(renderers) {
+        renderers.getOrPut(width to position) {
             WallpaperRenderer(appContext, width, Languages.texts(Settings.language), profile.overviewLines,
                 profile.headerOrder, profile.minRatings, profile.style, castPhotos,
-                profile.showProviders && !profile.sourceFallback && profile.sourceInline, profile.position, profile.shade == Settings.SHADE_BLACK,
+                profile.showProviders && !profile.sourceFallback && profile.sourceInline, position, profile.shade, profile.bottomShade,
                 fullScreen = profile.isScreensaver || !Projectivy.isInstalled(appContext))
         }
     }
@@ -132,7 +132,7 @@ class WallpaperFactory(context: Context, val width: Int, val profile: Profile) {
      * titles; decoding and drawing go one at a time: in the background Android runs the app on a single
      * core of the TV.
      */
-    fun render(info: WallpaperInfo, width: Int = this.width): Bitmap {
+    fun render(info: WallpaperInfo, width: Int = this.width, position: String = profile.positionAt(0)): Bitmap {
         // Previews are 1280 px wide: TMDB's 1280 size instead of decoding the (often 4K) original
         val backdropBytes = client.image(info.backdropPath, if (width <= 1280) "w1280" else "original")
         val logoBytes = info.logoPath?.let { client.image(it, if (width > 1920) "original" else "w500") }
@@ -160,7 +160,7 @@ class WallpaperFactory(context: Context, val width: Int, val profile: Profile) {
                 providerBytes.mapNotNullTo(providers) { decode(it) }
                 val faceSize = WallpaperRenderer.castPhotoSize(width)
                 faceBytes.mapTo(faces) { bytes -> bytes?.let { decode(it, faceSize, faceSize) } }
-                return renderer(width).render(info, backdrop, logo, providers, faces)
+                return renderer(width, position).render(info, backdrop, logo, providers, faces)
             } finally {
                 backdrop?.recycle()
                 logo?.recycle()

@@ -53,7 +53,7 @@ class ScreensaverFragment : OutputFragment() {
         if (width == 0f) return
         previewImage?.minimumHeight = (width * 9f / 16f).toInt() // the frame's size, also until the image arrives
         previewImage?.foreground = ColorDrawable(Color.argb((255 * (1f - Settings.screensaverBrightness / 100f)).toInt(), 0, 0, 0))
-        clock.build(width, width * 9f / 16f, Profile.SCREENSAVER.position.endsWith("_right"))
+        clock.build(width, width * 9f / 16f, Profile.SCREENSAVER.positionAt(0).endsWith("_right"))
         clock.tick()
         if (clock.showsWeather) clock.updateWeather()
     }
@@ -135,16 +135,18 @@ class ScreensaverFragment : OutputFragment() {
     override fun onCreateActions(actions: MutableList<GuidedAction>, savedInstanceState: Bundle?) {
         actions += rows()
         // The remote's help shows on the left while it's focused
-        explanations[ID_START] = getString(R.string.screensaver_try_desc)
-        explanations[ID_SYSTEM] = getString(
-            when (ScreensaverSetupFragment.route(requireContext())) {
-                ScreensaverSetupFragment.Route.PICKER -> R.string.screensaver_system_explain
-                ScreensaverSetupFragment.Route.SETTINGS -> R.string.screensaver_system_explain_path
-                ScreensaverSetupFragment.Route.COMPUTER -> R.string.screensaver_system_explain_steps
-            },
-        )
+        explanations[ID_START] = getString(R.string.screensaver_try_desc) +
+            if (ScreensaverSetupFragment.canSwitchOn(requireContext())) "" else "\n\n" + getString(if (ScreensaverSetupFragment.oldFireOs(requireContext())) R.string.screensaver_system_fire_tv_old else R.string.screensaver_system_fire_tv)
+        when (ScreensaverSetupFragment.route(requireContext())) {
+            ScreensaverSetupFragment.Route.PICKER -> R.string.screensaver_system_explain
+            ScreensaverSetupFragment.Route.SETTINGS -> R.string.screensaver_system_explain_path
+            ScreensaverSetupFragment.Route.COMPUTER -> R.string.screensaver_system_explain_steps
+            ScreensaverSetupFragment.Route.BY_HAND -> null // its row already says it all
+        }?.let { explanations[ID_SYSTEM] = getString(it) }
         // Projectivy has a setting of its own that can hold the screensaver back
-        if (Projectivy.isInstalled(requireContext())) explanations[ID_SYSTEM] = "${explanations[ID_SYSTEM]}\n\n${getString(R.string.projectivy_screensaver_desc)}"
+        if (Projectivy.isInstalled(requireContext()) && ID_SYSTEM in explanations) {
+            explanations[ID_SYSTEM] = "${explanations[ID_SYSTEM]}\n\n${getString(R.string.projectivy_screensaver_desc)}"
+        }
         explanations[ID_POSITION] = getString(R.string.screensaver_clock_explain)
         explanations[ID_WEATHER] = getString(R.string.screensaver_weather_explain)
         explanations[ID_LOCATION] = getString(R.string.screensaver_weather_explain)
@@ -158,7 +160,9 @@ class ScreensaverFragment : OutputFragment() {
             action(ID_START, R.drawable.ic_act_play, getString(R.string.sofascreen_start), sofascreenStatus())
                 .multilineDescription(true).enabled(canStart()).build(),
             action(ID_SYSTEM, R.drawable.ic_act_tv, getString(R.string.sofascreen_switch_on), ScreensaverSetupFragment.status(context))
-                .multilineDescription(true).build(),
+                .multilineDescription(true).enabled(ScreensaverSetupFragment.canSwitchOn(context)).build()
+                // Only says something where it can't be switched on if it was, from a computer
+                .takeIf { ScreensaverSetupFragment.canSwitchOn(context) || ScreensaverSetupFragment.isActive(context) == true },
 
         ) + setRows() + listOf(
             header(ID_HEADER_SLIDESHOW, getString(R.string.screensaver_slideshow_header)),
@@ -316,7 +320,7 @@ class ScreensaverFragment : OutputFragment() {
             when (ScreensaverSetupFragment.isActive(context)) {
                 true -> R.string.screensaver_summary_on
                 // Where it takes a computer, starting it by hand isn't a fault
-                false -> if (ScreensaverSetupFragment.needsComputer(context)) R.string.screensaver_summary_manual else R.string.screensaver_system_off
+                false -> if (ScreensaverSetupFragment.startsByHand(context)) R.string.screensaver_summary_manual else R.string.screensaver_system_off
                 null -> null
             }?.let(context::getString),
             ownSummary(context, Profile.SCREENSAVER),
