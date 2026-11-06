@@ -90,6 +90,7 @@ object Settings {
     private const val KEY_SCREENSAVER_DATE = "screensaver_date"
     private const val KEY_SCREENSAVER_CLOCK_BOTTOM = "screensaver_clock_bottom"
     private const val KEY_SCREENSAVER_CLOCK_FORMAT = "screensaver_clock_format"
+    private const val KEY_SCREENSAVER_CLOCK_COLOR = "screensaver_clock_color"
     private const val KEY_SCREENSAVER_BRIGHTNESS = "screensaver_brightness"
     private const val KEY_SCREENSAVER_WEATHER = "screensaver_weather"
     private const val KEY_WEATHER_PLACE = "weather_place"
@@ -554,6 +555,18 @@ object Settings {
     const val CLOCK_FORMAT_24 = "24"
     const val CLOCK_FORMAT_12 = "12"
     val CLOCK_FORMATS = listOf(CLOCK_FORMAT_SYSTEM, CLOCK_FORMAT_24, CLOCK_FORMAT_12)
+    const val CLOCK_COLOR_WHITE = "white"
+    const val CLOCK_COLOR_AMBER = "amber"
+    const val CLOCK_COLOR_BLUE = "blue"
+    const val CLOCK_COLOR_PINK = "pink"
+    const val CLOCK_COLOR_TURQUOISE = "turquoise"
+    val CLOCK_COLORS = mapOf(
+        CLOCK_COLOR_WHITE to 0xFFFFFFFF.toInt(),
+        CLOCK_COLOR_AMBER to 0xFFFFC857.toInt(),
+        CLOCK_COLOR_BLUE to 0xFF8CC8FF.toInt(),
+        CLOCK_COLOR_PINK to 0xFFFF8FB1.toInt(),
+        CLOCK_COLOR_TURQUOISE to 0xFF5CE1E6.toInt(),
+    )
     val SCREENSAVER_BRIGHTNESS_OPTIONS = listOf(100, 75, 50)
 
     /** How long each wallpaper stays on screen. */
@@ -579,6 +592,11 @@ object Settings {
     var screensaverDate: Boolean
         get() = preferences.getBoolean(KEY_SCREENSAVER_DATE, true)
         set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_DATE, value) }
+
+    /** The digits' colour, see [CLOCK_COLORS]; [ScreensaverFragment] says who can change it. */
+    var screensaverClockColor: String
+        get() = preferences.getString(KEY_SCREENSAVER_CLOCK_COLOR, null)?.takeIf { it in CLOCK_COLORS } ?: CLOCK_COLOR_WHITE
+        set(value) = preferences.edit { putString(KEY_SCREENSAVER_CLOCK_COLOR, value) }
 
     /** 24 or 12 hours, or as Android is set (see [CLOCK_FORMATS]). */
     var screensaverClockFormat: String

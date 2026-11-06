@@ -181,6 +181,11 @@
     <string name="about_support">Apoyar el proyecto</string>
     <string name="about_support_desc">Si te gusta el plugin, puedes invitarme a un café en Ko-fi</string>
     <string name="about_support_scan">Escanéalo con el móvil para abrir la página de Ko-fi. ¡Gracias!</string>
+    <string name="supporter_desc">Pago único que desbloquea colores para el reloj del salvapantallas y añade una insignia de Supporter. Todo lo demás sigue gratis</string>
+    <string name="supporter_badge">Supporter</string>
+    <string name="supporter_thanks">Gracias por apoyar Sofadrop</string>
+    <string name="supporter_pending">Tu pago está pendiente de confirmación</string>
+    <string name="supporter_unavailable">Las compras no están disponibles ahora mismo</string>
     <string name="about_source">Código fuente</string>
     <string name="about_source_scan">Escanéalo con el móvil para abrir la página del proyecto.</string>
     <string name="about_beta">Probarla en Google Play</string>

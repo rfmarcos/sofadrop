@@ -115,6 +115,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.zxing.core)
     implementation(project(":api"))
+    "playImplementation"(libs.billing)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)

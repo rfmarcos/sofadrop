@@ -189,6 +189,11 @@
     <string name="about_support">Steun het project</string>
     <string name="about_support_desc">Vind je de plug-in fijn, dan kun je me een kop koffie geven op Ko-fi</string>
     <string name="about_support_scan">Scan met je telefoon om de Ko-fi-pagina te openen. Bedankt!</string>
+    <string name="supporter_desc">Eenmalige aankoop die kleuren voor de klok van de screensaver ontgrendelt en een Supporter-badge toevoegt. Al het andere blijft gratis</string>
+    <string name="supporter_badge">Supporter</string>
+    <string name="supporter_thanks">Bedankt dat je Sofadrop steunt</string>
+    <string name="supporter_pending">Je betaling wacht op bevestiging</string>
+    <string name="supporter_unavailable">Aankopen zijn nu niet beschikbaar</string>
     <string name="about_source">Broncode</string>
     <string name="about_source_scan">Scan met je telefoon om de projectpagina te openen.</string>
     <string name="about_beta">Testen op Google Play</string>

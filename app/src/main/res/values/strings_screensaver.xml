@@ -43,6 +43,13 @@
     <string name="clock_format_system">As Android (%1$s)</string>
     <string name="clock_format_24">24 hours</string>
     <string name="clock_format_12">12 hours</string>
+    <string name="screensaver_clock_color_title">Clock colour</string>
+    <string name="clock_color_locked">Included with Supporter, a one-time purchase. Press OK to get it</string>
+    <string name="clock_color_white">White</string>
+    <string name="clock_color_amber">Amber</string>
+    <string name="clock_color_blue">Blue</string>
+    <string name="clock_color_pink">Pink</string>
+    <string name="clock_color_turquoise">Turquoise</string>
     <string name="screensaver_brightness_title">Brightness</string>
     <string name="screensaver_brightness">%1$d%%</string>
     <string name="screensaver_weather_title">Weather</string>

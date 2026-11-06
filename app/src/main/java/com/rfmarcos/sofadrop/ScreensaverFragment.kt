@@ -29,6 +29,11 @@ class ScreensaverFragment : OutputFragment() {
     private var hold: Runnable? = null
     private var demo = 0
 
+    /** Null in GitHub builds, where the clock's colours are free. Lazy because the rows are built inside super.onCreate. */
+    private val supporter by lazy { createSupporter(requireContext(), ::showSupporter) }
+    private var supporterState: Supporter.State? = null
+    private val colorsLocked get() = supporter != null && supporterState != Supporter.State.BOUGHT
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val context = requireContext()
@@ -44,6 +49,28 @@ class ScreensaverFragment : OutputFragment() {
         clock?.close()
         clock = null
         super.onDestroyView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        supporter?.refresh()
+    }
+
+    override fun onDestroy() {
+        supporter?.close()
+        super.onDestroy()
+    }
+
+    private fun showSupporter(state: Supporter.State) {
+        if (state == Supporter.State.UNAVAILABLE) {
+            Toast.makeText(requireContext(), R.string.supporter_unavailable, Toast.LENGTH_LONG).show()
+            return
+        }
+        if (state == supporterState) return
+        supporterState = state
+        // A refund takes the colour away; a restored backup doesn't bring one either
+        if (state == Supporter.State.NOT_BOUGHT) Settings.screensaverClockColor = Settings.CLOCK_COLOR_WHITE
+        if (view != null) refresh()
     }
 
     /** The clock on the 16:9 preview, sized as on the screen. */
@@ -185,6 +212,7 @@ class ScreensaverFragment : OutputFragment() {
                 Settings.CLOCK_FORMATS.map { formatLabel(context, it) }).also { it.isEnabled = clockOn },
             choice(ID_POSITION, R.drawable.ic_act_place, R.string.screensaver_clock_position_title, positionLabel(context, Settings.screensaverClockBottom),
                 listOf(false, true).map { positionLabel(context, it) }).also { it.isEnabled = clockOn },
+            colorRow(clockOn),
             action(ID_WEATHER, R.drawable.ic_act_weather, getString(R.string.screensaver_weather_title),
                 Settings.weatherPlace.ifEmpty { getString(R.string.screensaver_weather_no_place) })
                 .checkSetId(GuidedAction.CHECKBOX_CHECK_SET_ID).checked(Settings.screensaverWeather)
@@ -192,6 +220,20 @@ class ScreensaverFragment : OutputFragment() {
             editable(ID_LOCATION, R.drawable.ic_act_search, getString(R.string.screensaver_location_title), Settings.weatherPlace,
                 Settings.weatherPlace.ifEmpty { getString(R.string.not_set) }).also { it.isEnabled = clockOn },
         )
+    }
+
+    /** The clock's colours, or what unlocks them. */
+    private fun colorRow(clockOn: Boolean): GuidedAction {
+        val context = requireContext()
+        if (colorsLocked) {
+            val pending = supporterState == Supporter.State.PENDING
+            return action(ID_COLOR, R.drawable.ic_act_visibility, getString(R.string.screensaver_clock_color_title),
+                getString(if (pending) R.string.supporter_pending else R.string.clock_color_locked))
+                .multilineDescription(true).enabled(clockOn).build()
+        }
+        return choice(ID_COLOR, R.drawable.ic_act_visibility, R.string.screensaver_clock_color_title,
+            colorLabel(context, Settings.screensaverClockColor), Settings.CLOCK_COLORS.keys.map { colorLabel(context, it) })
+            .also { it.isEnabled = clockOn }
     }
 
     /** Sofascreen makes its set when it starts: only without lists there would be nothing to wait for. */
@@ -213,6 +255,7 @@ class ScreensaverFragment : OutputFragment() {
                 Settings.screensaverWeather = action.isChecked
                 showClock()
             }
+            ID_COLOR -> if (colorsLocked && supporterState != Supporter.State.PENDING) supporter?.buy(requireActivity())
             else -> super.onGuidedActionClicked(action)
         }
     }
@@ -255,6 +298,7 @@ class ScreensaverFragment : OutputFragment() {
             ID_CLOCK -> Settings.screensaverClock = Settings.CLOCK_STYLES[index]
             ID_POSITION -> Settings.screensaverClockBottom = index == 1
             ID_FORMAT -> Settings.screensaverClockFormat = Settings.CLOCK_FORMATS[index]
+            ID_COLOR -> Settings.screensaverClockColor = Settings.CLOCK_COLORS.keys.elementAt(index)
             ID_BRIGHTNESS -> Settings.screensaverBrightness = Settings.SCREENSAVER_BRIGHTNESS_OPTIONS[index]
             else -> return super.onSubGuidedActionClicked(action)
         }
@@ -277,6 +321,7 @@ class ScreensaverFragment : OutputFragment() {
         private const val ID_POSITION = 19L
         private const val ID_WEATHER = 20L
         private const val ID_LOCATION = 21L
+        private const val ID_COLOR = 22L
         private const val TRANSITION_HOLD_MILLIS = 1500L
 
         /** "com.rfmarcos.sofadrop/com.rfmarcos.sofadrop.SofascreenService", for the adb command. */
@@ -311,6 +356,16 @@ class ScreensaverFragment : OutputFragment() {
             else -> context.getString(R.string.clock_format_system, context.getString(
                 if (android.text.format.DateFormat.is24HourFormat(context)) R.string.clock_format_24 else R.string.clock_format_12))
         }
+
+        private fun colorLabel(context: Context, color: String) = context.getString(
+            when (color) {
+                Settings.CLOCK_COLOR_AMBER -> R.string.clock_color_amber
+                Settings.CLOCK_COLOR_BLUE -> R.string.clock_color_blue
+                Settings.CLOCK_COLOR_PINK -> R.string.clock_color_pink
+                Settings.CLOCK_COLOR_TURQUOISE -> R.string.clock_color_turquoise
+                else -> R.string.clock_color_white
+            }
+        )
 
         private fun positionLabel(context: Context, bottom: Boolean) =
             context.getString(if (bottom) R.string.clock_bottom else R.string.clock_top)

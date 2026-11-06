@@ -191,6 +191,11 @@
     <string name="about_support">Support the project</string>
     <string name="about_support_desc">If you like the plugin, you can buy me a coffee on Ko-fi</string>
     <string name="about_support_scan">Scan it with your phone to open the Ko-fi page. Thank you!</string>
+    <string name="supporter_desc">One-time purchase that unlocks colours for the screensaver\'s clock and adds a Supporter badge. Everything else stays free</string>
+    <string name="supporter_badge">Supporter</string>
+    <string name="supporter_thanks">Thank you for supporting Sofadrop</string>
+    <string name="supporter_pending">Your payment is waiting to be confirmed</string>
+    <string name="supporter_unavailable">Purchases aren\'t available right now</string>
     <string name="about_source">Source code</string>
     <string name="about_source_scan">Scan it with your phone to open the project page.</string>
     <string name="about_beta">Test it on Google Play</string>

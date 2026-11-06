@@ -42,6 +42,13 @@
     <string name="clock_format_system">Como Android (%1$s)</string>
     <string name="clock_format_24">24 horas</string>
     <string name="clock_format_12">12 horas</string>
+    <string name="screensaver_clock_color_title">Color del reloj</string>
+    <string name="clock_color_locked">Incluido con Supporter, un pago único. Pulsa OK para conseguirlo</string>
+    <string name="clock_color_white">Blanco</string>
+    <string name="clock_color_amber">Ámbar</string>
+    <string name="clock_color_blue">Azul</string>
+    <string name="clock_color_pink">Rosa</string>
+    <string name="clock_color_turquoise">Turquesa</string>
     <string name="screensaver_brightness_title">Brillo</string>
     <string name="screensaver_brightness">%1$d%%</string>
     <string name="screensaver_weather_title">El tiempo</string>

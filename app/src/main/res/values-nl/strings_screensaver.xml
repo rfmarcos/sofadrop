@@ -42,6 +42,13 @@
     <string name="clock_format_system">Zoals Android (%1$s)</string>
     <string name="clock_format_24">24-uurs</string>
     <string name="clock_format_12">12-uurs</string>
+    <string name="screensaver_clock_color_title">Kleur van de klok</string>
+    <string name="clock_color_locked">Inbegrepen bij Supporter, een eenmalige aankoop. Druk op OK om het te krijgen</string>
+    <string name="clock_color_white">Wit</string>
+    <string name="clock_color_amber">Amber</string>
+    <string name="clock_color_blue">Blauw</string>
+    <string name="clock_color_pink">Roze</string>
+    <string name="clock_color_turquoise">Turquoise</string>
     <string name="screensaver_brightness_title">Helderheid</string>
     <string name="screensaver_brightness">%1$d%%</string>
     <string name="screensaver_weather_title">Weer</string>

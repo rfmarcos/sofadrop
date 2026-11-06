@@ -73,7 +73,7 @@ The left side of the settings shows a **live preview** of a wallpaper with your 
 ![Sofadrop settings with the live preview](docs/images/settings_en.jpg)
 
 * **Wallpapers**, for the home screen of Projectivy Launcher (wallpaper plugins are a Premium feature there). Inside: *Use in Projectivy* opens its settings to pick Sofadrop, and each of the settings below, shared or customized.
-* **Screensaver** says whether it's the TV's screensaver. Inside: *Start screensaver* (now, with no setup), *Use as the TV's screensaver*, each of the settings below, shared or customized, then time per wallpaper, transition, slow zoom, clock, date, brightness and weather. See [Screensaver](#screensaver).
+* **Screensaver** says whether it's the TV's screensaver. Inside: *Start screensaver* (now, with no setup), *Use as the TV's screensaver*, each of the settings below, shared or customized, then time per wallpaper, transition, slow zoom, clock and its colour, date, brightness and weather. See [Screensaver](#screensaver).
 * **Shared settings**, what Wallpapers and Screensaver use unless you customize them. Custom lists or wallpaper details make a second set of wallpapers, with about the same space and time again.
 * **Update now** also shows the status: how many wallpapers you have, when they were updated, or the progress while generating.
 * **View wallpapers**, inside *Wallpapers*, shows the current set full screen (◀ ▶ to browse, **OK** to open the title, ▲ to use it in the preview, ▼ to block it).

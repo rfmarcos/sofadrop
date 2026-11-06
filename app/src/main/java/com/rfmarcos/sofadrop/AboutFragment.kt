@@ -9,6 +9,10 @@ import androidx.leanback.widget.GuidedAction
 /** Version, support link, source code and credits. */
 class AboutFragment : BaseSettingsFragment() {
 
+    /** Null in GitHub builds, which link to Ko-fi instead. Lazy because the rows are built inside super.onCreate. */
+    private val supporter by lazy { createSupporter(requireContext(), ::showSupporter) }
+    private var supporterState = Supporter.State.NOT_BOUGHT
+
     override fun onCreateGuidance(savedInstanceState: Bundle?) = Guidance(
         getString(R.string.setting_about_title),
         getString(R.string.plugin_description),
@@ -28,7 +32,9 @@ class AboutFragment : BaseSettingsFragment() {
             actions += action(ID_BETA, R.drawable.ic_act_phone, getString(R.string.about_beta), getString(R.string.about_beta_desc))
                 .multilineDescription(true).build()
         }
-        if (BuildConfig.SUPPORT_URL.isNotBlank() && !BuildConfig.PLAY) {
+        if (supporter != null) {
+            actions += action(ID_SUPPORT, R.drawable.ic_act_heart, supporterTitle(), supporterText()).multilineDescription(true).build()
+        } else if (BuildConfig.SUPPORT_URL.isNotBlank()) {
             actions += action(ID_SUPPORT, R.drawable.ic_act_heart, getString(R.string.about_support), getString(R.string.about_support_desc)).build()
         }
         if (BuildConfig.SOURCE_URL.isNotBlank()) {
@@ -42,6 +48,16 @@ class AboutFragment : BaseSettingsFragment() {
         explanations[ID_CREDITS] = getString(R.string.about_credits_desc)
     }
 
+    override fun onResume() {
+        super.onResume()
+        supporter?.refresh()
+    }
+
+    override fun onDestroy() {
+        supporter?.close()
+        super.onDestroy()
+    }
+
     override fun onGuidedActionClicked(action: GuidedAction) {
         when (action.id) {
             ID_VERSION -> checkForUpdate()
@@ -49,11 +65,36 @@ class AboutFragment : BaseSettingsFragment() {
             ID_WIZARD -> Wizard.start(parentFragmentManager)
             ID_SETTINGS_FILE -> open(SettingsFileFragment())
             ID_BETA -> LinkQrDialog.newInstance(BETA_URL, R.string.about_beta, R.string.about_beta_scan).show(parentFragmentManager, "beta")
-            ID_SUPPORT -> LinkQrDialog.newInstance(BuildConfig.SUPPORT_URL, R.string.about_support, R.string.about_support_scan)
-                .show(parentFragmentManager, "support")
+            ID_SUPPORT -> when {
+                supporter == null -> LinkQrDialog.newInstance(BuildConfig.SUPPORT_URL, R.string.about_support, R.string.about_support_scan)
+                    .show(parentFragmentManager, "support")
+                supporterState == Supporter.State.NOT_BOUGHT -> supporter?.buy(requireActivity())
+            }
             ID_SOURCE -> LinkQrDialog.newInstance(BuildConfig.SOURCE_URL, R.string.about_source, R.string.about_source_scan)
                 .show(parentFragmentManager, "source")
         }
+    }
+
+    private fun supporterTitle() = getString(if (supporterState == Supporter.State.BOUGHT) R.string.supporter_badge else R.string.about_support)
+
+    private fun supporterText() = getString(
+        when (supporterState) {
+            Supporter.State.BOUGHT -> R.string.supporter_thanks
+            Supporter.State.PENDING -> R.string.supporter_pending
+            else -> R.string.supporter_desc
+        }
+    )
+
+    private fun showSupporter(state: Supporter.State) {
+        if (state == Supporter.State.UNAVAILABLE) {
+            Toast.makeText(requireContext(), R.string.supporter_unavailable, Toast.LENGTH_LONG).show()
+            return
+        }
+        supporterState = state
+        // Off screen, onResume asks again
+        if (view == null) return
+        findActionById(ID_SUPPORT)?.title = supporterTitle()
+        updateDescription(ID_SUPPORT, supporterText())
     }
 
     private fun versionText(): String = when {
