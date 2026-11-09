@@ -11,13 +11,20 @@ import androidx.core.net.toUri
  * Apps a wallpaper can open its title in (see [Profile.clickFallback]). Only some of them can go to the
  * title itself; the platforms (Netflix, Prime Video…) have no public way to, so they aren't here.
  */
-enum class TitleApp(val key: String, val label: String, private val packages: List<String>, val reach: Reach) {
+enum class TitleApp(
+    val key: String,
+    val label: String,
+    private val packages: List<String>,
+    val reach: Reach,
+    /** A link the app opens: forks with another package that keep it are found by it (issue #25). */
+    private val probe: String? = null,
+) {
     /** nuvio://tmdb/movie/603, nuvio://tmdb/series/1399 (its DeepLinkParser). */
-    NUVIO("nuvio", "Nuvio", listOf("com.nuvio.tv", "com.nuvio.app"), Reach.TITLE),
+    NUVIO("nuvio", "Nuvio", listOf("com.nuvio.tv", "com.nuvio.app"), Reach.TITLE, "nuvio://tmdb/movie/603"),
     /** stremio:///detail/movie/tt0133093 (Stremio's deep links), by IMDb id; its search without one. */
-    STREMIO("stremio", "Stremio", listOf("com.stremio.one"), Reach.TITLE),
+    STREMIO("stremio", "Stremio", listOf("com.stremio.one"), Reach.TITLE, "stremio:///detail/movie/tt0133093"),
     /** wuplay://detail/movie/tt0133093, or tmdb:603 without an IMDb id. */
-    WUPLAY("wuplay", "WuPlay", listOf("app.wuplay.androidtv"), Reach.TITLE),
+    WUPLAY("wuplay", "WuPlay", listOf("app.wuplay.androidtv"), Reach.TITLE, "wuplay://detail/movie/tt0133093"),
     /** Its search screen with the title, through ACTION_SEARCH; items need the server's own ids. */
     JELLYFIN("jellyfin", "Jellyfin", listOf("org.jellyfin.androidtv"), Reach.SEARCH);
     // Plex and Kodi have no way in to a title: only opening the app, which isn't worth a wallpaper click
@@ -25,7 +32,7 @@ enum class TitleApp(val key: String, val label: String, private val packages: Li
     /** How close to the title the app gets. */
     enum class Reach { TITLE, SEARCH }
 
-    /** The installed package of this app, or null. */
+    /** The installed package of this app, or of a fork that opens its links; null when there's none. */
     fun installedPackage(context: Context): String? = packages.firstOrNull { name ->
         try {
             context.packageManager.getPackageInfo(name, 0)
@@ -33,6 +40,10 @@ enum class TitleApp(val key: String, val label: String, private val packages: Li
         } catch (_: PackageManager.NameNotFoundException) {
             false
         }
+    } ?: probe?.let { link ->
+        context.packageManager.queryIntentActivities(Intent(Intent.ACTION_VIEW, link.toUri()), 0)
+            .map { it.activityInfo.packageName }
+            .firstOrNull { it != context.packageName }
     }
 
     /** What opens [wallpaper] in this app ([packageName], installed); null when the app can't be opened. */
