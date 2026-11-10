@@ -70,7 +70,9 @@ private class PlaySupporter(context: Context, private val onChange: (Supporter.S
             BillingResponseCode.OK -> show(purchases.orEmpty())
             BillingResponseCode.ITEM_ALREADY_OWNED -> refresh()
             BillingResponseCode.USER_CANCELED -> Unit
-            else -> report(Supporter.State.UNAVAILABLE)
+            // Google Play has shown its own error by now (a declined card ends as BILLING_UNAVAILABLE): saying
+            // purchases aren't available would be wrong, only the state is asked again
+            else -> refresh()
         }
     }
 
