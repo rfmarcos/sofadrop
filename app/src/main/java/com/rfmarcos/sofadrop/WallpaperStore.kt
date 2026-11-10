@@ -59,8 +59,9 @@ class WallpaperStore(private val context: Context, profile: Profile = Profile.WA
         tmp.writeText(generation.name)
         tmp.renameTo(currentFile)
         if (partial) return
-        // Only older sets: a newer one may be another generation still being written (two can overlap)
-        root.listFiles()?.filter { it.isDirectory && it.name != keep && startedAt(it) < startedAt(generation) }?.forEach { it.deleteRecursively() }
+        // Only older sets: a newer one may be another generation still being written (two can overlap).
+        // The focused cards' wallpapers stay: they're named after the settings they were drawn with
+        root.listFiles()?.filter { it.isDirectory && it.name != keep && it.name != FocusedWallpapers.DIR && startedAt(it) < startedAt(generation) }?.forEach { it.deleteRecursively() }
     }
 
     /** When the generation in [dir] ("gen-1761560000000") started; 0 for anything else, which goes. */

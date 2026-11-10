@@ -81,6 +81,7 @@ object Settings {
     private const val KEY_WATCH_SOURCE = "watch_source"
     private const val KEY_BLOCKED = "blocked_titles"
     private const val KEY_MIX_LISTS = "mix_lists"
+    private const val KEY_FOCUSED_CARD = "focused_card"
     private const val KEY_WALLPAPER_FOLDER = "wallpaper_folder"
     private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
     private const val KEY_ORDER_MOVED = "order_moved"
@@ -137,6 +138,11 @@ object Settings {
     const val SYNOPSIS_ENGLISH = "english"
     const val SYNOPSIS_SKIP = "skip"
     val SYNOPSIS_MODES = listOf(SYNOPSIS_HIDE, SYNOPSIS_ENGLISH, SYNOPSIS_SKIP)
+    /** While a card is focused: leave the wallpaper alone, show its episode when it's known, or always its series (or movie). */
+    const val FOCUSED_OFF = "off"
+    const val FOCUSED_EPISODE = "episode"
+    const val FOCUSED_SERIES = "series"
+    val FOCUSED_OPTIONS = listOf(FOCUSED_OFF, FOCUSED_EPISODE, FOCUSED_SERIES)
     /** Language of the logo (and of the title written instead) and of the synopsis: the general one, the title's own or a locale. */
     const val LANGUAGE_AUTO = "auto"
     const val LANGUAGE_ORIGINAL = "original"
@@ -273,6 +279,11 @@ object Settings {
     var mixLists: Boolean
         get() = preferences.getBoolean(KEY_MIX_LISTS, true)
         set(value) = preferences.edit { putBoolean(KEY_MIX_LISTS, value) }
+
+    /** What Projectivy shows while a movie, series or episode card is focused, see [FocusedWallpapers]. */
+    var focusedCard: String
+        get() = preferences.getString(KEY_FOCUSED_CARD, null)?.takeIf { it in FOCUSED_OPTIONS } ?: FOCUSED_OFF
+        set(value) = preferences.edit { putString(KEY_FOCUSED_CARD, value) }
 
     /** A copy of the wallpapers in Pictures/Sofadrop, for other launchers (see [WallpaperFolder]). */
     var wallpaperFolder: Boolean

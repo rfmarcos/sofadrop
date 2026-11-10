@@ -173,10 +173,12 @@
                 android:name="itemsCacheDurationMillis"
                 android:value="@integer/items_cache_duration_millis" />
 
-            <!-- TIME_ELAPSED only -->
+            <!-- TIME_ELAPSED, CARD_FOCUSED, PROGRAM_CARD_FOCUSED and LAUNCHER_IDLE_MODE_CHANGED, for the focused
+                 card's wallpaper (FocusedWallpapers). Card events are answered with an empty list, which leaves
+                 the wallpaper as it is, unless that option is on. -->
             <meta-data
                 android:name="updateMode"
-                android:value="1" />
+                android:value="29" />
         </service>
 
         <!-- The settings file shared with another app (see SettingsFile.shareIntent) -->

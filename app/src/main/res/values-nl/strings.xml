@@ -20,6 +20,23 @@
     <string name="generation_started">Achtergronden worden op de achtergrond gemaakt…</string>
     <string name="action_preview">Achtergronden bekijken</string>
     <string name="action_preview_desc">De huidige set op volledig scherm</string>
+    <string name="focused_card_title">Geselecteerde kaart (bèta)</string>
+    <string name="focused_card_off">Uit</string>
+    <string name="focused_card_episode">Aflevering indien herkend</string>
+    <string name="focused_card_series">Serie of film</string>
+    <string name="focused_card_explain">Terwijl je op een film, serie of aflevering staat in een kanaal van Projectivy, wordt de achtergrond die titel. Het werkt met kanalen van series en films: de titel wordt op TMDB gezocht op de naam van de kaart, en afleveringen worden herkend als de kaart de afbeelding van TMDB gebruikt. De eerste keer dat je op een kaart blijft staan, duurt het een paar seconden voor de achtergrond verschijnt (iets langer vlak na het aanzetten van de tv); daarna is hij er meteen. Dit is nieuw: als een kaart niet toont wat je verwacht, stuur dan het kaartenlogboek.</string>
+    <string name="focused_log_title">Kaartenlogboek</string>
+    <string name="focused_log_none">Nog geen kaarten</string>
+    <string name="focused_log_explain">De laatste kaarten waarop je stond, wat elke app erover zei en wat Sofadrop vond. Stuur het als een kaart niet de juiste achtergrond toont: zo werkt het met meer apps.</string>
+    <string name="focused_log_desc">De laatste kaarten waarop je stond: wat de app over elke kaart zei (type, naam, waar de afbeelding staat) en wat er op TMDB gevonden werd.</string>
+    <string name="focused_log_text">Als tekst tonen</string>
+    <string name="focused_log_text_desc">Het hele logboek als tekst, om het te delen waar je wilt (een GitHub-issue, Reddit…). Het bevat de namen van de kaarten.</string>
+    <string name="focused_log_newest">Nieuwste kaarten eerst</string>
+    <string name="focused_log_clear">Logboek wissen</string>
+    <plurals name="focused_log_cards">
+        <item quantity="one">%d kaart</item>
+        <item quantity="other">%d kaarten</item>
+    </plurals>
     <string name="preview_empty">Nog geen achtergronden. Gebruik eerst \"Nu bijwerken\".</string>
 
     <!-- Live preview -->

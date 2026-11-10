@@ -22,6 +22,23 @@
     <string name="generation_started">Generating wallpapers in the background…</string>
     <string name="action_preview">View wallpapers</string>
     <string name="action_preview_desc">The current set full screen</string>
+    <string name="focused_card_title">Focused card (beta)</string>
+    <string name="focused_card_off">Off</string>
+    <string name="focused_card_episode">Episode when known</string>
+    <string name="focused_card_series">Series or movie</string>
+    <string name="focused_card_explain">While you\'re on a movie, series or episode in a Projectivy channel, the wallpaper becomes that title. It works with channels of series and movies: the title is looked up on TMDB by the card\'s name, and episodes are recognized when the card shows TMDB\'s image. The first time you stop on a card, its wallpaper takes a few seconds to appear (a bit longer right after the TV starts); after that it\'s instant. It\'s new: if a card doesn\'t show what you expect, send the card log.</string>
+    <string name="focused_log_title">Card log</string>
+    <string name="focused_log_none">No cards yet</string>
+    <string name="focused_log_explain">The last cards you were on, what each app said about them and what Sofadrop found. Send it if a card doesn\'t show the right wallpaper: it helps make this work with more apps.</string>
+    <string name="focused_log_desc">The last cards you were on: what the app said about each one (type, name, where its image is) and what was found on TMDB.</string>
+    <string name="focused_log_text">Show it as text</string>
+    <string name="focused_log_text_desc">The whole log as text, to share it wherever you like (a GitHub issue, Reddit…). It includes the names of the cards.</string>
+    <string name="focused_log_newest">Newest cards first</string>
+    <string name="focused_log_clear">Clear the log</string>
+    <plurals name="focused_log_cards">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
+    </plurals>
     <string name="preview_empty">No wallpapers yet. Use \"Update now\" first.</string>
 
     <!-- Live preview -->

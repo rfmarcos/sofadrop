@@ -19,6 +19,23 @@
     <string name="generation_started">Generando fondos en segundo plano…</string>
     <string name="action_preview">Ver fondos</string>
     <string name="action_preview_desc">El conjunto actual a pantalla completa</string>
+    <string name="focused_card_title">Tarjeta seleccionada (beta)</string>
+    <string name="focused_card_off">Desactivado</string>
+    <string name="focused_card_episode">Episodio si se reconoce</string>
+    <string name="focused_card_series">Serie o película</string>
+    <string name="focused_card_explain">Mientras estás sobre una película, serie o episodio en un canal de Projectivy, el fondo pasa a ser ese título. Funciona con canales de series y películas: se busca en TMDB por el nombre de la tarjeta, y los episodios se reconocen cuando la tarjeta usa la imagen de TMDB. La primera vez que te paras en una tarjeta, su fondo tarda unos segundos en aparecer (algo más nada más encender la tele); después sale al momento. Es nuevo: si una tarjeta no muestra lo que esperas, envía el registro de tarjetas.</string>
+    <string name="focused_log_title">Registro de tarjetas</string>
+    <string name="focused_log_none">Aún no hay tarjetas</string>
+    <string name="focused_log_explain">Las últimas tarjetas en las que has estado, qué decía de ellas cada app y qué encontró Sofadrop. Envíalo si una tarjeta no muestra el fondo correcto: ayuda a que funcione con más apps.</string>
+    <string name="focused_log_desc">Las últimas tarjetas en las que has estado: qué decía la app de cada una (tipo, nombre, de dónde es su imagen) y qué se encontró en TMDB.</string>
+    <string name="focused_log_text">Verlo como texto</string>
+    <string name="focused_log_text_desc">Todo el registro en texto, para compartirlo donde quieras (una incidencia en GitHub, Reddit…). Incluye los nombres de las tarjetas.</string>
+    <string name="focused_log_newest">Las tarjetas más recientes primero</string>
+    <string name="focused_log_clear">Borrar el registro</string>
+    <plurals name="focused_log_cards">
+        <item quantity="one">%d tarjeta</item>
+        <item quantity="other">%d tarjetas</item>
+    </plurals>
     <string name="preview_empty">Aún no hay fondos. Usa primero «Actualizar ahora».</string>
 
     <string name="preview_label">Vista previa · %1$s</string>

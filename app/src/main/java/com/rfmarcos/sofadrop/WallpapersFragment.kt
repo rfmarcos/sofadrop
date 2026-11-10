@@ -45,7 +45,7 @@ class WallpapersFragment : OutputFragment() {
             launcher,
             action(ID_VIEW, R.drawable.ic_act_preview, getString(R.string.action_preview), getString(R.string.action_preview_desc))
                 .enabled(hasWallpapers()).build(),
-        ) + folderRow() + setRows()
+        ) + (if (projectivy) focusedCardRows() else emptyList()) + folderRow() + setRows()
     }
 
     /** A copy in Pictures/Sofadrop for launchers that show a folder's images (Monet Launcher...). */
@@ -71,6 +71,27 @@ class WallpapersFragment : OutputFragment() {
         refresh()
     }
 
+    /** The focused card's wallpaper (beta), and what it made of the last cards, to send. */
+    private fun focusedCardRows(): List<GuidedAction> {
+        explanations[ID_FOCUSED_CARD] = getString(R.string.focused_card_explain)
+        explanations[ID_FOCUSED_LOG] = getString(R.string.focused_log_explain)
+        val labels = Settings.FOCUSED_OPTIONS.map { focusedCardLabel(it) }
+        val cards = FocusedLog.read(requireContext()).size
+        return listOfNotNull(
+            choice(ID_FOCUSED_CARD, R.drawable.ic_act_play, R.string.focused_card_title, focusedCardLabel(Settings.focusedCard), labels),
+            action(ID_FOCUSED_LOG, R.drawable.ic_act_status, getString(R.string.focused_log_title),
+                if (cards == 0) getString(R.string.focused_log_none) else resources.getQuantityString(R.plurals.focused_log_cards, cards, cards))
+                .hasNext(cards > 0).enabled(cards > 0).build()
+                .takeIf { Settings.focusedCard != Settings.FOCUSED_OFF || cards > 0 },
+        )
+    }
+
+    private fun focusedCardLabel(mode: String) = getString(when (mode) {
+        Settings.FOCUSED_EPISODE -> R.string.focused_card_episode
+        Settings.FOCUSED_SERIES -> R.string.focused_card_series
+        else -> R.string.focused_card_off
+    })
+
     override fun onSubGuidedActionClicked(action: GuidedAction): Boolean {
         if (action.id / SUB_ID_BASE == ID_FOLDER) {
             val on = action.id % SUB_ID_BASE == 1L
@@ -79,7 +100,11 @@ class WallpapersFragment : OutputFragment() {
             else setFolder(on)
             return true
         }
-        return super.onSubGuidedActionClicked(action)
+        if (action.id / SUB_ID_BASE != ID_FOCUSED_CARD) return super.onSubGuidedActionClicked(action)
+        Settings.focusedCard = Settings.FOCUSED_OPTIONS[(action.id % SUB_ID_BASE).toInt()]
+        // The log's row comes and goes with it
+        refresh()
+        return true
     }
 
     private fun hasWallpapers() = WallpaperStore(requireContext(), profile).current().isNotEmpty()
@@ -96,6 +121,7 @@ class WallpapersFragment : OutputFragment() {
         when (action.id) {
             ID_USE -> Projectivy.openWallpaperSettings(requireContext())
             ID_VIEW -> startActivity(Intent(requireContext(), PreviewActivity::class.java).putExtra(PreviewActivity.EXTRA_PROFILE, profile.id))
+            ID_FOCUSED_LOG -> open(FocusedLogFragment())
             ID_GET -> LinkQrDialog.newInstance(Projectivy.URL, R.string.projectivy_get, R.string.projectivy_get_scan)
                 .show(parentFragmentManager, "projectivy")
             else -> super.onGuidedActionClicked(action)
@@ -106,6 +132,8 @@ class WallpapersFragment : OutputFragment() {
         private const val ID_USE = 1L
         private const val ID_GET = 4L
         private const val ID_VIEW = 5L
+        private const val ID_FOCUSED_CARD = 6L
+        private const val ID_FOCUSED_LOG = 7L
         private const val ID_FOLDER = 8L
 
         private fun folderLabel(context: Context, on: Boolean) =

@@ -99,7 +99,7 @@ class TmdbClient(token: String, cacheDir: File) {
     companion object {
         private const val TAG = "TmdbClient"
         private const val API_URL = "https://api.themoviedb.org/3/"
-        private const val IMAGE_URL = "https://image.tmdb.org/t/p/"
+        const val IMAGE_URL = "https://image.tmdb.org/t/p/"
         private const val MAX_ATTEMPTS = 3
 
         /** Requests made in this process, for the generation log: API calls, images, and those that weren't cached. */
