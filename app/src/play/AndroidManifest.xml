@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Google Play offers it only on TVs: its screens are made for a remote, and a phone listing would need
+         phone screenshots and pass the phone quality review. The GitHub APK still installs anywhere. -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true"
+        tools:replace="android:required" />
+
+</manifest>
