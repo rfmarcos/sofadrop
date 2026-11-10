@@ -5,8 +5,6 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -26,8 +24,8 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
 
     protected val handler = Handler(Looper.getMainLooper())
 
-    /** Whose lists and look this screen edits (see [forProfile]): the wallpapers' unless opened for the screensaver. */
-    protected val profile: Profile get() = Profile.of(arguments?.getString(ARG_PROFILE))
+    /** Whose settings this screen edits (see [forProfile]): the general ones unless opened for one place. */
+    protected val profile: Profile get() = arguments?.getString(ARG_PROFILE)?.let(Profile::of) ?: Profile.GENERAL
 
     /** Open [screen] over this one, for the same profile. */
     protected fun open(screen: GuidedStepSupportFragment) {
@@ -38,8 +36,10 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // The screensaver's lists and details look like the wallpapers': the breadcrumb tells them apart
-        if (profile.isScreensaver && this !is ScreensaverFragment) guidanceStylist.breadcrumbView?.text = getString(R.string.screensaver_title)
+        // Its own lists and details look like the general ones: the breadcrumb tells them apart
+        if (!profile.isGeneral && this !is OutputFragment) {
+            guidanceStylist.breadcrumbView?.text = getString(if (profile.isScreensaver) R.string.screensaver_title else R.string.wallpapers_title)
+        }
         // Rows matched by id, so a row added or removed by refreshActions doesn't rebuild the list
         setActionsDiffCallback(object : DiffCallback<GuidedAction>() {
             override fun areItemsTheSame(oldItem: GuidedAction, newItem: GuidedAction) = oldItem.id == newItem.id
@@ -52,6 +52,9 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
 
     /** Long explanations shown in the left pane while their row is focused, so rows show only their value. */
     protected val explanations = mutableMapOf<Long, CharSequence>()
+
+    /** Rows that have no effect now: they still open, but they look off. */
+    protected val unusedRows = mutableSetOf<Long>()
     private var guidanceText: CharSequence? = null
 
     override fun onCreateActionsStylist(): GuidedActionsStylist = object : GuidedActionsStylist() {
@@ -65,6 +68,10 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
 
         override fun onBindViewHolder(vh: ViewHolder, action: GuidedAction) {
             super.onBindViewHolder(vh, action)
+            // Not the whole row: its focus animation puts the alpha back
+            val alpha = if (action.id in unusedRows) UNUSED_ROW_ALPHA else 1f
+            vh.contentView?.alpha = alpha
+            vh.iconView?.alpha = alpha
             vh.itemView.findViewById<View>(R.id.header_divider)?.visibility =
                 if (actions.firstOrNull()?.id == action.id) View.GONE else View.VISIBLE
         }
@@ -202,29 +209,38 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
         notifyActionChanged(findActionPositionById(id))
     }
 
-    /** State of [profile]'s set: progress, error, pending changes or when it was made. */
-    protected fun generationStatus(): String {
-        val count = WallpaperStore(requireContext(), profile).current().size
+    /** State of [set]: progress, error, pending changes or when it was made. */
+    /** The set this screen is about. Without Projectivy or the folder, once the screensaver has its own nobody makes the other. */
+    protected val shownSet: Profile
+        get() = if (profile.isGeneral && Profile.SCREENSAVER.separate && !WallpaperFolder.shown(requireContext())) Profile.SCREENSAVER
+        else profile.source
+
+    protected fun generationStatus(set: Profile = shownSet): String {
+        val count = WallpaperStore(requireContext(), set).current().size
         return when {
-            profile.generating -> profile.generationProgress?.let { (done, list, lists) ->
+            set.generating -> set.generationProgress?.let { (done, list, lists) ->
                 getString(R.string.status_progress, resources.getQuantityString(R.plurals.wallpapers_count, done, done), list, lists)
             // Not started: the generation waits for the network (WorkManager's constraint)
             } ?: getString(if (isOnline()) R.string.status_generating else R.string.status_waiting_network)
-            Sources.selected(profile).isEmpty() -> getString(R.string.status_select_list)
+            Sources.selected(set).isEmpty() -> getString(R.string.status_select_list)
             // A "no lists" error is stale once lists are picked again
-            profile.lastError.isNotEmpty() && profile.lastError != getString(R.string.error_no_lists) ->
-                getString(R.string.status_error, profile.lastError)
+            set.lastError.isNotEmpty() && set.lastError != getString(R.string.error_no_lists) ->
+                getString(R.string.status_error, set.lastError)
             count == 0 -> getString(R.string.status_never)
-            profile.hasPendingChanges -> getString(R.string.status_pending, count)
-            else -> getString(R.string.status_ok, count, timeAgo(profile.lastGeneration)) +
-                profile.lastNotice.takeIf { it.isNotEmpty() }?.let { " · $it" }.orEmpty()
+            set.hasPendingChanges -> getString(R.string.status_pending, count)
+            else -> getString(R.string.status_ok, count, timeAgo(set.lastGeneration)) +
+                set.lastNotice.takeIf { it.isNotEmpty() }?.let { " · $it" }.orEmpty()
         }
     }
 
-    private fun isOnline(): Boolean {
-        val connectivity = requireContext().getSystemService(ConnectivityManager::class.java)
-        return connectivity.getNetworkCapabilities(connectivity.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    /** What Sofascreen would show now, for the rows that start it: its set, or how that set is going. */
+    protected fun sofascreenStatus(): String {
+        val set = Profile.SCREENSAVER.source
+        val count = WallpaperStore(requireContext(), set).current().size
+        return if (count > 0) resources.getQuantityString(R.plurals.sofascreen_ready, count, count) else generationStatus(set)
     }
+
+    private fun isOnline() = GenerateWallpapersWorker.isOnline(requireContext())
 
     /** "just now" or "3 minutes ago", to go mid-sentence. */
     protected fun timeAgo(time: Long): String =
@@ -250,6 +266,7 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
         const val SUB_ID_BASE = 1000L
         private const val RADIO_SET_BASE = 100
         private const val VIEW_TYPE_HEADER = 1
+        private const val UNUSED_ROW_ALPHA = 0.5f
         private val executor = Executors.newCachedThreadPool()
         private const val ARG_PROFILE = "profile"
 

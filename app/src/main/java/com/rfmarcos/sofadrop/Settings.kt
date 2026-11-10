@@ -81,22 +81,23 @@ object Settings {
     private const val KEY_WATCH_SOURCE = "watch_source"
     private const val KEY_BLOCKED = "blocked_titles"
     private const val KEY_MIX_LISTS = "mix_lists"
-    private const val KEY_SCREENSAVER_OWN_LISTS = "screensaver_own_lists"
-    private const val KEY_SCREENSAVER_OWN_LOOK = "screensaver_own_look"
+    private const val KEY_FOCUSED_CARD = "focused_card"
+    private const val KEY_WALLPAPER_FOLDER = "wallpaper_folder"
+    private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
+    private const val KEY_ORDER_MOVED = "order_moved"
     private const val KEY_SCREENSAVER_SECONDS = "screensaver_seconds"
     private const val KEY_SCREENSAVER_TRANSITION = "screensaver_transition"
     private const val KEY_SCREENSAVER_ZOOM = "screensaver_zoom"
-    private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
     private const val KEY_SCREENSAVER_CLOCK = "screensaver_clock"
     private const val KEY_SCREENSAVER_DATE = "screensaver_date"
     private const val KEY_SCREENSAVER_CLOCK_BOTTOM = "screensaver_clock_bottom"
     private const val KEY_SCREENSAVER_CLOCK_FORMAT = "screensaver_clock_format"
+    private const val KEY_SCREENSAVER_CLOCK_COLOR = "screensaver_clock_color"
+    private const val KEY_SUPPORTER_BOUGHT = "_supporter_bought"
     private const val KEY_SCREENSAVER_BRIGHTNESS = "screensaver_brightness"
     private const val KEY_SCREENSAVER_WEATHER = "screensaver_weather"
     private const val KEY_WEATHER_PLACE = "weather_place"
     private const val KEY_WEATHER_COORDINATES = "weather_coordinates"
-    private const val KEY_CLICK_PLATFORMS = "click_platforms"
-    private const val KEY_CLICK_FALLBACK = "click_fallback"
     private const val KEY_TRAILER_LANGUAGE = "trailer_language"
     private const val KEY_TRAILER_FALLBACK = "trailer_fallback"
     private const val KEY_TMDB_SESSION = "_tmdb_session_id"
@@ -138,6 +139,11 @@ object Settings {
     const val SYNOPSIS_ENGLISH = "english"
     const val SYNOPSIS_SKIP = "skip"
     val SYNOPSIS_MODES = listOf(SYNOPSIS_HIDE, SYNOPSIS_ENGLISH, SYNOPSIS_SKIP)
+    /** While a card is focused: leave the wallpaper alone, show its episode when it's known, or always its series (or movie). */
+    const val FOCUSED_OFF = "off"
+    const val FOCUSED_EPISODE = "episode"
+    const val FOCUSED_SERIES = "series"
+    val FOCUSED_OPTIONS = listOf(FOCUSED_OFF, FOCUSED_EPISODE, FOCUSED_SERIES)
     /** Language of the logo (and of the title written instead) and of the synopsis: the general one, the title's own or a locale. */
     const val LANGUAGE_AUTO = "auto"
     const val LANGUAGE_ORIGINAL = "original"
@@ -151,9 +157,15 @@ object Settings {
     const val SHADE_TINT = "tint"
     const val SHADE_BLACK = "black"
     val SHADES = listOf(SHADE_TINT, SHADE_BLACK)
+
+    /** How far up the bottom shading reaches, in % of the usual height; the side one, behind the text, always stays. */
+    const val BOTTOM_SHADE_NORMAL = 100
+    val BOTTOM_SHADES = listOf(125, BOTTOM_SHADE_NORMAL, 50, 25, 0)
     /** Where the info block goes on the wallpaper. */
     const val POSITION_TOP_LEFT = "top_left"
     val POSITIONS = listOf(POSITION_TOP_LEFT, "center_left", "bottom_left", "top_right", "center_right", "bottom_right")
+    /** Each wallpaper at the next of [Profile.rotation], so the text doesn't stay in one place on the screen. */
+    const val POSITION_ROTATE = "rotate"
     /** What Projectivy opens from a wallpaper ("Watch" in About this wallpaper, play on its status bar). */
     const val CLICK_TRAILER = "trailer"
     const val CLICK_NONE = "none"
@@ -180,7 +192,6 @@ object Settings {
     private const val KEY_PROJECTIVY_ASKED = "_projectivy_asked_at"
     private const val KEY_WIZARD_SHOWN = "_wizard_shown"
     private const val KEY_FRESH_INSTALL = "_fresh_install"
-    private const val KEY_SCREENSAVER_SHOWN = "_screensaver_shown_at"
     private const val KEY_UPDATE_APK = "_update_apk"
     private const val KEY_UPDATE_NOTES = "_update_notes"
     private const val KEY_UPDATE_CHECKED = "_update_checked_at"
@@ -215,9 +226,18 @@ object Settings {
             preferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
             // A fresh install, whatever opens first (the settings or Projectivy's request): the guided setup is
             // due, and the cast is on. Someone updating keeps what they had
-            if (preferences.all.isEmpty()) {
+            val fresh = preferences.all.isEmpty()
+            if (fresh) {
                 preferences.edit { putBoolean(KEY_FRESH_INSTALL, true) }
                 Profile.WALLPAPER.showCast = true
+            }
+            // Until 1.2 the screensaver mixed its lists unless told otherwise; now that would follow the general order
+            if (!preferences.contains(KEY_ORDER_MOVED)) {
+                if (!fresh) Profile.keepOldCount()
+                preferences.edit {
+                    if (!mixLists && !preferences.contains(KEY_SCREENSAVER_SHUFFLE)) putBoolean(KEY_SCREENSAVER_SHUFFLE, true)
+                    putBoolean(KEY_ORDER_MOVED, true)
+                }
             }
             // Scopes of earlier versions (replaced by per-list filters) and the dropped launcher guide
             preferences.edit { OLD_FILTER_KEYS.forEach(::remove) }
@@ -261,6 +281,16 @@ object Settings {
         get() = preferences.getBoolean(KEY_MIX_LISTS, true)
         set(value) = preferences.edit { putBoolean(KEY_MIX_LISTS, value) }
 
+    /** What Projectivy shows while a movie, series or episode card is focused, see [FocusedWallpapers]. */
+    var focusedCard: String
+        get() = preferences.getString(KEY_FOCUSED_CARD, null)?.takeIf { it in FOCUSED_OPTIONS } ?: FOCUSED_OFF
+        set(value) = preferences.edit { putString(KEY_FOCUSED_CARD, value) }
+
+    /** A copy of the wallpapers in Pictures/Sofadrop, for other launchers (see [WallpaperFolder]). */
+    var wallpaperFolder: Boolean
+        get() = preferences.getBoolean(KEY_WALLPAPER_FOLDER, false)
+        set(value) = preferences.edit { putBoolean(KEY_WALLPAPER_FOLDER, value) }
+
     /** Titles that never show, from any list, with the name they were blocked with ("Title (2020)"). */
     val blocked: Map<TitleRef, String>
         get() = preferences.getStringSet(KEY_BLOCKED, null).orEmpty().mapNotNull { entry ->
@@ -292,24 +322,8 @@ object Settings {
         else -> partLanguage
     }
 
-    /**
-     * Streaming platforms the user pays for, in the order a wallpaper tries them (see [ClickTargets]); their
-     * pages are looked up when generating, so adding the first one needs a new set.
-     */
-    var clickPlatforms: List<Platform>
-        get() = preferences.getString(KEY_CLICK_PLATFORMS, null).orEmpty().split(',').mapNotNull(Platform::of).distinct()
-        set(value) = preferences.edit { putString(KEY_CLICK_PLATFORMS, value.joinToString(",") { it.key }) }
-
-    /**
-     * What a wallpaper opens when its title is on none of [clickPlatforms]: see [CLICK_FALLBACKS] and
-     * [CLICK_APP_PREFIX] (an app not installed opens the trailer). Applied when served, without a new set.
-     */
-    var clickFallback: String
-        get() = preferences.getString(KEY_CLICK_FALLBACK, null)?.takeIf { it in CLICK_FALLBACKS || clickApp(it) != null } ?: CLICK_TRAILER
-        set(value) = preferences.edit { putString(KEY_CLICK_FALLBACK, value) }
-
     /** The app of a click fallback that opens the title in one ("app:nuvio"), else null. */
-    fun clickApp(action: String = clickFallback): TitleApp? =
+    fun clickApp(action: String): TitleApp? =
         action.takeIf { it.startsWith(CLICK_APP_PREFIX) }?.let { TitleApp.of(it.removePrefix(CLICK_APP_PREFIX)) }
 
     /** See [PART_LANGUAGES]: "Automatic" is the wallpaper language; [trailerFallback] applies when there is none in it. */
@@ -543,22 +557,6 @@ object Settings {
 
     // --- Screensaver ---
 
-    /** The screensaver has lists and filters of its own (see [Profile]); they start as the wallpapers'. */
-    var screensaverOwnLists: Boolean
-        get() = preferences.getBoolean(KEY_SCREENSAVER_OWN_LISTS, false)
-        set(value) = preferences.edit {
-            if (value && !screensaverOwnLists) copyToScreensaver(Profile.LISTS_KEYS)
-            putBoolean(KEY_SCREENSAVER_OWN_LISTS, value)
-        }
-
-    /** The screensaver has a look of its own (see [Profile]); it starts as the wallpapers'. */
-    var screensaverOwnLook: Boolean
-        get() = preferences.getBoolean(KEY_SCREENSAVER_OWN_LOOK, false)
-        set(value) = preferences.edit {
-            if (value && !screensaverOwnLook) copyToScreensaver(Profile.LOOK_KEYS)
-            putBoolean(KEY_SCREENSAVER_OWN_LOOK, value)
-        }
-
     // How Sofascreen shows the set (see SofascreenView), after PR #13 by schumi2004
     val SCREENSAVER_SECONDS_OPTIONS = listOf(10, 20, 30, 60, 120, 300)
     const val TRANSITION_FADE = "fade"
@@ -575,6 +573,18 @@ object Settings {
     const val CLOCK_FORMAT_24 = "24"
     const val CLOCK_FORMAT_12 = "12"
     val CLOCK_FORMATS = listOf(CLOCK_FORMAT_SYSTEM, CLOCK_FORMAT_24, CLOCK_FORMAT_12)
+    const val CLOCK_COLOR_WHITE = "white"
+    const val CLOCK_COLOR_AMBER = "amber"
+    const val CLOCK_COLOR_BLUE = "blue"
+    const val CLOCK_COLOR_PINK = "pink"
+    const val CLOCK_COLOR_TURQUOISE = "turquoise"
+    val CLOCK_COLORS = mapOf(
+        CLOCK_COLOR_WHITE to 0xFFFFFFFF.toInt(),
+        CLOCK_COLOR_AMBER to 0xFFFFC857.toInt(),
+        CLOCK_COLOR_BLUE to 0xFF8CC8FF.toInt(),
+        CLOCK_COLOR_PINK to 0xFFFF8FB1.toInt(),
+        CLOCK_COLOR_TURQUOISE to 0xFF5CE1E6.toInt(),
+    )
     val SCREENSAVER_BRIGHTNESS_OPTIONS = listOf(100, 75, 50)
 
     /** How long each wallpaper stays on screen. */
@@ -592,11 +602,6 @@ object Settings {
         get() = preferences.getBoolean(KEY_SCREENSAVER_ZOOM, true)
         set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_ZOOM, value) }
 
-    /** Random order instead of the set's. */
-    var screensaverShuffle: Boolean
-        get() = preferences.getBoolean(KEY_SCREENSAVER_SHUFFLE, true)
-        set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_SHUFFLE, value) }
-
     /** See [CLOCK_STYLES]. */
     var screensaverClock: String
         get() = preferences.getString(KEY_SCREENSAVER_CLOCK, null)?.takeIf { it in CLOCK_STYLES } ?: CLOCK_STACKED
@@ -605,6 +610,32 @@ object Settings {
     var screensaverDate: Boolean
         get() = preferences.getBoolean(KEY_SCREENSAVER_DATE, true)
         set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_DATE, value) }
+
+    /** The clock's colour (digits, date and weather), see [CLOCK_COLORS]; [ScreensaverFragment] says who can change it. */
+    var screensaverClockColor: String
+        get() = preferences.getString(KEY_SCREENSAVER_CLOCK_COLOR, null)?.takeIf { it in CLOCK_COLORS } ?: CLOCK_COLOR_WHITE
+        set(value) = preferences.edit { putString(KEY_SCREENSAVER_CLOCK_COLOR, value) }
+
+    /** What Google Play last said about the supporter purchase (see [Supporter.remember]); never in a backup. */
+    var supporterBought: Boolean
+        get() = preferences.getBoolean(KEY_SUPPORTER_BOUGHT, false)
+        set(value) = preferences.edit { putBoolean(KEY_SUPPORTER_BOUGHT, value) }
+
+    /**
+     * Only Google Play builds offer the clock's colours, as the supporter purchase, and the Dev build, to test them
+     * and take the store's screenshots. GitHub releases don't show them at all.
+     */
+    val CLOCK_COLORS_OFFERED = BuildConfig.PLAY || BuildConfig.DEBUG
+
+    /**
+     * The clock's colour on screen. Google Play builds show the chosen one only while the purchase is known: an
+     * imported file doesn't bring a colour for free, and a wrong "not bought" doesn't lose the buyer's choice.
+     */
+    val screensaverClockColorShown: String
+        get() = when {
+            !CLOCK_COLORS_OFFERED || BuildConfig.PLAY && !supporterBought -> CLOCK_COLOR_WHITE
+            else -> screensaverClockColor
+        }
 
     /** 24 or 12 hours, or as Android is set (see [CLOCK_FORMATS]). */
     var screensaverClockFormat: String
@@ -620,11 +651,6 @@ object Settings {
     var screensaverBrightness: Int
         get() = preferences.getInt(KEY_SCREENSAVER_BRIGHTNESS, 100)
         set(value) = preferences.edit { putInt(KEY_SCREENSAVER_BRIGHTNESS, value) }
-
-    /** When Android last started Sofascreen as the screensaver (0: never), to tell whether it's switched on. */
-    var screensaverShownAt: Long
-        get() = preferences.getLong(KEY_SCREENSAVER_SHOWN, 0L)
-        set(value) = preferences.edit { putLong(KEY_SCREENSAVER_SHOWN, value) }
 
     /** The weather at [weatherPlace] under the clock (Open-Meteo, no account). */
     var screensaverWeather: Boolean
@@ -649,23 +675,6 @@ object Settings {
         }
     }
 
-    /** The wallpapers' values of [keys] as the screensaver's own. */
-    private fun SharedPreferences.Editor.copyToScreensaver(keys: List<String>) {
-        val values = preferences.all
-        for (key in keys) {
-            val own = Profile.OWN_PREFIX + key
-            when (val value = values[key]) {
-                is String -> putString(own, value)
-                is Boolean -> putBoolean(own, value)
-                is Int -> putInt(own, value)
-                is Long -> putLong(own, value)
-                is Float -> putFloat(own, value)
-                is Set<*> -> putStringSet(own, value.map { it.toString() }.toSet())
-                else -> remove(own)
-            }
-        }
-    }
-
     // --- Projectivy backup (getPreferences / setPreferences) ---
 
     /**
@@ -678,8 +687,11 @@ object Settings {
     /**
      * True for the preferences a Projectivy backup carries: the user's choices, not internal state or keys.
      * The weather place goes without its coordinates (looked up again when needed): no exact location.
+     * The folder copy stays with each device: an import or restore would otherwise switch it without
+     * filling or emptying Pictures/Sofadrop (and may need a permission that device hasn't granted).
      */
-    fun inBackup(key: String): Boolean = !key.startsWith("_") && key !in SECRET_KEYS && key != KEY_WEATHER_COORDINATES
+    fun inBackup(key: String): Boolean = !key.startsWith("_") && key !in SECRET_KEYS &&
+        key != KEY_WEATHER_COORDINATES && key != KEY_WALLPAPER_FOLDER
 
     fun export(): String = exportJson(preferences.all)
 

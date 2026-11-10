@@ -7,7 +7,7 @@
     <string name="cancel">Annuleren</string>
 
     <!-- Status -->
-    <string name="status_never">Nog geen achtergronden · kies om ze te maken</string>
+    <string name="status_never">Nog geen achtergronden · druk op OK om ze te maken</string>
     <string name="status_ok">%1$d achtergronden · bijgewerkt %2$s</string>
     <string name="status_generating">Achtergronden maken…</string>
     <string name="status_error">Laatste update mislukt: %1$s</string>
@@ -20,11 +20,27 @@
     <string name="generation_started">Achtergronden worden op de achtergrond gemaakt…</string>
     <string name="action_preview">Achtergronden bekijken</string>
     <string name="action_preview_desc">De huidige set op volledig scherm</string>
+    <string name="focused_card_title">Geselecteerde kaart (bèta)</string>
+    <string name="focused_card_off">Uit</string>
+    <string name="focused_card_episode">Aflevering indien herkend</string>
+    <string name="focused_card_series">Serie of film</string>
+    <string name="focused_card_explain">Terwijl je op een film, serie of aflevering in een kanaal van Projectivy staat, wordt de achtergrond die titel (op TMDB gezocht op de naam van de kaart). De eerste keer op een kaart duurt het een paar seconden; daarna is hij er meteen. Dit is nieuw: als een kaart een verkeerde titel toont, stuur dan het kaartenlogboek.</string>
+    <string name="focused_log_title">Kaartenlogboek</string>
+    <string name="focused_log_none">Nog geen kaarten</string>
+    <string name="focused_log_explain">De laatste kaarten waarop je stond, wat elke app erover zei en wat Sofadrop vond. Stuur het als een kaart niet de juiste achtergrond toont: zo werkt het met meer apps.</string>
+    <string name="focused_log_desc">De laatste kaarten waarop je stond: wat de app over elke kaart zei (type, naam, waar de afbeelding staat) en wat er op TMDB gevonden werd.</string>
+    <string name="focused_log_text">Als tekst tonen</string>
+    <string name="focused_log_text_desc">Het hele logboek als tekst, om het te delen waar je wilt (een GitHub-issue, Reddit…). Het bevat de namen van de kaarten.</string>
+    <string name="focused_log_newest">Nieuwste kaarten eerst</string>
+    <string name="focused_log_clear">Logboek wissen</string>
+    <plurals name="focused_log_cards">
+        <item quantity="one">%d kaart</item>
+        <item quantity="other">%d kaarten</item>
+    </plurals>
     <string name="preview_empty">Nog geen achtergronden. Gebruik eerst \"Nu bijwerken\".</string>
 
     <!-- Live preview -->
     <string name="preview_label">Voorbeeld · %1$s</string>
-    <string name="preview_loading">Voorbeeld maken…</string>
     <string name="preview_no_token">Geen TMDB-sleutel in deze build</string>
     <string name="preview_no_titles">De gekozen lijsten bevatten geen titels</string>
     <string name="preview_error">Voorbeeld niet beschikbaar: %1$s</string>
@@ -96,7 +112,7 @@
 
     <!-- Errors -->
     <string name="error_no_token">TMDB-sleutel ontbreekt</string>
-    <string name="error_no_lists">Geen lijsten gekozen · huidige achtergronden blijven staan</string>
+    <string name="error_no_lists">Geen lijsten gekozen</string>
     <string name="error_no_titles">De gekozen lijsten gaven geen titels</string>
     <string name="error_memory">Niet genoeg geheugen · probeer 1080p</string>
     <string name="error_network">Geen verbinding: controleer het internet van de tv</string>
@@ -163,7 +179,6 @@
     <string name="mdblist_login_ok">MDBList verbonden als %1$s</string>
     <string name="mdblist_connected">Verbonden als %1$s · %2$s</string>
     <string name="mdblist_key_mode">API-sleutel · %1$s</string>
-    <string name="trakt_unavailable">Niet beschikbaar in deze build (de Trakt-gegevens van de app ontbreken)</string>
     <!-- Filters -->
     <string name="filters_age_title">Maximale leeftijd</string>
     <string name="filters_age_none">Geen limiet</string>
@@ -184,15 +199,23 @@
 
     <!-- About -->
     <string name="setting_about_title">Over</string>
-    <string name="setting_about_desc">Versie %1$s · begeleide installatie, steun, broncode en vermeldingen</string>
+    <string name="setting_about_desc">Versie %1$s · begeleide installatie, broncode en vermeldingen</string>
     <string name="about_version">Versie</string>
     <string name="about_support">Steun het project</string>
     <string name="about_support_desc">Vind je de plug-in fijn, dan kun je me een kop koffie geven op Ko-fi</string>
     <string name="about_support_scan">Scan met je telefoon om de Ko-fi-pagina te openen. Bedankt!</string>
+    <string name="supporter_desc">Eenmalige aankoop die kleuren voor de klok van de screensaver ontgrendelt en een Supporter-badge toevoegt. Al het andere blijft gratis</string>
+    <string name="supporter_badge">Supporter</string>
+    <string name="supporter_thanks">Bedankt dat je Sofadrop steunt</string>
+    <string name="supporter_pending">Je betaling wacht op bevestiging</string>
+    <string name="supporter_unavailable">Aankopen zijn nu niet beschikbaar</string>
     <string name="about_source">Broncode</string>
     <string name="about_source_scan">Scan met je telefoon om de projectpagina te openen.</string>
+    <string name="about_beta">Testen op Google Play</string>
+    <string name="about_beta_desc">Sofadrop komt naar Google Play en zoekt testers met Google TV of Android TV</string>
+    <string name="about_beta_scan">Scan met je telefoon: de pagina heeft de twee stappen om mee te doen, met hetzelfde Google-account als op je tv.</string>
     <string name="about_credits">Vermeldingen</string>
-    <string name="about_credits_desc">Dit product gebruikt de TMDB API, maar is niet goedgekeurd of gecertificeerd door TMDB. Sofadrop gebruikt Trakt, maar is niet goedgekeurd of gecertificeerd door Trakt. Lijsten en kijkgeschiedenis van Simkl (simkl.com). De namen en logo\'s van Trakt, Simkl en MDBList zijn eigendom van hun eigenaars. Lijsten van MDBList. Achtergronden voor Projectivy Launcher. Scores van MDBList en Trakt. Informatie met dank aan IMDb (imdb.com), gebruikt met toestemming; de namen en logo\'s van IMDb, Rotten Tomatoes, Metacritic, Letterboxd en MyAnimeList zijn eigendom van hun eigenaars. Sofascreen, de screensaver, door schumi2004, met dank aan Sofadrop Screensaver van ilee; weer van Open-Meteo (open-meteo.com).</string>
+    <string name="about_credits_desc">Dit product gebruikt de TMDB API, maar is niet goedgekeurd of gecertificeerd door TMDB (themoviedb.org). Waar te bekijken: gegevens van JustWatch. Sofadrop gebruikt Trakt, maar is niet goedgekeurd of gecertificeerd door Trakt. Lijsten en kijkgeschiedenis van Simkl (simkl.com). De namen en logo\'s van Trakt, Simkl en MDBList zijn eigendom van hun eigenaars. Lijsten van MDBList. Achtergronden voor Projectivy Launcher. Scores van MDBList en Trakt. Informatie met dank aan IMDb (imdb.com), gebruikt met toestemming; de namen en logo\'s van IMDb, Rotten Tomatoes, Metacritic, Letterboxd en MyAnimeList zijn eigendom van hun eigenaars. Sofascreen, de screensaver, door schumi2004, met dank aan Sofadrop Screensaver van ilee; weer van Open-Meteo (open-meteo.com).</string>
     <string name="qr_link_hint">Scan de code met je telefoon</string>
     <string name="setting_accounts_title">Accounts</string>
     <string name="accounts_description">Verbind diensten door met je telefoon een QR-code te scannen. Geen enkele is verplicht: de TMDB-lijsten en de scores van TMDB, IMDb en Trakt werken zonder account. Als je de verbinding met een dienst verbreekt, worden ook de lijsten uitgevinkt die hem nodig hebben.</string>
@@ -307,7 +330,7 @@
     <string name="cast_photos_disabled">Alleen gebruikt als de cast wordt getoond</string>
     <string name="cast_photos_each">Elk naast de eigen naam</string>
     <string name="cast_photos_each_desc">Elk gezicht vlak voor de naam. Er passen misschien minder namen op de regel.</string>
-    <string name="click_action_title">Wat de achtergrond opent</string>
+    <string name="click_action_title">Een titel openen</string>
     <string name="click_trailer">Trailer bekijken</string>
     <string name="click_trailer_desc">Op YouTube</string>
     <string name="click_none">Niets</string>
@@ -338,7 +361,7 @@
     <string name="cast_summary_names">cast</string>
     <string name="cast_summary_photos">cast met foto\'s</string>
     <string name="footer_desc">De onderste regel: de streamingdiensten die elke titel hebben, in het land dat je kiest, en de lijst waar hij vandaan komt.</string>
-    <string name="click_action_desc">In Projectivy opent het ▶-pictogram in de statusbalk (of “Over deze achtergrond”) de titel die je ziet.</string>
+    <string name="click_action_desc">In Projectivy opent het ▶-pictogram in de statusbalk (of “Over deze achtergrond”) de titel die je ziet; in Sofascreen de OK-knop.</string>
     <string name="click_target_title">Wat het opent</string>
     <string name="click_open_app">Openen in %1$s</string>
     <string name="click_app_missing">Openen in %1$s (niet geïnstalleerd: de trailer opent)</string>
@@ -373,8 +396,8 @@
     <string name="list_simkl_trending_anime">Simkl · Trending anime</string>
     <string name="list_simkl_trending_movies">Simkl · Trending films</string>
     <string name="list_simkl_trending_shows">Simkl · Trending series</string>
-    <string name="list_simkl_plantowatch">Simkl · Plan to watch</string>
-    <string name="list_simkl_watching">Simkl · Watching</string>
+    <string name="list_simkl_plantowatch">Simkl · Wil ik zien</string>
+    <string name="list_simkl_watching">Simkl · Aan het kijken</string>
     <string name="list_simkl_recommended_movies">Simkl · Aanbevolen films voor jou</string>
     <string name="list_simkl_recommended_shows">Simkl · Aanbevolen series voor jou</string>
     <string name="list_simkl_recommended_anime">Simkl · Aanbevolen anime voor jou</string>
@@ -478,7 +501,6 @@
     <string name="synopsis_mode_skip">De titel overslaan</string>
     <string name="synopsis_mode_skip_desc">Een andere titel neemt zijn plaats in; er is minder keus</string>
     <string name="exclusion_no_synopsis">Overgeslagen: geen samenvatting in de gekozen taal</string>
-    <string name="setting_mix_title">Volgorde in de launcher</string>
     <string name="mix_on">Alle lijsten door elkaar</string>
     <string name="mix_off">De ene lijst na de andere</string>
     <string name="update_title">Update beschikbaar</string>
@@ -531,7 +553,7 @@
     <string name="viewer_blocked_toast">Geblokkeerd: niet meer in de volgende set (die wordt gemaakt als je de instellingen verlaat)</string>
     <string name="viewer_unblocked_toast">Gedeblokkeerd: kan vanaf de volgende set weer verschijnen</string>
     <string name="status_waiting_network">Wachten op een internetverbinding…</string>
-    <string name="general_language_shared">%1$s · gedeeld met de achtergronden, wijzig het in Achtergronddetails</string>
+    <string name="general_language_shared">%1$s · wijzig het in Gedeelde instellingen → Achtergronddetails</string>
     <string name="provider_summary_selected">%1$d gekozen</string>
     <string name="filters_age_replaced">Vervangen door Vanaf jaar</string>
     <string name="click_add_after">Wordt geprobeerd na de platforms hierboven.</string>
@@ -563,4 +585,35 @@
     <string name="settings_import_unreadable">Kan het bestand niet lezen</string>
     <string name="wizard_import">Instellingen van een andere tv importeren</string>
     <string name="accounts_reconnect">Instellingen geïmporteerd. Verbind opnieuw wat de andere tv had: %1$s. Accounts staan niet in het instellingenbestand.</string>
+    <string name="wallpapers_title">Achtergronden</string>
+    <string name="main_more_header">Algemeen</string>
+    <string name="projectivy_description">Achtergronden voor het startscherm van Projectivy Launcher (achtergrondplug-ins zijn een Premium-functie), of van een andere launcher via een map. De screensaver heeft geen van beide nodig.</string>
+    <string name="projectivy_status_in_use">In gebruik in Projectivy</string>
+    <string name="projectivy_status_pick">Projectivy geïnstalleerd: kies Sofadrop</string>
+    <string name="projectivy_get">Projectivy downloaden</string>
+    <string name="projectivy_get_desc">Om deze achtergronden ook op het startscherm van de tv te zien</string>
+    <string name="projectivy_get_scan">Scan met je telefoon om de pagina van Projectivy te openen.</string>
+    <string name="click_action_desc_alone">In Sofascreen opent de OK-knop de titel die je ziet.</string>
+    <string name="general_header">Gedeelde instellingen</string>
+    <string name="projectivy_status_optional">Voor Projectivy Launcher Premium of een map</string>
+    <string name="wallpaper_folder_title">Opslaan in een map</string>
+    <string name="wallpaper_folder_off">Uit</string>
+    <string name="wallpaper_folder_on">In %1$s</string>
+    <string name="wallpaper_folder_explain">Een kopie van de achtergronden in de map %1$s van de tv, vernieuwd bij elke update, voor launchers die de afbeeldingen uit een map tonen, zoals Monet Launcher: kies die map in de achtergrondinstellingen van de launcher. Daar is een achtergrond alleen een afbeelding: hij opent de titel niet.</string>
+    <string name="wallpaper_folder_no_permission">Zonder toegang tot de opslag kunnen de achtergronden niet in een map worden opgeslagen</string>
+    <string name="position_rotate">Wisselend</string>
+    <string name="position_rotate_desc">Elke achtergrond op een andere plek</string>
+    <string name="position_rotation_title">Wisselende posities</string>
+    <string name="position_rotation_desc">Elke achtergrond neemt de volgende aangevinkte positie. In de screensaver gaat de klok naar de tegenoverliggende hoek.</string>
+    <string name="position_rotation_min">Laat er minstens twee staan</string>
+    <string name="position_rotation_summary">%1$d posities</string>
+    <string name="bottom_shade_title">Schaduw onderaan</string>
+    <string name="bottom_shade_high">Hoog</string>
+    <string name="bottom_shade_normal">Normaal</string>
+    <string name="bottom_shade_low">Laag</string>
+    <string name="bottom_shade_minimal">Minimaal</string>
+    <string name="bottom_shade_none">Geen</string>
+    <string name="bottom_shade_normal_desc">Maakt de onderkant van de afbeelding donkerder</string>
+    <string name="bottom_shade_none_desc">De afbeelding loopt door tot de onderrand</string>
+    <string name="bottom_shade_summary">schaduw onderaan: %1$s</string>
 </resources>

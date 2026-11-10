@@ -7,7 +7,7 @@
     <string name="not_set">Sin configurar</string>
     <string name="cancel">Cancelar</string>
 
-    <string name="status_never">Aún no hay fondos · elige para crearlos</string>
+    <string name="status_never">Aún no hay fondos · pulsa OK para crearlos</string>
     <string name="status_ok">%1$d fondos · actualizado %2$s</string>
     <string name="status_generating">Generando fondos…</string>
     <string name="status_error">La última actualización falló: %1$s</string>
@@ -19,10 +19,26 @@
     <string name="generation_started">Generando fondos en segundo plano…</string>
     <string name="action_preview">Ver fondos</string>
     <string name="action_preview_desc">El conjunto actual a pantalla completa</string>
+    <string name="focused_card_title">Tarjeta seleccionada (beta)</string>
+    <string name="focused_card_off">Desactivado</string>
+    <string name="focused_card_episode">Episodio si se reconoce</string>
+    <string name="focused_card_series">Serie o película</string>
+    <string name="focused_card_explain">Mientras estás sobre una película, serie o episodio en un canal de Projectivy, el fondo pasa a ser ese título (se busca en TMDB por el nombre de la tarjeta). La primera vez en una tarjeta tarda unos segundos; después sale al momento. Es nuevo: si una tarjeta muestra otro título, envía el registro de tarjetas.</string>
+    <string name="focused_log_title">Registro de tarjetas</string>
+    <string name="focused_log_none">Aún no hay tarjetas</string>
+    <string name="focused_log_explain">Las últimas tarjetas en las que has estado, qué decía de ellas cada app y qué encontró Sofadrop. Envíalo si una tarjeta no muestra el fondo correcto: ayuda a que funcione con más apps.</string>
+    <string name="focused_log_desc">Las últimas tarjetas en las que has estado: qué decía la app de cada una (tipo, nombre, de dónde es su imagen) y qué se encontró en TMDB.</string>
+    <string name="focused_log_text">Verlo como texto</string>
+    <string name="focused_log_text_desc">Todo el registro en texto, para compartirlo donde quieras (una incidencia en GitHub, Reddit…). Incluye los nombres de las tarjetas.</string>
+    <string name="focused_log_newest">Las tarjetas más recientes primero</string>
+    <string name="focused_log_clear">Borrar el registro</string>
+    <plurals name="focused_log_cards">
+        <item quantity="one">%d tarjeta</item>
+        <item quantity="other">%d tarjetas</item>
+    </plurals>
     <string name="preview_empty">Aún no hay fondos. Usa primero «Actualizar ahora».</string>
 
     <string name="preview_label">Vista previa · %1$s</string>
-    <string name="preview_loading">Generando vista previa…</string>
     <string name="preview_no_token">Esta compilación no tiene clave de TMDB</string>
     <string name="preview_no_titles">Las listas elegidas no tienen títulos</string>
     <string name="preview_error">Vista previa no disponible: %1$s</string>
@@ -88,7 +104,7 @@
     <string name="mdblist_failed">Error de MDBList: %1$s</string>
 
     <string name="error_no_token">Falta la clave de TMDB</string>
-    <string name="error_no_lists">No hay listas elegidas · se mantienen los fondos actuales</string>
+    <string name="error_no_lists">No hay listas elegidas</string>
     <string name="error_no_titles">Las listas elegidas no devolvieron títulos</string>
     <string name="error_memory">No hay memoria suficiente · prueba con 1080p</string>
     <string name="error_network">Sin conexión: revisa la conexión a internet de la TV</string>
@@ -100,7 +116,7 @@
     <!-- QR, accounts, selection, watched, explorer -->
     <string name="close">Cerrar</string>
     <string name="setting_tmdb_account_title">Cuenta de TMDB</string>
-    <string name="tmdb_account_connected">Conectado como %1$s</string>
+    <string name="tmdb_account_connected">Cuenta: %1$s</string>
     <string name="tmdb_disconnect">Desconectar</string>
     <string name="tmdb_login_ok">TMDB conectado como %1$s</string>
     <string name="tmdb_login_failed">No se pudo conectar con TMDB (%1$s)</string>
@@ -153,9 +169,8 @@
     <string name="qr_expires">El código caduca en %1$dm %2$02ds</string>
     <string name="qr_instructions_code">Escanea el código QR, o ve a %1$s e introduce este código:</string>
     <string name="mdblist_login_ok">MDBList conectado como %1$s</string>
-    <string name="mdblist_connected">Conectado como %1$s · %2$s</string>
+    <string name="mdblist_connected">Cuenta: %1$s · %2$s</string>
     <string name="mdblist_key_mode">Clave de API · %1$s</string>
-    <string name="trakt_unavailable">No disponible en esta compilación (faltan las credenciales de Trakt de la app)</string>
     <!-- Filtros -->
     <string name="filters_age_title">Antigüedad máxima</string>
     <string name="filters_age_none">Sin límite</string>
@@ -176,15 +191,23 @@
 
     <!-- Acerca de -->
     <string name="setting_about_title">Acerca de</string>
-    <string name="setting_about_desc">Versión %1$s · configuración guiada, apoyar el proyecto, código y créditos</string>
+    <string name="setting_about_desc">Versión %1$s · configuración guiada, código y créditos</string>
     <string name="about_version">Versión</string>
     <string name="about_support">Apoyar el proyecto</string>
     <string name="about_support_desc">Si te gusta el plugin, puedes invitarme a un café en Ko-fi</string>
     <string name="about_support_scan">Escanéalo con el móvil para abrir la página de Ko-fi. ¡Gracias!</string>
+    <string name="supporter_desc">Pago único que desbloquea colores para el reloj del salvapantallas y añade una insignia de Supporter. Todo lo demás sigue gratis</string>
+    <string name="supporter_badge">Supporter</string>
+    <string name="supporter_thanks">Gracias por apoyar Sofadrop</string>
+    <string name="supporter_pending">Tu pago está pendiente de confirmación</string>
+    <string name="supporter_unavailable">Las compras no están disponibles ahora mismo</string>
     <string name="about_source">Código fuente</string>
     <string name="about_source_scan">Escanéalo con el móvil para abrir la página del proyecto.</string>
+    <string name="about_beta">Pruébala en Google Play</string>
+    <string name="about_beta_desc">Sofadrop llega a Google Play y busca testers con Google TV o Android TV</string>
+    <string name="about_beta_scan">Escanéalo con el móvil: la página tiene los dos pasos para unirte, con la misma cuenta de Google que tienes en la TV.</string>
     <string name="about_credits">Créditos</string>
-    <string name="about_credits_desc">Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB. Sofadrop usa Trakt pero no está respaldado ni certificado por Trakt. Listas e historial de Simkl (simkl.com). Los nombres y logotipos de Trakt, Simkl y MDBList pertenecen a sus propietarios. Listas de MDBList. Fondos para Projectivy Launcher. Notas de MDBList y Trakt. Information courtesy of IMDb (imdb.com), used with permission; los nombres y logotipos de IMDb, Rotten Tomatoes, Metacritic, Letterboxd y MyAnimeList pertenecen a sus propietarios. Sofascreen, el salvapantallas, de schumi2004, con gracias a Sofadrop Screensaver de ilee; el tiempo, de Open-Meteo (open-meteo.com).</string>
+    <string name="about_credits_desc">Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB (themoviedb.org). Dónde verlo: datos de JustWatch. Sofadrop usa Trakt pero no está respaldado ni certificado por Trakt. Listas e historial de Simkl (simkl.com). Los nombres y logotipos de Trakt, Simkl y MDBList pertenecen a sus propietarios. Listas de MDBList. Fondos para Projectivy Launcher. Notas de MDBList y Trakt. Information courtesy of IMDb (imdb.com), used with permission; los nombres y logotipos de IMDb, Rotten Tomatoes, Metacritic, Letterboxd y MyAnimeList pertenecen a sus propietarios. Sofascreen, el salvapantallas, de schumi2004, con gracias a Sofadrop Screensaver de ilee; el tiempo, de Open-Meteo (open-meteo.com).</string>
     <string name="qr_link_hint">Escanea el código con el móvil</string>
     <string name="setting_accounts_title">Cuentas</string>
     <string name="accounts_description">Conecta servicios escaneando un QR con el móvil. Ninguno es obligatorio: las listas de TMDB y las notas de TMDB, IMDb y Trakt funcionan sin cuenta. Al desconectar un servicio se desmarcan también las listas que lo necesitan.</string>
@@ -299,7 +322,7 @@
     <string name="cast_photos_disabled">Solo se usa si se muestra el reparto</string>
     <string name="cast_photos_each">Cada una junto a su nombre</string>
     <string name="cast_photos_each_desc">Cada cara justo antes de su nombre. Pueden caber menos nombres en la línea.</string>
-    <string name="click_action_title">Qué abre el fondo</string>
+    <string name="click_action_title">Al abrir un título</string>
     <string name="click_trailer">Ver el tráiler</string>
     <string name="click_trailer_desc">En YouTube</string>
     <string name="click_none">Nada</string>
@@ -330,7 +353,7 @@
     <string name="cast_summary_names">reparto</string>
     <string name="cast_summary_photos">reparto con fotos</string>
     <string name="footer_desc">La línea de abajo: las plataformas donde está cada título, en el país que elijas, y la lista de la que sale.</string>
-    <string name="click_action_desc">En Projectivy, el icono ▶ de la barra de estado (o «Acerca de este fondo») abre el título que se ve.</string>
+    <string name="click_action_desc">En Projectivy, el icono ▶ de la barra de estado (o «Acerca de este fondo») abre el título que se ve; en Sofascreen, el botón OK.</string>
     <string name="click_target_title">Qué abre</string>
     <string name="click_open_app">Abrir en %1$s</string>
     <string name="click_app_missing">Abrir en %1$s (no está instalada: se abre el tráiler)</string>
@@ -470,7 +493,6 @@
     <string name="synopsis_mode_skip">Descartar el título</string>
     <string name="synopsis_mode_skip_desc">Se usa otro título en su lugar; hay menos donde elegir</string>
     <string name="exclusion_no_synopsis">Descartado: sin sinopsis en el idioma elegido</string>
-    <string name="setting_mix_title">Orden en el launcher</string>
     <string name="mix_on">Todas las listas mezcladas</string>
     <string name="mix_off">Una lista tras otra</string>
     <string name="update_title">Actualización disponible</string>
@@ -523,7 +545,7 @@
     <string name="viewer_blocked_toast">Bloqueado: no estará en el próximo conjunto (se crea al salir de los ajustes)</string>
     <string name="viewer_unblocked_toast">Desbloqueado: puede volver a aparecer desde el próximo conjunto</string>
     <string name="status_waiting_network">Esperando conexión a internet…</string>
-    <string name="general_language_shared">%1$s · compartido con los fondos, se cambia en Detalles del fondo</string>
+    <string name="general_language_shared">%1$s · se cambia en Ajustes comunes → Detalles del fondo</string>
     <string name="provider_summary_selected">%1$d elegidas</string>
     <string name="filters_age_replaced">Sustituida por Desde el año</string>
     <string name="click_add_after">Se prueba después de las de arriba.</string>
@@ -555,4 +577,35 @@
     <string name="settings_import_unreadable">No se ha podido leer el archivo</string>
     <string name="wizard_import">Importar los ajustes de otra TV</string>
     <string name="accounts_reconnect">Ajustes importados. Conecta de nuevo lo que tenía la otra TV: %1$s. Las cuentas no van en el archivo de ajustes.</string>
+    <string name="wallpapers_title">Fondos de pantalla</string>
+    <string name="main_more_header">General</string>
+    <string name="projectivy_description">Fondos para la pantalla de inicio de Projectivy Launcher (los plugins de fondos son una función de su versión Premium), o de otro launcher mediante una carpeta. El salvapantallas no necesita ninguno de los dos.</string>
+    <string name="projectivy_status_in_use">En uso en Projectivy</string>
+    <string name="projectivy_status_pick">Projectivy instalado: elige Sofadrop</string>
+    <string name="projectivy_get">Conseguir Projectivy</string>
+    <string name="projectivy_get_desc">Para ver estos fondos también en el inicio de la TV</string>
+    <string name="projectivy_get_scan">Escanéalo con el móvil para abrir la página de Projectivy.</string>
+    <string name="click_action_desc_alone">En Sofascreen, el botón OK abre el título que se ve.</string>
+    <string name="general_header">Ajustes comunes</string>
+    <string name="projectivy_status_optional">Para Projectivy Launcher Premium o una carpeta</string>
+    <string name="wallpaper_folder_title">Guardar en una carpeta</string>
+    <string name="wallpaper_folder_off">Desactivado</string>
+    <string name="wallpaper_folder_on">En %1$s</string>
+    <string name="wallpaper_folder_explain">Una copia de los fondos en la carpeta %1$s de la TV, que se renueva con cada actualización, para launchers que muestran las imágenes de una carpeta, como Monet Launcher: elige esa carpeta en los ajustes de fondo del launcher. Ahí un fondo es solo una imagen: no abre su título.</string>
+    <string name="wallpaper_folder_no_permission">Sin acceso al almacenamiento no se pueden guardar los fondos en una carpeta</string>
+    <string name="position_rotate">Rotativa</string>
+    <string name="position_rotate_desc">Cada fondo en una posición distinta</string>
+    <string name="position_rotation_title">Posiciones de la rotación</string>
+    <string name="position_rotation_desc">Cada fondo usa la siguiente posición marcada. En el salvapantallas, el reloj se va a la esquina contraria.</string>
+    <string name="position_rotation_min">Deja al menos dos</string>
+    <string name="position_rotation_summary">%1$d posiciones</string>
+    <string name="bottom_shade_title">Sombreado inferior</string>
+    <string name="bottom_shade_high">Alto</string>
+    <string name="bottom_shade_normal">Normal</string>
+    <string name="bottom_shade_low">Bajo</string>
+    <string name="bottom_shade_minimal">Mínimo</string>
+    <string name="bottom_shade_none">Ninguno</string>
+    <string name="bottom_shade_normal_desc">Oscurece la parte de abajo de la imagen</string>
+    <string name="bottom_shade_none_desc">La imagen llega hasta el borde inferior</string>
+    <string name="bottom_shade_summary">sombreado inferior: %1$s</string>
 </resources>

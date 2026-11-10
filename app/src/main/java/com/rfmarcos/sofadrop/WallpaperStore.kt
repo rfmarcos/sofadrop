@@ -23,6 +23,8 @@ data class StoredWallpaper(
     val providerIds: List<Int> = emptyList(),
     /** Its pages on the streaming platforms, by [Platform.key] (only when the user has platforms). */
     val platformLinks: Map<String, String> = emptyMap(),
+    /** Where its text is, when each wallpaper has its own place (see [Settings.POSITION_ROTATE]). */
+    val position: String? = null,
 )
 
 /**
@@ -47,14 +49,19 @@ class WallpaperStore(private val context: Context, profile: Profile = Profile.WA
      * its own wallpaper when they fail to load. Before anything was served, the previous set is kept.
      * The screensaver reads its files directly, so its previous set goes.
      */
-    fun publish(generation: File, wallpapers: List<StoredWallpaper>) {
-        File(generation, INDEX).writeText(json.encodeToString(wallpapers))
+    fun publish(generation: File, wallpapers: List<StoredWallpaper>, partial: Boolean = false) {
+        // Atomically: a first set is published again and again while Sofascreen reads it
+        val index = File(generation, "$INDEX.tmp")
+        index.writeText(json.encodeToString(wallpapers))
+        index.renameTo(File(generation, INDEX))
         val keep = if (set.isScreensaver) null else servedFile.takeIf { it.exists() }?.readText()?.trim() ?: currentDir()?.name
         val tmp = File(root, "current.tmp")
         tmp.writeText(generation.name)
         tmp.renameTo(currentFile)
-        // Only older sets: a newer one may be another generation still being written (two can overlap)
-        root.listFiles()?.filter { it.isDirectory && it.name != keep && startedAt(it) < startedAt(generation) }?.forEach { it.deleteRecursively() }
+        if (partial) return
+        // Only older sets: a newer one may be another generation still being written (two can overlap).
+        // The focused cards' wallpapers stay: they're named after the settings they were drawn with
+        root.listFiles()?.filter { it.isDirectory && it.name != keep && it.name != FocusedWallpapers.DIR && startedAt(it) < startedAt(generation) }?.forEach { it.deleteRecursively() }
     }
 
     /** When the generation in [dir] ("gen-1761560000000") started; 0 for anything else, which goes. */

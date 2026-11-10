@@ -64,6 +64,8 @@ class ListExplorerFragment : BaseSettingsFragment() {
                 .checkSetId(GuidedAction.CHECKBOX_CHECK_SET_ID).checked(profile.skipDuplicates).build(),
             blockedRow(),
         )
+        // On Google Play adult titles are always left out
+        if (BuildConfig.PLAY) rows.removeAll { it.id == ID_ADULT }
         explanations.putAll(filterExplanations(context))
         // Only selected lists: duplicates (and so what a list really brings) depend on the others
         lists = Sources.selected(profile)

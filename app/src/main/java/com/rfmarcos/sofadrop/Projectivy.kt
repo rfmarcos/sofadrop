@@ -9,6 +9,7 @@ import android.widget.Toast
 /** Projectivy Launcher, from the plugin's side. */
 object Projectivy {
     const val PACKAGE = "com.spocky.projengmenu"
+    const val URL = "https://github.com/spocky/miproja1"
 
     /** Without it Sofadrop is only a screensaver (see Sofascreen.kt). */
     fun isInstalled(context: Context): Boolean = try {
@@ -17,6 +18,9 @@ object Projectivy {
     } catch (_: PackageManager.NameNotFoundException) {
         false
     }
+
+    /** Projectivy has asked for the wallpapers, so Sofadrop has been picked: it only asks then. */
+    fun inUse(context: Context): Boolean = Settings.projectivyAskedAt > 0L || WallpaperStore(context).everServed
 
     /**
      * Open Projectivy's settings with the path to pick Sofadrop as the wallpaper: Projectivy has no

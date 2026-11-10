@@ -13,6 +13,7 @@ import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -33,25 +34,19 @@ import kotlin.random.Random
  * Sofascreen: the screensaver's set (its own, or the wallpapers', see [Profile.SCREENSAVER]) shown offline,
  * with a transition between wallpapers, an optional slow zoom and an optional clock with the date and the
  * weather (see the screensaver settings in [Settings]). A set published while it runs is picked up at the
- * end of a round. Contributed by schumi2004 (PR #13).
+ * end of a round, and a first one as soon as it has a wallpaper. Contributed by schumi2004 (PR #13).
  */
 class SofascreenView(context: Context) : FrameLayout(context) {
 
     private val store = WallpaperStore(context, Profile.SCREENSAVER)
     /** Where the wallpapers' text is, so the zoom keeps it in view and the clock goes on the other side. */
-    private val blockPosition = Profile.SCREENSAVER.position
-    private val textRight = blockPosition.endsWith("_right")
+    private val blockPosition = Profile.SCREENSAVER.position.takeIf { it != Settings.POSITION_ROTATE } ?: Settings.POSITION_TOP_LEFT
     private val handler = Handler(Looper.getMainLooper())
     private val decoder = Executors.newSingleThreadExecutor()
-    private val network = Executors.newSingleThreadExecutor()
     private var front = image()
     private var back = image()
     private val dim = View(context).apply { setBackgroundColor(Color.BLACK) }
-    private val clock = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-    private var date: TextView? = null
-    /** The clock's digits and their patterns ("HH", "mm"), set by [tick]. */
-    private val times = mutableListOf<Pair<TextView, String>>()
-    private var weather: TextView? = null
+    private val clock = SofascreenClock(context)
     private val empty = TextView(context).apply {
         setText(R.string.screensaver_empty)
         setTextColor(Color.argb(200, 255, 255, 255))
@@ -62,13 +57,17 @@ class SofascreenView(context: Context) : FrameLayout(context) {
 
     private var playlist: List<StoredWallpaper> = emptyList()
     private var position = -1
+    /** The wallpaper on screen, for [openShown]. */
+    private var shown: StoredWallpaper? = null
+    /** Ends the running transition at once, as an arrow may arrive during one; null when there is none. */
+    private var settle: Runnable? = null
     private var running = false
     private val next = Runnable { showNext() }
     private val drift = object : Runnable {
         override fun run() {
             // A few pixels every minute, so the clock doesn't burn into the panel
             val range = resources.displayMetrics.heightPixels * 0.012f
-            clock.animate().translationX(Random.nextFloat() * 2 * range - range).translationY(Random.nextFloat() * 2 * range - range)
+            clock.view.animate().translationX(Random.nextFloat() * 2 * range - range).translationY(Random.nextFloat() * 2 * range - range)
                 .setDuration(2000).start()
             handler.postDelayed(this, 60_000)
         }
@@ -76,15 +75,13 @@ class SofascreenView(context: Context) : FrameLayout(context) {
     /** The time and date, at the start of every minute. */
     private val tick = object : Runnable {
         override fun run() {
-            val now = Date()
-            for ((view, pattern) in times) view.text = DateFormat.format(pattern, now)
-            date?.text = dateText()
+            clock.tick()
             handler.postDelayed(this, 60_000 - System.currentTimeMillis() % 60_000 + 50)
         }
     }
     private val weatherUpdate = object : Runnable {
         override fun run() {
-            updateWeather()
+            clock.updateWeather()
             handler.postDelayed(this, 15 * 60_000L)
         }
     }
@@ -95,7 +92,7 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         addView(front, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(dim, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(empty, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        addView(clock, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
+        addView(clock.view, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
 
     private fun image() = ImageView(context).apply { scaleType = ImageView.ScaleType.CENTER_CROP }
@@ -104,21 +101,23 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         if (running) return
         running = true
         dim.alpha = 1f - Settings.screensaverBrightness / 100f
-        buildClock()
+        clock.build(resources.displayMetrics.widthPixels.toFloat(), resources.displayMetrics.heightPixels.toFloat(), blockPosition.endsWith("_right"))
         position = -1
         playlist = emptyList()
-        showNext(animate = false)
+        showNext(transition = 0)
         if (Settings.screensaverClock != Settings.CLOCK_OFF) {
             tick.run()
             handler.postDelayed(drift, 60_000)
         }
-        if (weather != null) handler.post(weatherUpdate)
+        if (clock.showsWeather) handler.post(weatherUpdate)
     }
 
     fun stop() {
         running = false
+        shown = null
+        settle = null
         handler.removeCallbacksAndMessages(null)
-        for (view in listOf(front, back, clock)) view.animate().cancel()
+        for (view in listOf(front, back, clock.view)) view.animate().cancel()
         front.setImageDrawable(null)
         back.setImageDrawable(null)
     }
@@ -126,28 +125,63 @@ class SofascreenView(context: Context) : FrameLayout(context) {
     override fun onDetachedFromWindow() {
         stop()
         decoder.shutdownNow()
-        network.shutdownNow()
+        clock.close()
         super.onDetachedFromWindow()
+    }
+
+    /**
+     * The remote: the arrows change the wallpaper, OK opens the title on screen, any other button stops
+     * Sofascreen. True when it goes on. Held arrows don't repeat: each step decodes a whole image.
+     */
+    fun onKey(event: KeyEvent): Boolean = when (event.keyCode) {
+        KeyEvent.KEYCODE_DPAD_RIGHT -> true.also { if (event.repeatCount == 0) skip(forward = true) }
+        KeyEvent.KEYCODE_DPAD_LEFT -> true.also { if (event.repeatCount == 0) skip(forward = false) }
+        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> false.also { openShown() }
+        else -> false
+    }
+
+    /** The title on screen, as Projectivy would open it (see [ClickTargets]). */
+    private fun openShown() {
+        val wallpaper = shown ?: return
+        ClickTargets.candidates(context, wallpaper, Profile.SCREENSAVER).any { intent -> runCatching { context.startActivity(intent) }.isSuccess }
+    }
+
+    /** Straight to the next or the previous wallpaper of the round, with a quicker transition. */
+    private fun skip(forward: Boolean) {
+        if (playlist.isEmpty()) return
+        handler.removeCallbacks(next)
+        if (!forward) position = (position - 1 + playlist.size) % playlist.size - 1
+        showNext(SKIP_MILLIS)
     }
 
     // --- Wallpapers ---
 
     /** The next wallpaper; a new round re-reads the set, so a newly published one is used. */
-    private fun showNext(animate: Boolean = true) {
+    private fun showNext(transition: Long = TRANSITION_MILLIS) {
         if (!running) return
         if (position + 1 >= playlist.size) {
             val current = store.current()
-            playlist = if (Settings.screensaverShuffle) current.shuffled() else current
+            playlist = if (Profile.SCREENSAVER.mixed) current.shuffled() else current
             position = -1
         }
         if (playlist.isEmpty()) {
+            val set = Profile.SCREENSAVER.source
+            empty.setText(
+                when {
+                    set.generating -> if (GenerateWallpapersWorker.isOnline(context)) R.string.screensaver_preparing else R.string.status_waiting_network
+                    set.lastError.isNotEmpty() -> R.string.screensaver_failed
+                    else -> R.string.screensaver_empty
+                }
+            )
             empty.visibility = VISIBLE
-            handler.postDelayed(next, 30_000) // nothing generated yet: look again later
+            // Nothing generated yet: look again later, soon if it's on its way
+            handler.postDelayed(next, if (Profile.SCREENSAVER.source.generating) 2_000L else 10_000L)
             return
         }
         empty.visibility = GONE
         position++
-        val file = store.fileOf(playlist[position])
+        val wallpaper = playlist[position]
+        val file = store.fileOf(wallpaper)
         val width = resources.displayMetrics.widthPixels
         decoder.execute {
             val exists = file?.isFile == true
@@ -156,7 +190,10 @@ class SofascreenView(context: Context) : FrameLayout(context) {
             handler.post {
                 if (!running) return@post
                 when {
-                    bitmap != null -> show(bitmap, animate)
+                    bitmap != null -> {
+                        shown = wallpaper
+                        show(bitmap, transition)
+                    }
                     // Removed by a newer set: start the round again from that one
                     !exists -> {
                         playlist = emptyList()
@@ -169,7 +206,8 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         }
     }
 
-    private fun show(bitmap: Bitmap, animate: Boolean) {
+    private fun show(bitmap: Bitmap, duration: Long) {
+        settle?.run()
         val incoming = back
         val outgoing = front
         reset(incoming)
@@ -180,42 +218,16 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         back = outgoing
         front = incoming
 
-        val transition = Settings.screensaverTransition.let {
-            if (it == Settings.TRANSITION_RANDOM) Settings.TRANSITIONS.filter { t -> t != Settings.TRANSITION_RANDOM }.random() else it
-        }
-        val duration = if (animate) TRANSITION_MILLIS else 0L
         val done = Runnable {
-            outgoing.animate().cancel()
+            settle = null
+            reset(incoming)
             reset(outgoing)
             outgoing.setImageDrawable(null)
             slowZoom(incoming)
         }
-        val ease = AccelerateDecelerateInterpolator()
-        when {
-            duration == 0L -> done.run()
-            transition == Settings.TRANSITION_BLACK -> {
-                incoming.alpha = 0f
-                outgoing.animate().alpha(0f).setDuration(duration / 2).setInterpolator(ease).withEndAction {
-                    incoming.animate().alpha(1f).setDuration(duration / 2).setInterpolator(ease).withEndAction(done).start()
-                }.start()
-            }
-            transition == Settings.TRANSITION_SLIDE -> {
-                val distance = width.toFloat()
-                incoming.translationX = distance
-                outgoing.animate().translationX(-distance).setDuration(duration).setInterpolator(ease).start()
-                incoming.animate().translationX(0f).setDuration(duration).setInterpolator(ease).withEndAction(done).start()
-            }
-            transition == Settings.TRANSITION_ZOOM -> {
-                incoming.alpha = 0f
-                incoming.scaleX = 1.15f
-                incoming.scaleY = 1.15f
-                incoming.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(duration).setInterpolator(ease).withEndAction(done).start()
-            }
-            else -> {
-                incoming.alpha = 0f
-                incoming.animate().alpha(1f).setDuration(duration).setInterpolator(ease).withEndAction(done).start()
-            }
-        }
+        settle = done
+        shown?.position?.let(clock::moveAwayFrom)
+        if (duration == 0L) done.run() else playTransition(incoming, outgoing, duration, width.toFloat(), done)
         handler.removeCallbacks(next)
         handler.postDelayed(next, Settings.screensaverSeconds * 1000L + duration)
     }
@@ -227,40 +239,123 @@ class SofascreenView(context: Context) : FrameLayout(context) {
     private fun slowZoom(view: ImageView) {
         if (!Settings.screensaverZoom) return
         val screen = (if (height > 0) height else resources.displayMetrics.heightPixels).toFloat()
-        view.pivotX = if (textRight) (if (width > 0) width else resources.displayMetrics.widthPixels).toFloat() else 0f
+        val place = shown?.position ?: blockPosition
+        view.pivotX = if (place.endsWith("_right")) (if (width > 0) width else resources.displayMetrics.widthPixels).toFloat() else 0f
         view.pivotY = when {
-            blockPosition.startsWith("bottom") -> screen
-            blockPosition.startsWith("top") -> 0f
+            place.startsWith("bottom") -> screen
+            place.startsWith("top") -> 0f
             else -> screen / 2f
         }
         view.animate().scaleX(SLOW_ZOOM).scaleY(SLOW_ZOOM).setDuration(Settings.screensaverSeconds * 1000L)
             .setInterpolator(LinearInterpolator()).start()
     }
 
-    private fun reset(view: ImageView) {
-        view.animate().cancel()
-        view.alpha = 1f
-        view.scaleX = 1f
-        view.scaleY = 1f
-        view.translationX = 0f
-        view.pivotX = width / 2f
-        view.pivotY = height / 2f
+    companion object {
+        const val TRANSITION_MILLIS = 1500L
+        private const val SKIP_MILLIS = 500L
+        private const val SLOW_ZOOM = 1.06f
+
+        /**
+         * One change from [outgoing] to [incoming], which is on top of it, with the transition of the settings.
+         * [distance] is how far a slide goes.
+         */
+        fun playTransition(incoming: ImageView, outgoing: ImageView, duration: Long, distance: Float, done: Runnable) {
+            val transition = Settings.screensaverTransition.let {
+                if (it == Settings.TRANSITION_RANDOM) Settings.TRANSITIONS.filter { t -> t != Settings.TRANSITION_RANDOM }.random() else it
+            }
+            val ease = AccelerateDecelerateInterpolator()
+            when (transition) {
+                Settings.TRANSITION_BLACK -> {
+                    incoming.alpha = 0f
+                    outgoing.animate().alpha(0f).setDuration(duration / 2).setInterpolator(ease).withEndAction {
+                        incoming.animate().alpha(1f).setDuration(duration / 2).setInterpolator(ease).withEndAction(done).start()
+                    }.start()
+                }
+                Settings.TRANSITION_SLIDE -> {
+                    incoming.translationX = distance
+                    outgoing.animate().translationX(-distance).setDuration(duration).setInterpolator(ease).start()
+                    incoming.animate().translationX(0f).setDuration(duration).setInterpolator(ease).withEndAction(done).start()
+                }
+                Settings.TRANSITION_ZOOM -> {
+                    incoming.alpha = 0f
+                    incoming.scaleX = 1.15f
+                    incoming.scaleY = 1.15f
+                    incoming.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(duration).setInterpolator(ease).withEndAction(done).start()
+                }
+                else -> {
+                    incoming.alpha = 0f
+                    incoming.animate().alpha(1f).setDuration(duration).setInterpolator(ease).withEndAction(done).start()
+                }
+            }
+        }
+
+        fun reset(view: ImageView) {
+            view.animate().cancel()
+            view.alpha = 1f
+            view.scaleX = 1f
+            view.scaleY = 1f
+            view.translationX = 0f
+            view.pivotX = view.width / 2f
+            view.pivotY = view.height / 2f
+        }
+
+        /** Some wallpaper of the set, for the preview in the settings. */
+        fun anyWallpaper(context: Context, width: Int): Bitmap? {
+            val store = WallpaperStore(context, Profile.SCREENSAVER)
+            return store.current().randomOrNull()?.let(store::fileOf)?.let { decode(it.path, width) }
+        }
+
+        /** Decode an image subsampled close to [width], like the wallpaper viewer. */
+        private fun decode(path: String, width: Int): Bitmap? {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(path, bounds)
+            var sample = 1
+            while (bounds.outWidth / (sample * 2) >= width) sample *= 2
+            return BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })
+        }
+    }
+}
+
+/**
+ * The clock block with the date and the weather, as the screensaver settings say, in a [FrameLayout]: on the
+ * wallpaper in [SofascreenView], and on the settings' preview.
+ */
+private const val CLOCK_MOVE_MILLIS = 300L
+
+class SofascreenClock(private val context: Context) {
+
+    private val clock = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+    private val handler = Handler(Looper.getMainLooper())
+    private val network = Executors.newSingleThreadExecutor()
+    private var date: TextView? = null
+    /** The clock's digits and their patterns ("HH", "mm"), set by [tick]. */
+    private val times = mutableListOf<Pair<TextView, String>>()
+    private var weather: TextView? = null
+
+    val view: View get() = clock
+    val showsWeather: Boolean get() = weather != null
+
+    /** The time and date now. */
+    fun tick() {
+        val now = Date()
+        for ((view, pattern) in times) view.text = DateFormat.format(pattern, now)
+        date?.text = dateText()
     }
 
-    // --- Clock ---
+    fun close() {
+        network.shutdownNow()
+    }
 
-    /** The clock goes on the side the wallpapers' text isn't. */
-    private val side get() = if (textRight) Gravity.START else Gravity.END
-
-    private fun buildClock() {
+    /** Sized for a screen of [width] by [height]; it goes on the side the wallpapers' text isn't. */
+    fun build(width: Float, height: Float, textRight: Boolean) {
+        val side = if (textRight) Gravity.START else Gravity.END
         clock.removeAllViews()
         times.clear()
         date = null
         weather = null
         val style = Settings.screensaverClock
-        clock.visibility = if (style == Settings.CLOCK_OFF) GONE else VISIBLE
+        clock.visibility = if (style == Settings.CLOCK_OFF) View.GONE else View.VISIBLE
         if (style == Settings.CLOCK_OFF) return
-        val height = resources.displayMetrics.heightPixels.toFloat()
         val h24 = when (Settings.screensaverClockFormat) {
             Settings.CLOCK_FORMAT_24 -> true
             Settings.CLOCK_FORMAT_12 -> false
@@ -289,19 +384,37 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         }
         if (Settings.screensaverWeather && Settings.weatherPlace.isNotEmpty()) {
             weather = smallText(small * 0.85f, light).also {
-                it.visibility = GONE // until there is a reading
+                it.visibility = View.GONE // until there is a reading
                 it.setPadding(0, (small * 0.4f).toInt(), 0, 0)
                 clock.addView(it)
             }
         }
 
-        val params = clock.layoutParams as LayoutParams
+        val params = clock.layoutParams as FrameLayout.LayoutParams
         params.gravity = side or (if (Settings.screensaverClockBottom) Gravity.BOTTOM else Gravity.TOP)
-        params.marginEnd = (resources.displayMetrics.widthPixels * 0.055f).toInt()
+        params.marginEnd = (width * 0.055f).toInt()
         params.marginStart = params.marginEnd
         params.topMargin = (height * 0.07f).toInt()
         params.bottomMargin = (height * 0.07f).toInt()
         clock.layoutParams = params
+    }
+
+    /** To the corner away from text at [position], for wallpapers that each have theirs (the height stays with text in the middle). */
+    fun moveAwayFrom(position: String) {
+        val side = if (position.endsWith("_right")) Gravity.START else Gravity.END
+        val params = clock.layoutParams as FrameLayout.LayoutParams
+        val height = when {
+            position.startsWith("top") -> Gravity.BOTTOM
+            position.startsWith("bottom") -> Gravity.TOP
+            else -> params.gravity and Gravity.VERTICAL_GRAVITY_MASK
+        }
+        if (params.gravity == side or height) return
+        clock.animate().alpha(0f).setDuration(CLOCK_MOVE_MILLIS).withEndAction {
+            params.gravity = side or height
+            clock.layoutParams = params
+            if (Settings.screensaverClock == Settings.CLOCK_LINE) clock.gravity = side
+            clock.animate().alpha(1f).setDuration(CLOCK_MOVE_MILLIS).start()
+        }.start()
     }
 
     private fun clockText(pattern: String, sizePx: Float, font: android.graphics.Typeface?) = TextView(context).apply {
@@ -310,10 +423,10 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         times += this to pattern
     }
 
-    /** Rounded, slightly see-through white, like the light date it replaces. */
+    /** Rounded and slightly see-through, like the light date it replaces. */
     private fun divider(height: Float) = View(context).apply {
         background = GradientDrawable().apply {
-            setColor(Color.argb(190, 255, 255, 255))
+            setColor(clockColor() and 0xFFFFFF or (190 shl 24))
             cornerRadius = height * 0.002f
         }
     }
@@ -333,10 +446,13 @@ class SofascreenView(context: Context) : FrameLayout(context) {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         typeface = font
         setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx)
-        setTextColor(Color.WHITE)
+        // The whole block in the clock's colour: digits, date and weather
+        setTextColor(clockColor())
         includeFontPadding = false
         setShadowLayer(sizePx * 0.08f, 0f, sizePx * 0.02f, Color.argb(150, 0, 0, 0))
     }
+
+    private fun clockColor() = Settings.CLOCK_COLORS.getValue(Settings.screensaverClockColorShown)
 
     /** "MA·26·OKT", "MON·OCT·26": weekday, day and month in the order of the language, without their dots. */
     private fun dateText(): String {
@@ -347,10 +463,8 @@ class SofascreenView(context: Context) : FrameLayout(context) {
             .joinToString("·") { SimpleDateFormat(it.value, locale).format(now).replace(".", "").trim() }
     }
 
-    // --- Weather ---
-
     /** "12° · Partly cloudy" under the clock, off the main thread; the line stays hidden while there is none. */
-    private fun updateWeather() {
+    fun updateWeather() {
         val place = Settings.weatherPlace.takeIf { it.isNotEmpty() } ?: return
         network.execute {
             // A restored backup has the place but not its coordinates: look it up again
@@ -359,24 +473,9 @@ class SofascreenView(context: Context) : FrameLayout(context) {
             val now = coordinates?.let { Weather.current(it) }
             handler.post {
                 val line = weather ?: return@post
-                if (!running) return@post
-                line.visibility = if (now == null) GONE else VISIBLE
+                line.visibility = if (now == null) View.GONE else View.VISIBLE
                 if (now != null) line.text = "${now.temperature}°  ·  ${context.getString(Weather.description(now.code))}"
             }
-        }
-    }
-
-    companion object {
-        private const val TRANSITION_MILLIS = 1500L
-        private const val SLOW_ZOOM = 1.06f
-
-        /** Decode an image subsampled close to [width], like the wallpaper viewer. */
-        private fun decode(path: String, width: Int): Bitmap? {
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            BitmapFactory.decodeFile(path, bounds)
-            var sample = 1
-            while (bounds.outWidth / (sample * 2) >= width) sample *= 2
-            return BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })
         }
     }
 }
@@ -389,7 +488,7 @@ class SofascreenService : DreamService() {
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         Settings.init(this)
-        isInteractive = false
+        isInteractive = true // for the remote, see [dispatchKeyEvent]; any other input stops it, as without this
         isFullscreen = true
         isScreenBright = true
         view = SofascreenView(this).also { setContentView(it) }
@@ -397,16 +496,26 @@ class SofascreenService : DreamService() {
 
     override fun onDreamingStarted() {
         super.onDreamingStarted()
+        GenerateWallpapersWorker.refreshForScreensaver(this)
         view?.start()
-        Settings.screensaverShownAt = System.currentTimeMillis()
-        askForSet()
     }
 
-    /** Nothing generated yet for the set it shows (e.g. without Projectivy, which asks for the wallpapers): make it. */
-    private fun askForSet() {
-        val set = Profile.SCREENSAVER.source
-        if (set.lastGeneration != 0L || set.generating || WallpaperStore(this, set).current().isNotEmpty()) return
-        GenerateWallpapersWorker.runNow(this, set)
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Back closes on key up: closing now, its key up would go on to what's underneath
+        if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (event.action == KeyEvent.ACTION_UP) finish()
+        } else if (event.action == KeyEvent.ACTION_DOWN && view?.onKey(event) != true) finish()
+        return true
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        finish()
+        return true
+    }
+
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        finish()
+        return true
     }
 
     override fun onDreamingStopped() {
@@ -415,7 +524,12 @@ class SofascreenService : DreamService() {
     }
 }
 
-/** Sofascreen started from the settings, to try it; any key closes it, as with the real screensaver. */
+/**
+ * Sofascreen on demand, from the settings: the way in where the system screensaver takes a computer (see
+ * [ScreensaverSetupFragment]). Exported so launchers can start it when idle, which they can't do with
+ * another app's [SofascreenService]. It keeps the screen on until a key closes it. The remote works as
+ * with the real screensaver, see [SofascreenView.onKey].
+ */
 class SofascreenActivity : AppCompatActivity() {
 
     private lateinit var view: SofascreenView
@@ -430,6 +544,7 @@ class SofascreenActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        GenerateWallpapersWorker.refreshForScreensaver(this)
         view.start()
     }
 
@@ -438,8 +553,10 @@ class SofascreenActivity : AppCompatActivity() {
         super.onStop()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        finish()
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        // Back closes on key up as usual: closing now, its key up would go back in the settings too
+        if (keyCode == KeyEvent.KEYCODE_BACK) return super.onKeyDown(keyCode, event)
+        if (!view.onKey(event)) finish()
         return true
     }
 }

@@ -43,7 +43,7 @@ class PreviewPinFragment : PreviewSettingsFragment() {
 
     private fun rows(): List<GuidedAction> {
         val pick = action(ID_PICK, R.drawable.ic_act_preview, getString(R.string.preview_pin_pick), getString(R.string.preview_pin_pick_desc)).build()
-        pick.isEnabled = WallpaperStore(requireContext()).current().isNotEmpty()
+        pick.isEnabled = WallpaperStore(requireContext(), shownSet).current().isNotEmpty()
         return listOf(
             action(ID_AUTO, R.drawable.ic_act_shuffle, getString(R.string.preview_pin_automatic), autoDescription()).build(),
             pick,
@@ -83,7 +83,7 @@ class PreviewPinFragment : PreviewSettingsFragment() {
     override fun onGuidedActionClicked(action: GuidedAction) {
         when {
             action.id == ID_AUTO -> setPin("", "")
-            action.id == ID_PICK -> startActivity(Intent(requireContext(), PreviewActivity::class.java).putExtra(PreviewActivity.EXTRA_PICK, true))
+            action.id == ID_PICK -> startActivity(Intent(requireContext(), PreviewActivity::class.java).putExtra(PreviewActivity.EXTRA_PICK, true).putExtra(PreviewActivity.EXTRA_PROFILE, shownSet.id))
             action.id >= ID_CANDIDATE_BASE -> candidates.getOrNull((action.id - ID_CANDIDATE_BASE).toInt())?.let { (pin, info) -> setPin(pin, info.title) }
         }
     }

@@ -134,6 +134,7 @@ object SettingsFile {
         if (version(text) == null || !Settings.import(text, replace = true)) return false
         // A device set up from a file doesn't need the guided setup
         Settings.wizardShown = true
+        GenerateWallpapersWorker.dropScreensaverSet(context)
         GenerateWallpapersWorker.schedule(context, settingsChanged = true)
         return true
     }

@@ -7,7 +7,7 @@ Notes for building and publishing the app yourself. To just use it, see the [REA
 Android SDK (API 36) and JDK 17+ (the one bundled with Android Studio works).
 
 ```bash
-./gradlew :app:assembleDebug
+./gradlew :app:assembleGithubDebug
 ```
 
 ## Keys in `local.properties` (never commit it)
@@ -43,17 +43,18 @@ release.keyPassword=...
 ```
 
 ```bash
-./gradlew :app:assembleRelease
+./gradlew :app:assembleGithubRelease   # the APK of the GitHub releases, with the updater
+./gradlew :app:bundlePlayRelease       # the bundle for Google Play: no updater, no Ko-fi link, adult titles always filtered
 ```
 
-Attach the APK to each GitHub release twice: as `sofadrop-<version>.apk` and as **`sofadrop.apk`**. The second name keeps `https://github.com/rfmarcos/projectivy-plugin-sofadrop/releases/latest/download/sofadrop.apk` (used by the README and the Downloader code) pointing at the newest version.
+Attach the APK to each GitHub release twice: as `sofadrop-<version>.apk` and as **`sofadrop.apk`**. The second name keeps `https://github.com/rfmarcos/sofadrop/releases/latest/download/sofadrop.apk` (used by the README and the Downloader code) pointing at the newest version.
 
 Release builds are minified with R8 (full mode): smoke-test them on a device or emulator before publishing (`app/proguard-rules.pro` keeps the classes WorkManager creates by reflection).
 
 ## Tests
 
 ```bash
-./gradlew :app:testDebugUnitTest
+./gradlew :app:testGithubDebugUnitTest
 ```
 
 Instrumented tests (`connectedDebugAndroidTest`) uninstall the app when they finish, so point them at an emulator, e.g. `ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest`.

@@ -18,7 +18,8 @@ import androidx.leanback.widget.GuidedAction
  */
 abstract class PreviewSettingsFragment : BaseSettingsFragment() {
 
-    private var previewImage: ImageView? = null
+    protected var previewImage: ImageView? = null
+        private set
     private var previewProgress: ProgressBar? = null
     private var previewLabel: TextView? = null
     protected var pendingNotice: TextView? = null
@@ -39,7 +40,7 @@ abstract class PreviewSettingsFragment : BaseSettingsFragment() {
             pendingNotice = view.findViewById(R.id.pending_notice)
             view.findViewById<View>(R.id.preview_frame).clipToOutline = true
             if (showsProjectivyNotice) view.findViewById<View>(R.id.projectivy_notice).visibility = View.VISIBLE
-            cachedPreview?.let { (key, bitmap, title) -> if (key == previewKey()) showPreview(bitmap, title) }
+            cachedPreviews[profile.id]?.let { (key, bitmap, title) -> if (key == previewKey()) showPreview(bitmap, title) }
             return view
         }
     }
@@ -57,14 +58,15 @@ abstract class PreviewSettingsFragment : BaseSettingsFragment() {
 
     protected fun refreshPending() {
         // Not in the guided setup: its answers are applied when it ends, not "when you exit"
-        val pending = profile.hasPendingChanges && !profile.generating && Sources.selected(profile).isNotEmpty() && !Wizard.open
+        val set = shownSet
+        val pending = set.hasPendingChanges && !set.generating && Sources.selected(set).isNotEmpty() && !Wizard.open
         pendingNotice?.visibility = if (pending) View.VISIBLE else View.GONE
     }
 
     /** Everything that changes how the preview looks. */
     private fun previewKey() = listOf(
         Settings.token.hashCode(), Settings.language, Settings.region, profile.signature, Settings.mdbLists.size,
-        Settings.tmdbConnected, Settings.previewPin, WallpaperStore(requireContext()).current().size,
+        Settings.tmdbConnected, Settings.previewPin, WallpaperStore(requireContext(), profile).current().size,
     ).joinToString("|")
 
     /** A part the style doesn't draw: its row stays (so rows don't jump), disabled and saying why. */
@@ -84,7 +86,7 @@ abstract class PreviewSettingsFragment : BaseSettingsFragment() {
 
     private fun startPreview() {
         val key = previewKey()
-        if (cachedPreview?.first == key && previewImage?.drawable != null) return
+        if (cachedPreviews[profile.id]?.first == key && previewImage?.drawable != null) return
         if (Settings.token.isBlank()) {
             showPreviewMessage(getString(R.string.preview_no_token))
             return
@@ -104,7 +106,7 @@ abstract class PreviewSettingsFragment : BaseSettingsFragment() {
                 if (preview == null) {
                     showPreviewMessage(getString(R.string.preview_no_titles))
                 } else {
-                    cachedPreview = Triple(key, preview.first, preview.second)
+                    cachedPreviews[profile.id] = Triple(key, preview.first, preview.second)
                     showPreview(preview.first, preview.second)
                 }
             }.onFailure {
@@ -129,8 +131,8 @@ abstract class PreviewSettingsFragment : BaseSettingsFragment() {
     companion object {
         private const val PREVIEW_WIDTH = 1280
 
-        /** Last preview (key, image, title), kept while the process lives so reopening is instant. */
-        private var cachedPreview: Triple<String, Bitmap, String>? = null
+        /** Last preview of each profile (key, image, title), kept while the process lives so reopening is instant. */
+        private val cachedPreviews = mutableMapOf<String, Triple<String, Bitmap, String>>()
 
         /** "type:tmdbId" pins for what the user typed: "tv 1399", "tv:1399" or a TMDB URL; a bare number may be either type. */
         fun pinCandidates(text: String): List<String> {

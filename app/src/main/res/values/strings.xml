@@ -9,7 +9,7 @@
     <string name="cancel">Cancel</string>
 
     <!-- Status -->
-    <string name="status_never">No wallpapers yet · choose to create them</string>
+    <string name="status_never">No wallpapers yet · press OK to create them</string>
     <string name="status_ok">%1$d wallpapers · updated %2$s</string>
     <string name="status_generating">Generating wallpapers…</string>
     <string name="status_error">Last update failed: %1$s</string>
@@ -22,11 +22,27 @@
     <string name="generation_started">Generating wallpapers in the background…</string>
     <string name="action_preview">View wallpapers</string>
     <string name="action_preview_desc">The current set full screen</string>
+    <string name="focused_card_title">Focused card (beta)</string>
+    <string name="focused_card_off">Off</string>
+    <string name="focused_card_episode">Episode when known</string>
+    <string name="focused_card_series">Series or movie</string>
+    <string name="focused_card_explain">While you\'re on a movie, series or episode in a Projectivy channel, the wallpaper becomes that title (looked up on TMDB by the card\'s name). The first time on a card it takes a few seconds; after that it\'s instant. It\'s new: if a card shows the wrong title, send the card log.</string>
+    <string name="focused_log_title">Card log</string>
+    <string name="focused_log_none">No cards yet</string>
+    <string name="focused_log_explain">The last cards you were on, what each app said about them and what Sofadrop found. Send it if a card doesn\'t show the right wallpaper: it helps make this work with more apps.</string>
+    <string name="focused_log_desc">The last cards you were on: what the app said about each one (type, name, where its image is) and what was found on TMDB.</string>
+    <string name="focused_log_text">Show it as text</string>
+    <string name="focused_log_text_desc">The whole log as text, to share it wherever you like (a GitHub issue, Reddit…). It includes the names of the cards.</string>
+    <string name="focused_log_newest">Newest cards first</string>
+    <string name="focused_log_clear">Clear the log</string>
+    <plurals name="focused_log_cards">
+        <item quantity="one">%d card</item>
+        <item quantity="other">%d cards</item>
+    </plurals>
     <string name="preview_empty">No wallpapers yet. Use \"Update now\" first.</string>
 
     <!-- Live preview -->
     <string name="preview_label">Preview · %1$s</string>
-    <string name="preview_loading">Generating preview…</string>
     <string name="preview_no_token">No TMDB key in this build</string>
     <string name="preview_no_titles">The selected lists have no titles</string>
     <string name="preview_error">Preview unavailable: %1$s</string>
@@ -98,7 +114,7 @@
 
     <!-- Errors -->
     <string name="error_no_token">TMDB key missing</string>
-    <string name="error_no_lists">No lists selected · current wallpapers kept</string>
+    <string name="error_no_lists">No lists selected</string>
     <string name="error_no_titles">The selected lists returned no titles</string>
     <string name="error_memory">Not enough memory · try 1080p</string>
     <string name="error_network">No connection: check the TV\'s internet</string>
@@ -165,7 +181,6 @@
     <string name="mdblist_login_ok">MDBList connected as %1$s</string>
     <string name="mdblist_connected">Connected as %1$s · %2$s</string>
     <string name="mdblist_key_mode">API key · %1$s</string>
-    <string name="trakt_unavailable">Not available in this build (missing the app\'s Trakt credentials)</string>
     <!-- Filters -->
     <string name="filters_age_title">Maximum age</string>
     <string name="filters_age_none">No limit</string>
@@ -186,15 +201,23 @@
 
     <!-- About -->
     <string name="setting_about_title">About</string>
-    <string name="setting_about_desc">Version %1$s · guided setup, support, source code and credits</string>
+    <string name="setting_about_desc">Version %1$s · guided setup, source code and credits</string>
     <string name="about_version">Version</string>
     <string name="about_support">Support the project</string>
     <string name="about_support_desc">If you like the plugin, you can buy me a coffee on Ko-fi</string>
     <string name="about_support_scan">Scan it with your phone to open the Ko-fi page. Thank you!</string>
+    <string name="supporter_desc">One-time purchase that unlocks colours for the screensaver\'s clock and adds a Supporter badge. Everything else stays free</string>
+    <string name="supporter_badge">Supporter</string>
+    <string name="supporter_thanks">Thank you for supporting Sofadrop</string>
+    <string name="supporter_pending">Your payment is waiting to be confirmed</string>
+    <string name="supporter_unavailable">Purchases aren\'t available right now</string>
     <string name="about_source">Source code</string>
     <string name="about_source_scan">Scan it with your phone to open the project page.</string>
+    <string name="about_beta">Test it on Google Play</string>
+    <string name="about_beta_desc">Sofadrop is coming to Google Play and needs testers with Google TV or Android TV</string>
+    <string name="about_beta_scan">Scan it with your phone: the page has the two steps to join, with the same Google account as your TV.</string>
     <string name="about_credits">Credits</string>
-    <string name="about_credits_desc">This product uses the TMDB API but is not endorsed or certified by TMDB. Sofadrop uses Trakt but is not endorsed or certified by Trakt. Lists and watch history from Simkl (simkl.com). Trakt, Simkl and MDBList names and logos belong to their owners. Lists from MDBList. Wallpapers for Projectivy Launcher. Scores from MDBList and Trakt. Information courtesy of IMDb (imdb.com), used with permission; IMDb, Rotten Tomatoes, Metacritic, Letterboxd and MyAnimeList names and logos belong to their owners. Sofascreen, the screensaver, by schumi2004, with thanks to ilee\'s Sofadrop Screensaver; weather by Open-Meteo (open-meteo.com).</string>
+    <string name="about_credits_desc">This product uses the TMDB API but is not endorsed or certified by TMDB (themoviedb.org). Where to watch data by JustWatch. Sofadrop uses Trakt but is not endorsed or certified by Trakt. Lists and watch history from Simkl (simkl.com). Trakt, Simkl and MDBList names and logos belong to their owners. Lists from MDBList. Wallpapers for Projectivy Launcher. Scores from MDBList and Trakt. Information courtesy of IMDb (imdb.com), used with permission; IMDb, Rotten Tomatoes, Metacritic, Letterboxd and MyAnimeList names and logos belong to their owners. Sofascreen, the screensaver, by schumi2004, with thanks to ilee\'s Sofadrop Screensaver; weather by Open-Meteo (open-meteo.com).</string>
     <string name="qr_link_hint">Scan the code with your phone</string>
     <string name="setting_accounts_title">Accounts</string>
     <string name="accounts_description">Connect services by scanning a QR code with your phone. None is required: TMDB lists and the TMDB, IMDb and Trakt ratings work without an account. Disconnecting a service also unticks the lists that need it.</string>
@@ -317,7 +340,7 @@
     <string name="cast_photos_disabled">Only used when the cast is shown</string>
     <string name="cast_photos_each">Each one next to its name</string>
     <string name="cast_photos_each_desc">Each face just before its name. Fewer names may fit on the line.</string>
-    <string name="click_action_title">What the wallpaper opens</string>
+    <string name="click_action_title">Opening a title</string>
     <string name="click_trailer">Watch the trailer</string>
     <string name="click_trailer_desc">On YouTube</string>
     <string name="click_none">Nothing</string>
@@ -348,7 +371,7 @@
     <string name="cast_summary_names">cast</string>
     <string name="cast_summary_photos">cast with photos</string>
     <string name="footer_desc">The bottom line: the streaming services that have each title, in the country you choose, and the list it came from.</string>
-    <string name="click_action_desc">In Projectivy, the ▶ icon in the status bar (or “About this wallpaper”) opens the title on screen.</string>
+    <string name="click_action_desc">In Projectivy, the ▶ icon in the status bar (or “About this wallpaper”) opens the title on screen; in Sofascreen, the OK button.</string>
     <string name="click_target_title">What it opens</string>
     <string name="click_open_app">Open in %1$s</string>
     <string name="click_app_missing">Open in %1$s (not installed: the trailer opens)</string>
@@ -488,7 +511,6 @@
     <string name="synopsis_mode_skip">Skip the title</string>
     <string name="synopsis_mode_skip_desc">Another title takes its place; fewer to choose from</string>
     <string name="exclusion_no_synopsis">Skipped: no synopsis in the chosen language</string>
-    <string name="setting_mix_title">Order in the launcher</string>
     <string name="mix_on">All lists mixed</string>
     <string name="mix_off">One list after another</string>
     <string name="update_title">Update available</string>
@@ -541,7 +563,7 @@
     <string name="viewer_blocked_toast">Blocked: left out of the next set (made when you leave the settings)</string>
     <string name="viewer_unblocked_toast">Unblocked: it can show again from the next set</string>
     <string name="status_waiting_network">Waiting for an internet connection…</string>
-    <string name="general_language_shared">%1$s · shared with the wallpapers, change it in Wallpaper details</string>
+    <string name="general_language_shared">%1$s · change it in Shared settings → Wallpaper details</string>
     <string name="provider_summary_selected">%1$d selected</string>
     <string name="filters_age_replaced">Replaced by From year</string>
     <string name="click_add_after">It\'s tried after the ones above.</string>
@@ -573,4 +595,35 @@
     <string name="settings_import_unreadable">Couldn\'t read the file</string>
     <string name="wizard_import">Import settings from another TV</string>
     <string name="accounts_reconnect">Settings imported. Connect again what the other TV had: %1$s. Accounts aren\'t in the settings file.</string>
+    <string name="wallpapers_title">Wallpapers</string>
+    <string name="main_more_header">General</string>
+    <string name="projectivy_description">Wallpapers for the home screen of Projectivy Launcher (wallpaper plugins are one of its Premium features), or of another launcher through a folder. The screensaver doesn\'t need either.</string>
+    <string name="projectivy_status_in_use">In use in Projectivy</string>
+    <string name="projectivy_status_pick">Projectivy installed: choose Sofadrop</string>
+    <string name="projectivy_get">Get Projectivy</string>
+    <string name="projectivy_get_desc">To have these wallpapers on the TV\'s home screen too</string>
+    <string name="projectivy_get_scan">Scan with your phone to open Projectivy\'s page.</string>
+    <string name="click_action_desc_alone">In Sofascreen, the OK button opens the title on screen.</string>
+    <string name="general_header">Shared settings</string>
+    <string name="projectivy_status_optional">For Projectivy Launcher Premium or a folder</string>
+    <string name="wallpaper_folder_title">Save in a folder</string>
+    <string name="wallpaper_folder_off">Off</string>
+    <string name="wallpaper_folder_on">In %1$s</string>
+    <string name="wallpaper_folder_explain">A copy of the wallpapers in the TV\'s %1$s folder, replaced with each update, for launchers that show the images of a folder, such as Monet Launcher: pick that folder in the launcher\'s wallpaper settings. There a wallpaper is only an image: it doesn\'t open its title.</string>
+    <string name="wallpaper_folder_no_permission">Without storage access the wallpapers can\'t be saved in a folder</string>
+    <string name="position_rotate">Rotating</string>
+    <string name="position_rotate_desc">Each wallpaper in a different position</string>
+    <string name="position_rotation_title">Rotating positions</string>
+    <string name="position_rotation_desc">Each wallpaper takes the next ticked position. In the screensaver, the clock moves to the opposite corner.</string>
+    <string name="position_rotation_min">Keep at least two</string>
+    <string name="position_rotation_summary">%1$d positions</string>
+    <string name="bottom_shade_title">Bottom shading</string>
+    <string name="bottom_shade_high">High</string>
+    <string name="bottom_shade_normal">Normal</string>
+    <string name="bottom_shade_low">Low</string>
+    <string name="bottom_shade_minimal">Minimal</string>
+    <string name="bottom_shade_none">None</string>
+    <string name="bottom_shade_normal_desc">Darkens the bottom of the image</string>
+    <string name="bottom_shade_none_desc">The image reaches the bottom edge</string>
+    <string name="bottom_shade_summary">bottom shading: %1$s</string>
 </resources>

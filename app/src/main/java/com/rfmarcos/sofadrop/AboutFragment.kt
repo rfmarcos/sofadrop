@@ -9,6 +9,10 @@ import androidx.leanback.widget.GuidedAction
 /** Version, support link, source code and credits. */
 class AboutFragment : BaseSettingsFragment() {
 
+    /** Null in GitHub builds, which link to Ko-fi instead. Lazy because the rows are built inside super.onCreate. */
+    private val supporter by lazy { createSupporter(requireContext(), ::showSupporter) }
+    private var supporterState = Supporter.State.NOT_BOUGHT
+
     override fun onCreateGuidance(savedInstanceState: Bundle?) = Guidance(
         getString(R.string.setting_about_title),
         getString(R.string.plugin_description),
@@ -20,14 +24,17 @@ class AboutFragment : BaseSettingsFragment() {
         // Where updates are possible, pressing the version checks for one right away
         actions += action(ID_VERSION, R.drawable.ic_act_status, getString(R.string.about_version), versionText())
             .focusable(Updater.canCheck).build()
-        if (Projectivy.isInstalled(requireContext())) {
-            actions += action(ID_USE_IN_PROJECTIVY, R.drawable.ic_act_tv, getString(R.string.use_in_projectivy_title),
-                getString(R.string.use_in_projectivy_desc)).multilineDescription(true).build()
-        }
         actions += action(ID_WIZARD, R.drawable.ic_act_check, getString(R.string.wizard_title), getString(R.string.wizard_desc)).build()
         actions += action(ID_SETTINGS_FILE, R.drawable.ic_act_download, getString(R.string.settings_file_title), getString(R.string.settings_file_desc))
             .hasNext(true).build()
-        if (BuildConfig.SUPPORT_URL.isNotBlank()) {
+        // Fire TV has no Play Store
+        if (!BuildConfig.PLAY && ScreensaverSetupFragment.route(requireContext()) != ScreensaverSetupFragment.Route.BY_HAND) {
+            actions += action(ID_BETA, R.drawable.ic_act_phone, getString(R.string.about_beta), getString(R.string.about_beta_desc))
+                .multilineDescription(true).build()
+        }
+        if (supporter != null) {
+            actions += action(ID_SUPPORT, R.drawable.ic_act_heart, supporterTitle(), supporterText()).multilineDescription(true).build()
+        } else if (BuildConfig.SUPPORT_URL.isNotBlank()) {
             actions += action(ID_SUPPORT, R.drawable.ic_act_heart, getString(R.string.about_support), getString(R.string.about_support_desc)).build()
         }
         if (BuildConfig.SOURCE_URL.isNotBlank()) {
@@ -37,22 +44,58 @@ class AboutFragment : BaseSettingsFragment() {
         val log = GenerationLog.read(requireContext())
         actions += action(ID_LOG, R.drawable.ic_act_status, getString(R.string.about_log),
             log?.lines()?.lastOrNull() ?: getString(R.string.about_log_none)).hasNext(log != null).enabled(log != null).build()
-        actions += action(ID_CREDITS, R.drawable.ic_act_movie, getString(R.string.about_credits), getString(R.string.about_credits_short)).build()
+        actions += action(ID_CREDITS, R.drawable.badge_tmdb, getString(R.string.about_credits), getString(R.string.about_credits_short)).build()
         explanations[ID_CREDITS] = getString(R.string.about_credits_desc)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        supporter?.refresh()
+    }
+
+    override fun onDestroy() {
+        supporter?.close()
+        super.onDestroy()
     }
 
     override fun onGuidedActionClicked(action: GuidedAction) {
         when (action.id) {
             ID_VERSION -> checkForUpdate()
             ID_LOG -> open(GenerationLogFragment())
-            ID_USE_IN_PROJECTIVY -> Projectivy.openWallpaperSettings(requireContext())
             ID_WIZARD -> Wizard.start(parentFragmentManager)
             ID_SETTINGS_FILE -> open(SettingsFileFragment())
-            ID_SUPPORT -> LinkQrDialog.newInstance(BuildConfig.SUPPORT_URL, R.string.about_support, R.string.about_support_scan)
-                .show(parentFragmentManager, "support")
+            ID_BETA -> LinkQrDialog.newInstance(BETA_URL, R.string.about_beta, R.string.about_beta_scan).show(parentFragmentManager, "beta")
+            ID_SUPPORT -> when {
+                supporter == null -> LinkQrDialog.newInstance(BuildConfig.SUPPORT_URL, R.string.about_support, R.string.about_support_scan)
+                    .show(parentFragmentManager, "support")
+                supporterState == Supporter.State.NOT_BOUGHT -> supporter?.buy(requireActivity())
+            }
             ID_SOURCE -> LinkQrDialog.newInstance(BuildConfig.SOURCE_URL, R.string.about_source, R.string.about_source_scan)
                 .show(parentFragmentManager, "source")
         }
+    }
+
+    private fun supporterTitle() = getString(if (supporterState == Supporter.State.BOUGHT) R.string.supporter_badge else R.string.about_support)
+
+    private fun supporterText() = getString(
+        when (supporterState) {
+            Supporter.State.BOUGHT -> R.string.supporter_thanks
+            Supporter.State.PENDING -> R.string.supporter_pending
+            else -> R.string.supporter_desc
+        }
+    )
+
+    private fun showSupporter(state: Supporter.State) {
+        if (state == Supporter.State.UNAVAILABLE) {
+            Toast.makeText(requireContext(), R.string.supporter_unavailable, Toast.LENGTH_LONG).show()
+            return
+        }
+        supporterState = state
+        Supporter.remember(state)
+        // Off screen, onResume asks again
+        if (view == null) return
+        findActionById(ID_SUPPORT)?.title = supporterTitle()
+        updateDescription(ID_SUPPORT, supporterText())
     }
 
     private fun versionText(): String = when {
@@ -81,9 +124,12 @@ class AboutFragment : BaseSettingsFragment() {
         private const val ID_SUPPORT = 2L
         private const val ID_SOURCE = 3L
         private const val ID_CREDITS = 4L
-        private const val ID_USE_IN_PROJECTIVY = 5L
         private const val ID_LOG = 6L
         private const val ID_WIZARD = 7L
         private const val ID_SETTINGS_FILE = 8L
+        private const val ID_BETA = 9L
+        // The 1.2.1 release, whose notes have the steps (the test's own link only works after joining its Google
+        // Group). Review it with each release: point it elsewhere, or drop the row once Sofadrop is published
+        private const val BETA_URL = "https://github.com/rfmarcos/sofadrop/releases/tag/v1.2.1"
     }
 }

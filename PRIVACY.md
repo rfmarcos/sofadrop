@@ -31,6 +31,8 @@ Accounts are connected by scanning a QR code with your phone, on the service's o
 
 The version distributed on GitHub also asks GitHub whether there is a newer release. The Google Play version doesn't.
 
+The Google Play version offers an optional supporter purchase. It's paid through [Google Play](https://policies.google.com/privacy): Sofadrop only asks Google Play whether the account has bought it, and never sees your payment details.
+
 ## Children
 
 Sofadrop isn't directed at children under 13, and doesn't knowingly collect data from anyone.

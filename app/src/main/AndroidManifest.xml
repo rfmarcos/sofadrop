@@ -4,8 +4,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- Updates come from the GitHub releases (no store): the system installer still asks the user -->
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Android 9 and older: saving the settings file in Download (see SettingsFile) -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -34,7 +32,21 @@
         <package android:name="com.nuvio.app" />
         <package android:name="com.stremio.one" />
         <package android:name="org.jellyfin.androidtv" />
+        <package android:name="app.wuplay.androidtv" />
         <package android:name="com.google.android.youtube.tv" />
+        <!-- Forks of those apps under another package, found by the links they open (TitleApp.probe) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="nuvio" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="stremio" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="wuplay" />
+        </intent>
         <!-- Streaming platforms (Platform) -->
         <package android:name="com.netflix.ninja" />
         <package android:name="com.netflix.mediaclient" />
@@ -91,10 +103,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".Updater$InstallResultReceiver"
-            android:exported="false" />
-
         <activity
             android:name=".PreviewActivity"
             android:exported="false"
@@ -116,10 +124,12 @@
                 android:resource="@xml/sofascreen" />
         </service>
 
-        <!-- Sofascreen started from the settings to try it -->
+        <!-- Sofascreen on demand: from the settings, or a launcher when idle -->
         <activity
             android:name=".SofascreenActivity"
-            android:exported="false"
+            android:exported="true"
+            android:label="@string/screensaver_name"
+            android:taskAffinity="${applicationId}.sofascreen"
             android:theme="@style/Theme.Sofadrop.Preview" />
 
 
@@ -159,10 +169,12 @@
                 android:name="itemsCacheDurationMillis"
                 android:value="@integer/items_cache_duration_millis" />
 
-            <!-- TIME_ELAPSED only -->
+            <!-- TIME_ELAPSED, CARD_FOCUSED, PROGRAM_CARD_FOCUSED and LAUNCHER_IDLE_MODE_CHANGED, for the focused
+                 card's wallpaper (FocusedWallpapers). Card events are answered with an empty list, which leaves
+                 the wallpaper as it is, unless that option is on. -->
             <meta-data
                 android:name="updateMode"
-                android:value="1" />
+                android:value="29" />
         </service>
 
         <!-- The settings file shared with another app (see SettingsFile.shareIntent) -->

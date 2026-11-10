@@ -10,7 +10,7 @@ import androidx.leanback.widget.GuidanceStylist.Guidance
 import androidx.leanback.widget.GuidedAction
 
 /**
- * What Projectivy opens from a wallpaper: the trailer (in which language, and what instead when there is
+ * What a wallpaper opens, from Projectivy or the screensaver's OK button: the trailer (in which language, and what instead when there is
  * none in it), the title in an app (see [TitleApp]) or nothing; but first the title on the user's streaming
  * platforms, tried in their order (see [Platform]).
  */
@@ -34,10 +34,11 @@ class ClickActionFragment : PreviewSettingsFragment() {
     }
 
     /** Where it opens from, and when the trailer is picked if it can open. */
-    private fun guidanceText() = listOfNotNull(getString(R.string.click_action_desc),
-        getString(R.string.click_trailer_note).takeIf { showsTrailer(requireContext()) }).joinToString(" ")
+    private fun guidanceText() = listOfNotNull(
+        getString(if (Projectivy.isInstalled(requireContext())) R.string.click_action_desc else R.string.click_action_desc_alone),
+        getString(R.string.click_trailer_note).takeIf { showsTrailer(requireContext(), profile) }).joinToString(" ")
 
-    /** The trailer, every app (one not installed opens the trailer) and nothing. */
+    /** The trailer, every app and nothing; an app that isn't installed can't be picked (it would open the trailer). */
     private fun fallbacks(): List<String> =
         listOf(Settings.CLICK_TRAILER) + TitleApp.entries.map { Settings.CLICK_APP_PREFIX + it.key } + Settings.CLICK_NONE
 
@@ -47,12 +48,12 @@ class ClickActionFragment : PreviewSettingsFragment() {
      */
     private fun rows(): List<GuidedAction> {
         val context = requireContext()
-        val order = Settings.clickPlatforms
+        val order = profile.clickPlatforms
         val rows = order.mapIndexed { index, platform -> platformRow(platform, index, order.size) }.toMutableList()
         rows += addRow(order)
 
         val fallbacks = fallbacks()
-        val fallback = Settings.clickFallback
+        val fallback = profile.clickFallback
         val missing = Settings.clickApp(fallback)?.takeIf { it.installedPackage(context) == null }
         explain(ID_FALLBACK, getString(R.string.click_target_explanation))
         val label = clickLabel(context, fallback)
@@ -63,23 +64,28 @@ class ClickActionFragment : PreviewSettingsFragment() {
         ).joinToString(" · ")
         rows += action(ID_FALLBACK, if (fallback == Settings.CLICK_NONE) R.drawable.ic_act_block else R.drawable.ic_act_play, if (order.isEmpty()) getString(R.string.click_target_title) else step(order.size + 1, label), description)
             .subActions(options(ID_FALLBACK, fallbacks.map { clickLabel(context, it) }, label,
-                fallbacks.map { clickDescription(context, it) })).build()
+                fallbacks.map { clickDescription(context, it) }).onEachIndexed { index, option ->
+                    option.isEnabled = Settings.clickApp(fallbacks[index])?.let { it.installedPackage(context) != null } ?: true
+                }).build()
         // The trailer's language only matters when the wallpaper can open it
-        if (showsTrailer(context)) {
+        if (showsTrailer(context, profile)) {
             val languages = Settings.PART_LANGUAGES
             rows += action(ID_TRAILER_LANGUAGE, R.drawable.ic_act_language, getString(R.string.trailer_language_title),
-                PartLanguagesFragment.languageLabel(context, Settings.trailerLanguage, long = true))
+                shared(PartLanguagesFragment.languageLabel(context, Settings.trailerLanguage, long = true)))
                 .subActions(options(ID_TRAILER_LANGUAGE, languages.map { PartLanguagesFragment.languageLabel(context, it) },
                     PartLanguagesFragment.languageLabel(context, Settings.trailerLanguage),
                     languages.map { if (it == Settings.LANGUAGE_AUTO) Languages.displayName(Settings.language) else null })).build()
             // No icon: it reads as part of the language row above
             rows += GuidedAction.Builder(context).id(ID_TRAILER_FALLBACK).icon(ColorDrawable(Color.TRANSPARENT))
-                .title(getString(R.string.trailer_fallback_title)).description(fallbackLabel(context, Settings.trailerFallback))
+                .title(getString(R.string.trailer_fallback_title)).description(shared(fallbackLabel(context, Settings.trailerFallback)))
                 .subActions(options(ID_TRAILER_FALLBACK, Settings.TRAILER_FALLBACKS.map { fallbackLabel(context, it) },
                     fallbackLabel(context, Settings.trailerFallback), Settings.TRAILER_FALLBACKS.map { fallbackDescription(context, it) })).build()
         }
         return rows
     }
+
+    /** The trailer's settings are one for all: from an own screen, they say so. */
+    private fun shared(text: String) = if (profile.isGeneral) text else getString(R.string.trailer_shared, text)
 
     /** A row's explanation, followed by where Projectivy opens it from: the explanation replaces the guidance. */
     private fun explain(id: Long, text: String) {
@@ -130,12 +136,12 @@ class ClickActionFragment : PreviewSettingsFragment() {
         when {
             platform != null -> {
                 // Positions first, then "don't use"
-                val others = Settings.clickPlatforms - platform
-                Settings.clickPlatforms = if (index > others.size) others else others.toMutableList().apply { add(index, platform) }
+                val others = profile.clickPlatforms - platform
+                profile.clickPlatforms = if (index > others.size) others else others.toMutableList().apply { add(index, platform) }
             }
-            parent == ID_ADD -> addable(requireContext(), Settings.clickPlatforms).first.getOrNull(index)
-                ?.let { Settings.clickPlatforms += it }
-            parent == ID_FALLBACK -> Settings.clickFallback = fallbacks()[index]
+            parent == ID_ADD -> addable(requireContext(), profile.clickPlatforms).first.getOrNull(index)
+                ?.let { profile.clickPlatforms += it }
+            parent == ID_FALLBACK -> profile.clickFallback = fallbacks()[index]
             parent == ID_TRAILER_LANGUAGE -> Settings.trailerLanguage = Settings.PART_LANGUAGES[index]
             parent == ID_TRAILER_FALLBACK -> Settings.trailerFallback = Settings.TRAILER_FALLBACKS[index]
         }
@@ -162,8 +168,8 @@ class ClickActionFragment : PreviewSettingsFragment() {
                 .partition { it.installedPackage(context) != null }
 
         /** The trailer opens when it is the fallback or the fallback's app isn't installed. */
-        private fun showsTrailer(context: Context): Boolean {
-            val fallback = Settings.clickFallback
+        private fun showsTrailer(context: Context, profile: Profile): Boolean {
+            val fallback = profile.clickFallback
             if (fallback == Settings.CLICK_NONE) return false
             return Settings.clickApp(fallback)?.installedPackage(context) == null
         }
@@ -208,9 +214,9 @@ class ClickActionFragment : PreviewSettingsFragment() {
          * "Apple TV; otherwise Nuvio", "Netflix, HBO Max and 1 more; otherwise the trailer", "Only Apple TV", or
          * without platforms (installed ones: the others are skipped) "See the trailer · Español (España)" / "Open in Nuvio".
          */
-        fun summary(context: Context): String {
-            val platforms = Settings.clickPlatforms.filter { it.installedPackage(context) != null }.map { it.label }
-            val fallback = Settings.clickFallback
+        fun summary(context: Context, profile: Profile): String {
+            val platforms = profile.clickPlatforms.filter { it.installedPackage(context) != null }.map { it.label }
+            val fallback = profile.clickFallback
             if (platforms.isEmpty()) {
                 val action = clickLabel(context, fallback, long = true)
                 if (fallback != Settings.CLICK_TRAILER) return action

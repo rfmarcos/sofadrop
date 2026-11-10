@@ -1,6 +1,9 @@
 package com.rfmarcos.sofadrop
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.content.Intent
 import android.graphics.Bitmap
 import android.util.Log
@@ -10,6 +13,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -35,8 +39,8 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
     override fun doWork(): Result {
         Settings.init(applicationContext)
         if (!profile.isScreensaver) Updater.check()
-        // Without Projectivy nothing shows the wallpapers' set while the screensaver has its own
-        if (!profile.isScreensaver && Profile.SCREENSAVER.separate && !Projectivy.isInstalled(applicationContext)) {
+        // Without Projectivy or the folder nothing shows the wallpapers' set while the screensaver has its own
+        if (!profile.isScreensaver && Profile.SCREENSAVER.separate && !WallpaperFolder.shown(applicationContext)) {
             profile.generating = false
             runForScreensaver(applicationContext)
             return Result.success()
@@ -71,11 +75,27 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
         val signature = profile.signature
         val store = WallpaperStore(applicationContext, profile)
         val generation = store.newGeneration()
+        // With no set yet nothing can show meanwhile: each wallpaper goes out as it's made, so Sofascreen can start
+        val first = store.current().isEmpty()
+        val made = mutableListOf<StoredWallpaper>()
+        val onMade = { wallpaper: StoredWallpaper ->
+            if (first) synchronized(made) {
+                made += wallpaper
+                store.publish(generation, made, partial = true)
+            }
+        }
         profile.generating = true
         return try {
             val start = System.currentTimeMillis()
             val requests = TmdbClient.requestCounts()
-            val stored = withPlatformLinks(generate(generation, log), log)
+            val drawn = generate(generation, log, onMade)
+            // Replaced by a newer run, or its set dropped: what it got to make isn't the set, and the state is the other's
+            if (cancelled) {
+                if (synchronized(made) { made.isEmpty() }) store.discard(generation)
+                log.finish("Cancelled")
+                return Result.success()
+            }
+            val stored = withPlatformLinks(drawn, log)
             // Every list failing (e.g. no network) or no title fitting in memory is that error, not "no titles"
             if (stored.isEmpty()) throw when {
                 listErrors.isNotEmpty() -> listErrors.first()
@@ -93,7 +113,10 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
                 applicationContext.getString(R.string.notice_list_unavailable, unavailable.joinToString(", ")).takeIf { unavailable.isNotEmpty() },
                 applicationContext.getString(R.string.error_simkl_premium).takeIf { listErrors.any { it is SimklPremiumException } },
             ).joinToString(" · ")
-            if (!profile.isScreensaver) notifyProjectivy(applicationContext)
+            if (!profile.isScreensaver) {
+                notifyProjectivy(applicationContext)
+                WallpaperFolder.update(applicationContext)
+            }
             Log.i(TAG, "Generated ${stored.size} wallpapers${" for the screensaver".takeIf { profile.isScreensaver }.orEmpty()} (${Settings.language}) in ${System.currentTimeMillis() - start} ms")
             // What a generation costs TMDB (a preview open at the same time counts too)
             val (api, images, network) = TmdbClient.requestCounts().zip(requests) { now, before -> now - before }
@@ -103,15 +126,23 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
         } catch (e: Throwable) {
             // Errors too (out of memory): the status must always say why, not keep the last one
             Log.e(TAG, "Generation failed", e)
-            store.discard(generation)
-            profile.lastError = errorMessage(applicationContext, e)
+            // What a first set got to show stays, better than nothing; the next run replaces it
+            if (synchronized(made) { made.isEmpty() }) store.discard(generation)
+            // Stopped on purpose, its folder may be gone: nothing to tell
+            if (!isStopped) profile.lastError = errorMessage(applicationContext, e)
             log.finish("Failed: ${GenerationLog.describe(e)}")
             if (e is Exception && e !is TmdbException && e !is ListUnavailableException && runAttemptCount < 2) Result.retry() else Result.failure()
         } finally {
-            profile.generating = false
-            profile.generationProgress = null
+            if (!cancelled) {
+                profile.generating = false
+                profile.generationProgress = null
+            }
         }
     }
+
+    /** Stopped by the app and not by Android's time limit, whose partial set is worth keeping. */
+    @get:SuppressLint("NewApi") // WorkManager sets it on every version
+    private val cancelled get() = isStopped && stopReason == WorkInfo.STOP_REASON_CANCELLED_BY_APP
 
     /** Lists that couldn't be read in this run. */
     private val listErrors = mutableListOf<Exception>()
@@ -120,12 +151,14 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
     @Volatile
     private var width = 0
     private val memoryErrors = AtomicInteger()
+    /** Wallpapers started, for the position of the next one (see [Profile.positionAt]). */
+    private val started = AtomicInteger()
 
     /** Some title didn't fit in memory even at 1920. */
     @Volatile
     private var outOfMemory = false
 
-    private fun generate(generation: File, log: GenerationLog): List<StoredWallpaper> {
+    private fun generate(generation: File, log: GenerationLog, onMade: (StoredWallpaper) -> Unit): List<StoredWallpaper> {
         val factory = WallpaperFactory(applicationContext, profile.outputWidth, profile)
         width = factory.width
         val perList = profile.titlesPerList
@@ -139,7 +172,7 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
         /** Draw each title with its list's plan, in parallel; how many became a wallpaper. */
         fun draw(titles: List<Pair<ListPlan, TitleRef>>, list: Int): Int {
             var made = 0
-            for ((ref, wallpaper) in WallpaperFactory.parallel(titles) { (plan, ref) -> ref to store(factory, plan, ref, generation, log) }) {
+            for ((ref, wallpaper) in WallpaperFactory.parallel(titles) { (plan, ref) -> ref to store(factory, plan, ref, generation, log)?.also(onMade) }) {
                 if (wallpaper == null) continue
                 // Only a title that really became a wallpaper is taken: a failed one stays free for other lists
                 taken += ref
@@ -197,8 +230,7 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
      * platform. Without Wikidata they open the fallback instead: not worth failing the generation for.
      */
     private fun withPlatformLinks(stored: List<StoredWallpaper>, log: GenerationLog): List<StoredWallpaper> {
-        // Nothing opens from the screensaver
-        if (Settings.clickPlatforms.isEmpty() || profile.isScreensaver) return stored
+        if (!profile.opensPlatforms) return stored
         val refs = stored.filter { wallpaper -> wallpaper.providerIds.any { Platform.ofProvider(it) != null } }
             .associateWith { wallpaper -> TitleRef(MediaType.entries.first { it.path == wallpaper.type }, wallpaper.tmdbId) }
         if (refs.isEmpty()) return stored
@@ -221,14 +253,16 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
     private fun store(factory: WallpaperFactory, plan: ListPlan, ref: TitleRef, generation: File, log: GenerationLog): StoredWallpaper? =
         try {
             factory.build(ref, plan)?.let { info ->
-                val bitmap = render(factory, info, ref, log) ?: return null
+                val position = profile.positionAt(started.getAndIncrement())
+                val bitmap = render(factory, info, ref, log, position) ?: return null
                 val name = "${info.type.path}-${info.id}.jpg"
                 try {
                     FileOutputStream(File(generation, name)).use { bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, it) }
                 } finally {
                     bitmap.recycle()
                 }
-                StoredWallpaper(name, info.title, info.type.path, info.id, plan.source.key, info.trailerKey, info.imdbId, info.providerIds)
+                StoredWallpaper(name, info.title, info.type.path, info.id, plan.source.key, info.trailerKey, info.imdbId, info.providerIds,
+                    position = position.takeIf { profile.position == Settings.POSITION_ROTATE })
             }
         } catch (e: TmdbException) {
             throw e
@@ -246,10 +280,10 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
      * [info] drawn at [width]. A 4K wallpaper that doesn't fit in memory is drawn again at 1920, and after
      * the second one the rest of the generation goes straight to 1920. Null when not even that fits.
      */
-    private fun render(factory: WallpaperFactory, info: WallpaperInfo, ref: TitleRef, log: GenerationLog): Bitmap? {
+    private fun render(factory: WallpaperFactory, info: WallpaperInfo, ref: TitleRef, log: GenerationLog, position: String): Bitmap? {
         val width = this.width
         try {
-            return factory.render(info, width)
+            return factory.render(info, width, position)
         } catch (e: OutOfMemoryError) {
             Log.w(TAG, "Out of memory drawing ${ref.type.path}/${ref.tmdbId} at $width px", e)
             log.titleFailed(ref, e, width)
@@ -263,7 +297,7 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
             }
         }
         return try {
-            factory.render(info, FALLBACK_WIDTH)
+            factory.render(info, FALLBACK_WIDTH, position)
         } catch (e: OutOfMemoryError) {
             log.titleFailed(ref, e, FALLBACK_WIDTH)
             outOfMemory = true
@@ -310,12 +344,35 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
             )
         }
 
+        /** Update everything now: the wallpapers' set and, with two, the screensaver's. */
+        fun runAll(context: Context) {
+            runNow(context, Profile.WALLPAPER, replace = true)
+            if (Profile.twoSets) runNow(context, Profile.SCREENSAVER, replace = true)
+        }
+
         /** Stop the screensaver's own generation, running or waiting (the wallpapers' isn't stopped from the app). */
         fun cancel(context: Context, profile: Profile) {
             if (!profile.isScreensaver) return
             WorkManager.getInstance(context).cancelUniqueWork("$UNIQUE_NOW-${profile.id}")
             profile.generating = false
             profile.generationProgress = null
+        }
+
+        fun isOnline(context: Context): Boolean {
+            val connectivity = context.getSystemService(ConnectivityManager::class.java)
+            return connectivity.getNetworkCapabilities(connectivity.activeNetwork)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        }
+
+        /** Once both places use one set again the screensaver's goes (disk); it's made from scratch if it comes back. */
+        fun dropScreensaverSet(context: Context) {
+            if (Profile.twoSets) return
+            val screensaver = Profile.SCREENSAVER
+            // A generation of its own still running would write into the folder deleted here
+            cancel(context, screensaver)
+            WallpaperStore.deleteScreensaverSet(context)
+            screensaver.lastGeneration = 0L
+            screensaver.lastSignature = ""
+            screensaver.lastError = ""
         }
 
         /**
@@ -329,6 +386,19 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
             if (screensaver.lastGeneration == 0L || screensaver.hasPendingChanges || age > Settings.refreshIntervalMillis * 9 / 10) {
                 runNow(context, screensaver)
             }
+        }
+
+        /**
+         * Sofascreen is starting: without Projectivy, which asks for its set and so keeps it fresh, nothing
+         * else may have scheduled the refresh, or noticed that the set it shows is empty or expired.
+         */
+        fun refreshForScreensaver(context: Context) {
+            Settings.init(context)
+            schedule(context)
+            val set = Profile.SCREENSAVER.source
+            val expired = System.currentTimeMillis() - set.lastGeneration > Settings.refreshIntervalMillis
+            // By the files and not the date: a restored backup has the date but not the images
+            if (expired || WallpaperStore(context, set).current().isEmpty()) runNow(context, set)
         }
 
         /** Keep the periodic refresh in sync with the "update every" setting. */

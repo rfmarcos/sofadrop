@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Streaming services a wallpaper can open its title on (the ones the user picks, in their order: see
- * [Settings.clickPlatforms]). TMDB says which ones have it in the streaming country (by provider id),
+ * [Profile.clickPlatforms]). TMDB says which ones have it in the streaming country (by provider id),
  * Wikidata gives the title's id on each one (when someone added it: TMDB and JustWatch don't share them)
  * and the service's app opens that page.
  */
@@ -120,7 +120,7 @@ enum class Platform(
 object Wikidata {
     private const val URL = "https://query.wikidata.org/sparql"
     // Wikidata asks for a user agent that says who is calling
-    private val USER_AGENT = "Sofadrop/${BuildConfig.VERSION_NAME} (https://github.com/rfmarcos/projectivy-plugin-sofadrop)"
+    private val USER_AGENT = "Sofadrop/${BuildConfig.VERSION_NAME} (https://github.com/rfmarcos/sofadrop)"
     private val PROPERTIES = Platform.entries.flatMap { platform -> platform.ids.map { it.property } }.distinct()
     /** Wikidata properties of TMDB ids. */
     private val TMDB_PROPERTY = mapOf(MediaType.MOVIE to "P4947", MediaType.TV to "P4983")

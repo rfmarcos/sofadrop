@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Updates come from the GitHub releases: the system installer still asks the user -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application>
+        <receiver
+            android:name=".UpdateInstaller$InstallResultReceiver"
+            android:exported="false" />
+    </application>
+
+</manifest>

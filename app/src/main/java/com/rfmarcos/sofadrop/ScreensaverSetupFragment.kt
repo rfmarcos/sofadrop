@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +22,8 @@ import java.net.Inet4Address
 
 /**
  * How to make Sofascreen the screensaver where Android lists no other apps' ones (Google TV): once, with adb
- * from a computer. The QR opens the same guide, with pictures, on a phone.
+ * from a computer. The QR opens the same guide, with pictures, on a phone. Without one, Sofascreen can still
+ * be started by hand from the main screen.
  */
 class ScreensaverSetupFragment : BaseSettingsFragment() {
 
@@ -67,19 +69,24 @@ class ScreensaverSetupFragment : BaseSettingsFragment() {
 
         /** Google TV lists no other apps' screensavers: once with adb */
         COMPUTER,
+
+        /** Fire TV only offers Amazon's, and these steps aren't its: started by hand (see [oldFireOs]) */
+        BY_HAND,
     }
 
     companion object {
         private const val ID_UNDO = 10L
-        private const val GUIDE_URL = "https://github.com/rfmarcos/projectivy-plugin-sofadrop#screensaver"
+        private const val GUIDE_URL = "https://github.com/rfmarcos/sofadrop#screensaver"
         private const val GOOGLE_SCREENSAVER = "com.google.android.apps.tv.dreamx/.service.Backdrop"
         // Google TV (Chromecast); the older Android TV (Philips) doesn't have it
         private const val GOOGLE_TV_FEATURE = "com.google.android.feature.AMATI_EXPERIENCE"
+        private const val FIRE_TV_FEATURE = "amazon.hardware.fire_tv"
 
         /** How Sofascreen is made the screensaver on this TV. */
         fun route(context: Context): Route {
             val packageManager = context.packageManager
             return when {
+                packageManager.hasSystemFeature(FIRE_TV_FEATURE) -> Route.BY_HAND
                 packageManager.hasSystemFeature(GOOGLE_TV_FEATURE) -> Route.COMPUTER
                 Intent(android.provider.Settings.ACTION_DREAM_SETTINGS).resolveActivity(packageManager) != null -> Route.PICKER
                 Intent(android.provider.Settings.ACTION_SETTINGS).resolveActivity(packageManager) != null -> Route.SETTINGS
@@ -87,7 +94,17 @@ class ScreensaverSetupFragment : BaseSettingsFragment() {
             }
         }
 
-        fun needsComputer(context: Context) = route(context) == Route.COMPUTER
+        /** Android's own settings can't make it the screensaver here. */
+        fun startsByHand(context: Context) = route(context).let { it == Route.COMPUTER || it == Route.BY_HAND }
+
+        /**
+         * Fire OS 7 (Android 9) still takes another screensaver, with adb: the README has its own steps, not tested
+         * here. Fire OS 8 (Android 11) doesn't, even with adb: Amazon's Ambient Experience always starts.
+         */
+        fun oldFireOs(context: Context) = route(context) == Route.BY_HAND && Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+
+        /** It can't be switched on from here at all. */
+        fun canSwitchOn(context: Context) = route(context) != Route.BY_HAND
 
         /** Sofascreen is Android's screensaver; null where Android doesn't let apps read that setting. */
         fun isActive(context: Context): Boolean? = runCatching {
@@ -104,7 +121,7 @@ class ScreensaverSetupFragment : BaseSettingsFragment() {
                 when (route(context)) {
                     Route.PICKER -> R.string.screensaver_system_opens_settings
                     Route.SETTINGS -> R.string.screensaver_system_opens_path
-                    Route.COMPUTER -> R.string.screensaver_system_opens_steps
+                    Route.COMPUTER, Route.BY_HAND -> R.string.screensaver_system_opens_steps
                 },
             )
             return when (isActive(context)) {
@@ -116,10 +133,11 @@ class ScreensaverSetupFragment : BaseSettingsFragment() {
 
         /** Android's screensaver picker (or its settings, where there's no link to it), or these steps where there is none. */
         fun open(from: GuidedStepSupportFragment) {
+            if (!canSwitchOn(from.requireContext())) return
             val action = when (route(from.requireContext())) {
                 Route.PICKER -> android.provider.Settings.ACTION_DREAM_SETTINGS
                 Route.SETTINGS -> android.provider.Settings.ACTION_SETTINGS
-                Route.COMPUTER -> null
+                Route.COMPUTER, Route.BY_HAND -> null
             }
             if (action != null) {
                 try {

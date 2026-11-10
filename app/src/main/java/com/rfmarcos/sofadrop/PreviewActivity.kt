@@ -20,8 +20,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * Full-screen view of the generated wallpapers: ◀ ▶ browse, OK shows one in the settings preview,
- * ▲ opens what the wallpaper opens from Projectivy (to try "On wallpaper click"), ▼ blocks its title
+ * Full-screen view of the generated wallpapers: ◀ ▶ browse, OK opens the title as the screensaver does,
+ * ▲ shows one in the settings preview, ▼ blocks its title
  * (see [Settings.blocked]), and the info cluster fades out when idle so the wallpaper can be seen whole.
  */
 class PreviewActivity : AppCompatActivity() {
@@ -42,7 +42,7 @@ class PreviewActivity : AppCompatActivity() {
         image = findViewById(R.id.viewer_image)
         overlay = findViewById(R.id.viewer_overlay)
         pinBadge = findViewById(R.id.viewer_pin_badge)
-        store = WallpaperStore(this)
+        store = WallpaperStore(this, profile)
         wallpapers = store.current()
         // Open on the pinned wallpaper so the user sees what they chose
         position = wallpapers.indexOfFirst { pinOf(it) == Settings.previewPin }.coerceAtLeast(0)
@@ -55,8 +55,8 @@ class PreviewActivity : AppCompatActivity() {
      * the text is at the bottom and on the left when it's on the right.
      */
     private fun placeOverlay() {
-        val profile = Profile.WALLPAPER
-        val textAt = if (profile.drawsLogo) profile.position else Settings.POSITION_TOP_LEFT
+        val textAt = wallpapers.getOrNull(position)?.position
+            ?: profile.position.takeIf { profile.drawsLogo && it != Settings.POSITION_ROTATE } ?: Settings.POSITION_TOP_LEFT
         val top = textAt.startsWith("bottom")
         val start = textAt.endsWith("_right")
         fun dp(v: Int) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v.toFloat(), resources.displayMetrics)
@@ -98,6 +98,7 @@ class PreviewActivity : AppCompatActivity() {
             title.setText(R.string.preview_empty)
             return
         }
+        placeOverlay()
         val wallpaper = wallpapers[position]
         val file = store.fileOf(wallpaper)
         val metrics = resources.displayMetrics
@@ -113,13 +114,14 @@ class PreviewActivity : AppCompatActivity() {
         findViewById<View>(R.id.viewer_blocked).visibility = if (blocked) View.VISIBLE else View.GONE
         title.text = wallpaper.title
         // The wallpaper shows its title already, unless it's only the image
-        title.visibility = if (Profile.WALLPAPER.drawsLogo) View.GONE else View.VISIBLE
+        title.visibility = if (profile.drawsLogo) View.GONE else View.VISIBLE
         val source = Sources.available().firstOrNull { it.key == wallpaper.source }?.let { Sources.label(this, it) }
         subtitle.text = listOfNotNull(getString(R.string.viewer_position, position + 1, wallpapers.size), source).joinToString("  ·  ")
         chips.removeAllViews()
         chips.addView(chip("◀ ▶", getString(R.string.viewer_browse)))
-        chips.addView(chip("OK", getString(if (pinned && !picking) R.string.viewer_unpin else R.string.viewer_use)))
-        if (!picking) clickTarget(wallpaper)?.let { (_, label) -> chips.addView(chip("▲", label)) }
+        if (picking) chips.addView(chip("OK", getString(R.string.viewer_use)))
+        else clickTarget(wallpaper)?.let { (_, label) -> chips.addView(chip("OK", label)) }
+        if (!picking) chips.addView(chip("▲", getString(if (pinned) R.string.viewer_unpin else R.string.viewer_use)))
         if (!picking) chips.addView(chip("▼", getString(if (blocked) R.string.viewer_unblock else R.string.viewer_block)))
         showOverlay()
     }
@@ -171,7 +173,7 @@ class PreviewActivity : AppCompatActivity() {
      * "Open in Apple TV", "Open in Nuvio" or "Watch the trailer"; null when it opens nothing.
      */
     private fun clickTarget(wallpaper: StoredWallpaper): Pair<Intent, String>? {
-        val intent = ClickTargets.candidates(this, wallpaper).firstOrNull() ?: return null
+        val intent = ClickTargets.candidates(this, wallpaper, profile).firstOrNull() ?: return null
         // The trailer may have no package (without YouTube for TV): not an app's
         val app = intent.`package`?.let { app ->
             Platform.entries.firstOrNull { it.installedPackage(this) == app }?.label
@@ -188,6 +190,9 @@ class PreviewActivity : AppCompatActivity() {
             Toast.makeText(this, R.string.viewer_open_failed, Toast.LENGTH_LONG).show()
         }
     }
+
+    /** Whose set it shows. */
+    private val profile get() = Profile.of(intent.getStringExtra(EXTRA_PROFILE))
 
     /** Opened from "Preview title" to pick one: OK keeps it and goes back there. */
     private val picking get() = intent.getBooleanExtra(EXTRA_PICK, false)
@@ -209,11 +214,11 @@ class PreviewActivity : AppCompatActivity() {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_MEDIA_NEXT -> position = (position + 1) % wallpapers.size
             KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_MEDIA_PREVIOUS -> position = (position - 1 + wallpapers.size) % wallpapers.size
-            // While the overlay is hidden, OK only brings it back: nothing gets pinned by accident
-            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> if (!overlayHidden) togglePin()
-            // Same as OK: only with the overlay shown, and not while picking the preview
+            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER ->
+                if (!picking) openClickTarget() else if (!overlayHidden) togglePin()
+            // Only with the overlay shown, so nothing changes by accident, and not while picking the preview
             KeyEvent.KEYCODE_DPAD_DOWN -> if (!overlayHidden && !picking) toggleBlock()
-            KeyEvent.KEYCODE_DPAD_UP -> if (!overlayHidden && !picking) openClickTarget()
+            KeyEvent.KEYCODE_DPAD_UP -> if (!overlayHidden && !picking) togglePin()
             else -> return super.onKeyDown(keyCode, event)
         }
         show()
@@ -227,5 +232,6 @@ class PreviewActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_PICK = "pick"
+        const val EXTRA_PROFILE = "profile"
     }
 }

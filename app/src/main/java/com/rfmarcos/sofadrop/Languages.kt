@@ -178,6 +178,14 @@ object Languages {
         "boxoffice", "recommended", "watchlist", "favorite", "trending_anime", "plantowatch", "watching",
     )
 
+    /** Season and episode ("S2E3", "T2E3" in Spanish and Portuguese): the international form where unsure. */
+    private val EPISODE_CODES = mapOf(
+        "es" to "T%dE%d", "pt" to "T%dE%d", "ja" to "シーズン%d 第%d話", "ko" to "시즌 %d %d화", "zh" to "第%d季 第%d集", TRADITIONAL to "第%d季 第%d集",
+    )
+
+    fun episodeCode(language: String, season: Int, episode: Int): String =
+        String.format(Locale.US, EPISODE_CODES[textsKey(language)] ?: "S%dE%d", season, episode)
+
     /** "Trending", "Your watchlist", or an MDBList or Trakt user's list's own name, in the wallpaper language. */
     fun sourceLabel(language: String, source: ListSource): String {
         if (source.label != null) {

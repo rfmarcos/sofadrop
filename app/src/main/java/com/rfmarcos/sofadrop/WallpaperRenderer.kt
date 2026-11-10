@@ -54,7 +54,11 @@ class WallpaperRenderer(
     /** Where the info block goes, see [Settings.POSITIONS]. */
     private val position: String = Settings.POSITION_TOP_LEFT,
     /** Black shading instead of the backdrop's colour, see [Settings.SHADES]. */
-    private val black: Boolean = false,
+    private val shade: String = Settings.SHADE_TINT,
+    /** How far up the bottom shading reaches, see [Settings.BOTTOM_SHADES]. */
+    private val bottomShade: Int = Settings.BOTTOM_SHADE_NORMAL,
+    /** Nothing goes over it (Sofascreen, or no launcher to share it with): no shade for the launcher's rows. */
+    private val fullScreen: Boolean = false,
 ) {
 
     private val height = width * 9 / 16
@@ -78,6 +82,8 @@ class WallpaperRenderer(
 
     private fun s(value: Float) = value * scale
     private fun s(value: Int) = value * scale
+
+    private val black = shade == Settings.SHADE_BLACK
 
     /** [faces]: photos of the first [MAX_CAST_PHOTOS] actors of [WallpaperInfo.cast], null where there is none. */
     fun render(info: WallpaperInfo, backdrop: Bitmap, logo: Bitmap?, providerLogos: List<Bitmap>, faces: List<Bitmap?> = emptyList()): Bitmap {
@@ -123,13 +129,19 @@ class WallpaperRenderer(
     }
 
     /**
-     * Gradients tinted with the backdrop's colour (or black): on the info's side, bottom (launcher rows),
-     * top (clock). Black ones reach full black at the edges, so an OLED screen turns those pixels off.
+     * Gradients tinted with the backdrop's colour (or black): on the info's side, bottom (launcher rows, a
+     * lighter one at full screen), top (clock). Black ones reach full black at the edges, so an OLED screen
+     * turns those pixels off.
      */
     private fun drawGradients(canvas: Canvas, tint: Int, right: Boolean) {
         drawSideGradient(canvas, tint, right)
-        val bottom = if (black) 1f else 0.98f
-        drawGradient(canvas, tint, horizontal = false) { t -> bottom * smoothstep((t - 0.42f) / 0.46f) }
+        if (bottomShade > 0) {
+            val alpha = if (black) 1f else if (fullScreen) 0.7f else 0.98f
+            val (start, end) = if (fullScreen) 0.62f to 1f else 0.42f to 0.88f
+            val reach = bottomShade / 100f
+            val from = 1 - (1 - start) * reach
+            drawGradient(canvas, tint, horizontal = false) { t -> alpha * smoothstep((t - from) / ((end - start) * reach)) }
+        }
         drawGradient(canvas, tint, horizontal = false) { t -> 0.45f * (1 - smoothstep(t / 0.22f)) }
     }
 

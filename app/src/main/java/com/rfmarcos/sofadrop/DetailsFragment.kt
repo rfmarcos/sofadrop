@@ -13,7 +13,7 @@ import androidx.leanback.widget.GuidedAction
 class DetailsFragment : PreviewSettingsFragment() {
 
     override fun onCreateGuidance(savedInstanceState: Bundle?) = Guidance(
-        getString(if (profile.isScreensaver) R.string.screensaver_edit_look else R.string.setting_details_title),
+        getString(R.string.setting_details_title),
         getString(R.string.details_description),
         getString(R.string.plugin_name),
         AppCompatResources.getDrawable(requireActivity(), R.mipmap.ic_launcher),
@@ -26,18 +26,30 @@ class DetailsFragment : PreviewSettingsFragment() {
     private fun rows(): List<GuidedAction> {
         val context = requireContext()
         val styleLabels = Settings.STYLES.map { styleLabel(context, it) }
-        return listOf(
+        return listOfNotNull(
             action(ID_STYLE, R.drawable.ic_act_visibility, getString(R.string.style_title), styleLabel(context, profile.style))
                 .subActions(options(ID_STYLE, styleLabels, styleLabel(context, profile.style),
                     Settings.STYLES.map { styleDescription(context, it) })).build(),
             action(ID_POSITION, R.drawable.ic_act_place, getString(R.string.position_title), positionLabel(context, profile.position))
-                .subActions(options(ID_POSITION, Settings.POSITIONS.map { positionLabel(context, it) }, positionLabel(context, profile.position),
+                .subActions(options(ID_POSITION, POSITIONS.map { positionLabel(context, it) }, positionLabel(context, profile.position),
                     // Down where the launcher rows are, in Projectivy's usual layout (no rows over the screensaver)
-                    Settings.POSITIONS.map { if (it.startsWith("top") || profile.isScreensaver) null else getString(R.string.position_rows_note) }))
+                    POSITIONS.map { positionNote(it) }))
                 .build().hiddenBy(profile.drawsLogo),
+            screen(ID_ROTATION, R.drawable.ic_act_place, R.string.position_rotation_title, getString(R.string.position_rotation_summary, profile.rotation.size))
+                .takeIf { profile.drawsLogo && profile.position == Settings.POSITION_ROTATE },
             action(ID_SHADE, R.drawable.ic_act_layout, getString(R.string.shade_title), shadeLabel(context, profile.shade))
                 .subActions(options(ID_SHADE, Settings.SHADES.map { shadeLabel(context, it) }, shadeLabel(context, profile.shade),
                     listOf(getString(R.string.shade_tint_desc), getString(R.string.shade_black_desc))))
+                .build(),
+            action(ID_BOTTOM_SHADE, R.drawable.ic_act_layout, getString(R.string.bottom_shade_title), bottomShadeLabel(context, profile.bottomShade))
+                .subActions(options(ID_BOTTOM_SHADE, Settings.BOTTOM_SHADES.map { bottomShadeLabel(context, it) }, bottomShadeLabel(context, profile.bottomShade),
+                    Settings.BOTTOM_SHADES.map {
+                        when (it) {
+                            Settings.BOTTOM_SHADE_NORMAL -> getString(R.string.bottom_shade_normal_desc)
+                            0 -> getString(R.string.bottom_shade_none_desc)
+                            else -> null
+                        }
+                    }))
                 .build(),
             screen(ID_LANGUAGE, R.drawable.ic_act_language, R.string.setting_language_title, PartLanguagesFragment.summary(context, profile)),
             screen(ID_HEADER, R.drawable.ic_act_heart, R.string.header_title, HeaderFragment.summary(context, profile)).hiddenBy(profile.drawsDetails),
@@ -70,7 +82,15 @@ class DetailsFragment : PreviewSettingsFragment() {
             ID_SYNOPSIS_CAST -> open(SynopsisCastFragment())
             ID_FOOTER -> open(FooterFragment())
             ID_PREVIEW_PIN -> open(PreviewPinFragment())
+            ID_ROTATION -> open(RotationFragment())
         }
+    }
+
+    private fun positionNote(position: String): String? {
+        val rows = getString(R.string.position_rows_note).takeIf {
+            !position.startsWith("top") && !profile.isScreensaver && Projectivy.isInstalled(requireContext())
+        }
+        return if (position == Settings.POSITION_ROTATE) getString(R.string.position_rotate_desc) else rows
     }
 
     override fun onSubGuidedActionClicked(action: GuidedAction): Boolean {
@@ -81,8 +101,9 @@ class DetailsFragment : PreviewSettingsFragment() {
                 // Rows of the parts it hides (or brings back) change
                 collapseSubActions()
             }
-            ID_POSITION -> profile.position = Settings.POSITIONS[index]
+            ID_POSITION -> profile.position = POSITIONS[index]
             ID_SHADE -> profile.shade = Settings.SHADES[index]
+            ID_BOTTOM_SHADE -> profile.bottomShade = Settings.BOTTOM_SHADES[index]
             ID_RESOLUTION -> profile.outputWidth = Settings.WIDTH_OPTIONS[index]
         }
         refreshActions(rows())
@@ -96,13 +117,20 @@ class DetailsFragment : PreviewSettingsFragment() {
         private const val ID_FOOTER = 5L
         private const val ID_HEADER = 8L
         private const val ID_PREVIEW_PIN = 9L
+        private const val ID_ROTATION = 20L
+        private val POSITIONS = listOf(Settings.POSITION_ROTATE) + Settings.POSITIONS
         private const val ID_STYLE = 11L
         private const val ID_SYNOPSIS_CAST = 14L
         private const val ID_POSITION = 15L
         private const val ID_SHADE = 16L
+        private const val ID_BOTTOM_SHADE = 21L
 
-        fun shadeLabel(context: Context, shade: String) =
-            context.getString(if (shade == Settings.SHADE_BLACK) R.string.shade_black else R.string.shade_tint)
+        fun shadeLabel(context: Context, shade: String) = context.getString(
+            when (shade) {
+                Settings.SHADE_BLACK -> R.string.shade_black
+                else -> R.string.shade_tint
+            }
+        )
 
         fun positionLabel(context: Context, position: String) = context.getString(
             when (position) {
@@ -111,6 +139,7 @@ class DetailsFragment : PreviewSettingsFragment() {
                 "top_right" -> R.string.position_top_right
                 "center_right" -> R.string.position_center_right
                 "bottom_right" -> R.string.position_bottom_right
+                Settings.POSITION_ROTATE -> R.string.position_rotate
                 else -> R.string.position_top_left
             }
         )
@@ -131,6 +160,16 @@ class DetailsFragment : PreviewSettingsFragment() {
             }
         )
 
+        fun bottomShadeLabel(context: Context, shade: Int) = context.getString(
+            when (shade) {
+                125 -> R.string.bottom_shade_high
+                50 -> R.string.bottom_shade_low
+                25 -> R.string.bottom_shade_minimal
+                0 -> R.string.bottom_shade_none
+                else -> R.string.bottom_shade_normal
+            }
+        )
+
         fun resolutionLabel(context: Context, width: Int) =
             context.getString(if (width > 1920) R.string.resolution_2160 else R.string.resolution_1080)
 
@@ -139,6 +178,8 @@ class DetailsFragment : PreviewSettingsFragment() {
             styleLabel(context, profile.style).takeIf { !profile.drawsDetails },
             positionLabel(context, profile.position).takeIf { profile.position != Settings.POSITION_TOP_LEFT && profile.drawsLogo },
             context.getString(R.string.shade_summary_black).takeIf { profile.shade == Settings.SHADE_BLACK },
+            context.getString(R.string.bottom_shade_summary, bottomShadeLabel(context, profile.bottomShade).lowercase())
+                .takeIf { profile.bottomShade != Settings.BOTTOM_SHADE_NORMAL },
             Languages.displayName(Settings.language),
             when (profile.overviewLines) {
                 0 -> context.getString(R.string.synopsis_summary_hidden)

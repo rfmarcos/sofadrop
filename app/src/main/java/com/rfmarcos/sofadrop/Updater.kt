@@ -1,13 +1,6 @@
 package com.rfmarcos.sofadrop
 
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageInstaller
-import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import okhttp3.OkHttpClient
@@ -17,13 +10,14 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Updates from the project's GitHub releases (there is no store): [check] looks for a newer release
- * now and then, [install] downloads its APK and hands it to the system installer, which asks the user.
+ * now and then, [UpdateInstaller.install] downloads its APK and hands it to the system installer, which asks the
+ * user (GitHub builds only: Google Play updates its own).
  */
 object Updater {
     private const val TAG = "SofadropUpdater"
     private const val CHECK_EVERY = 12 * 60 * 60 * 1000L
 
-    private val http = OkHttpClient.Builder()
+    internal val http = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
@@ -32,11 +26,11 @@ object Updater {
     fun repo(): String? =
         Regex("github\\.com/([^/]+/[^/#?]+)").find(BuildConfig.SOURCE_URL)?.groupValues?.get(1)?.removeSuffix(".git")
 
-    /** True when this build looks for updates: it has a repository, and it isn't the Dev build. */
-    val canCheck: Boolean get() = repo() != null && !BuildConfig.DEBUG
+    /** True when this build looks for updates: it has a repository, and it's neither the Dev build nor Google Play's. */
+    val canCheck: Boolean get() = repo() != null && !BuildConfig.DEBUG && !BuildConfig.PLAY
 
-    /** True when the last check found a release newer than this build. */
-    val available: Boolean get() = isNewer(Settings.updateVersion, BuildConfig.VERSION_NAME) && Settings.updateApkUrl.isNotBlank()
+    /** True when the last check found a release newer than this build (not one found by a GitHub APK replaced from Play). */
+    val available: Boolean get() = canCheck && isNewer(Settings.updateVersion, BuildConfig.VERSION_NAME) && Settings.updateApkUrl.isNotBlank()
 
     /** "1.0.10" > "1.0.9"; a leading "v" and any "-suffix" are ignored. */
     fun isNewer(candidate: String, current: String): Boolean {
@@ -108,57 +102,4 @@ object Updater {
         .replace(BOLD, "$2")
         .replace(ITALIC) { it.groupValues[1].ifEmpty { it.groupValues[2] } }
         .trim()
-
-    /**
-     * Download the new APK and start the system installer (blocking: call it off the main thread).
-     * Without the "install unknown apps" permission, Android shows where to grant it first.
-     */
-    fun install(context: Context) {
-        val request = Request.Builder().url(Settings.updateApkUrl).build()
-        val installer = context.packageManager.packageInstaller
-        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
-            setAppPackageName(context.packageName)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-        }
-        val sessionId = installer.createSession(params)
-        try {
-            installer.openSession(sessionId).use { session ->
-                http.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
-                    val body = response.body ?: throw IOException("Empty download")
-                    session.openWrite("sofadrop.apk", 0, body.contentLength()).use { out ->
-                        body.byteStream().copyTo(out)
-                        session.fsync(out)
-                    }
-                }
-                val callback = PendingIntent.getBroadcast(
-                    context, sessionId, Intent(context, InstallResultReceiver::class.java),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
-                )
-                session.commit(callback.intentSender)
-            }
-        } catch (e: Exception) {
-            installer.abandonSession(sessionId)
-            throw e
-        }
-    }
-
-    /** Result of [install]: shows the system's confirmation, or says why it failed. */
-    class InstallResultReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            when (val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
-                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                    @Suppress("DEPRECATION")
-                    val confirm = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT) ?: return
-                    context.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                }
-                PackageInstaller.STATUS_SUCCESS -> Unit // the app restarts as the new version
-                else -> {
-                    val message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE).orEmpty()
-                    Log.w(TAG, "Install failed ($status): $message")
-                    Toast.makeText(context, context.getString(R.string.update_failed, message.ifBlank { status.toString() }), Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
 }

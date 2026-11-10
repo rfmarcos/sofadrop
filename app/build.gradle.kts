@@ -68,6 +68,22 @@ android {
         buildConfig = true
     }
 
+    // GitHub's APK updates itself. Google Play doesn't allow that, nor a link to donations outside its billing
+    flavorDimensions += "store"
+    productFlavors {
+        create("github") {
+            dimension = "store"
+            buildConfigField("boolean", "PLAY", "false")
+        }
+        create("play") {
+            dimension = "store"
+            // One above the GitHub APK of the same release, so Google Play replaces a GitHub install (same key)
+            // when its user joins the test or installs it from the store
+            versionCode = libs.versions.versionCode.get().toInt() + 1
+            buildConfigField("boolean", "PLAY", "true")
+        }
+    }
+
     buildTypes {
         getByName("debug") {
             // "Sofadrop Dev": installs next to the release on the TV, with its own plugin uuid (src/debug/res)
@@ -102,6 +118,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.zxing.core)
     implementation(project(":api"))
+    "playImplementation"(libs.billing)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.runner)
