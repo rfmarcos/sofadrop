@@ -74,8 +74,9 @@ Sofadrop is coming to Google Play, and to get there it needs testers with a Goog
 
 1. Join the testers' group: [**groups.google.com/g/sofadrop-testers**](https://groups.google.com/g/sofadrop-testers/about) → *Join group*.
 2. Accept the test: [**play.google.com/apps/testing/com.rfmarcos.sofadrop**](https://play.google.com/apps/testing/com.rfmarcos.sofadrop) → *Become a tester*.
+3. Install it on your TV from [**Google Play**](https://play.google.com/store/apps/details?id=com.rfmarcos.sofadrop): *Install* on your TV, or search for Sofadrop in the TV's Play Store. If you already have Sofadrop, it's an update and your settings are kept.
 
-Then Sofadrop updates from the Play Store on your TV, keeping your settings. Please stay in the test for at least 14 days: Google Play asks for 12 testers over 14 days before an app can be published. The Play version has the same features, without the in-app updater, plus an optional one-time purchase for the screensaver clock's colours. To leave, open the second link and choose *Leave the program*.
+Please stay in the test for at least 14 days: Google Play asks for 12 testers over 14 days before an app can be published. The Play version has the same features, without the in-app updater, plus an optional one-time purchase for the screensaver clock's colours. To leave, open the second link and choose *Leave the program*.
 
 ## ⚙️ Settings
 
