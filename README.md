@@ -1,13 +1,19 @@
-# Sofadrop
+<p align="center">
+  <img src="docs/icon/sofadrop-icon-rounded.png" width="110" alt="Sofadrop icon">
+</p>
 
-**Movie & TV backdrops for Projectivy Launcher.**
+<h1 align="center">Sofadrop</h1>
 
-[![Release](https://img.shields.io/github/v/release/rfmarcos/sofadrop?label=release&style=flat-square&labelColor=0F0F1F&color=FB8B2F)](https://github.com/rfmarcos/sofadrop/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/rfmarcos/sofadrop/total?label=downloads&style=flat-square&labelColor=0F0F1F&color=F76B3B)](https://github.com/rfmarcos/sofadrop/releases)
-[![Downloader code](https://img.shields.io/badge/Downloader-7882519-F44C46?style=flat-square&labelColor=0F0F1F)](#-installation)
-[![Google Play beta](https://img.shields.io/badge/Google%20Play-beta-E33553?style=flat-square&labelColor=0F0F1F&logo=googleplay&logoColor=white)](#google-play-test)
-[![License](https://img.shields.io/badge/license-Apache--2.0-C62660?style=flat-square&labelColor=0F0F1F)](LICENSE)
-[![Ko-fi](https://img.shields.io/badge/support-Ko--fi-A8186E?style=flat-square&labelColor=0F0F1F&logo=kofi&logoColor=white)](https://ko-fi.com/rfmarcos)
+<p align="center"><b>Movie &amp; TV backdrops for Projectivy Launcher.</b></p>
+
+<p align="center">
+  <a href="https://github.com/rfmarcos/sofadrop/releases/latest"><img src="https://img.shields.io/github/v/release/rfmarcos/sofadrop?label=release&amp;logo=github&amp;color=FB8B2F&amp;style=for-the-badge&amp;labelColor=0F0F1F&amp;logoColor=white" alt="Latest release"></a>
+  <a href="https://github.com/rfmarcos/sofadrop/releases"><img src="https://img.shields.io/github/downloads/rfmarcos/sofadrop/total?label=downloads&amp;logo=github&amp;color=F76B3B&amp;style=for-the-badge&amp;labelColor=0F0F1F&amp;logoColor=white" alt="Downloads"></a>
+  <a href="#-installation"><img src="https://img.shields.io/badge/Downloader-7882519-F44C46?logo=android&amp;style=for-the-badge&amp;labelColor=0F0F1F&amp;logoColor=white" alt="Downloader code 7882519"></a>
+  <a href="#google-play-test"><img src="https://img.shields.io/badge/Google%20Play-beta-E33553?logo=googleplay&amp;style=for-the-badge&amp;labelColor=0F0F1F&amp;logoColor=white" alt="Google Play beta"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-C62660?logo=apache&amp;style=for-the-badge&amp;labelColor=0F0F1F&amp;logoColor=white" alt="License: Apache 2.0"></a>
+  <a href="https://ko-fi.com/rfmarcos"><img src="https://img.shields.io/badge/support-Ko--fi-A8186E?logo=kofi&amp;style=for-the-badge&amp;labelColor=0F0F1F&amp;logoColor=white" alt="Support on Ko-fi"></a>
+</p>
 
 Sofadrop is a wallpaper plugin for [Projectivy Launcher](https://github.com/spocky/miproja1) (Android TV) that turns your home screen into a rotating showcase of **movies and TV shows** from the lists you choose: what's trending, your Trakt or Simkl lists, any public Trakt or MDBList list… Everything is generated **on your TV** and set up from inside the launcher, with a live preview.
 
