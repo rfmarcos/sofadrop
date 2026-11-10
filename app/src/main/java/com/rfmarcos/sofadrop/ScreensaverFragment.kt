@@ -68,8 +68,8 @@ class ScreensaverFragment : OutputFragment() {
         }
         if (state == supporterState) return
         supporterState = state
-        // A refund takes the colour away; a restored backup doesn't bring one either
-        if (state == Supporter.State.NOT_BOUGHT) Settings.screensaverClockColor = Settings.CLOCK_COLOR_WHITE
+        // A refund takes the colour away on screen, and a restored backup doesn't bring one; the choice itself stays
+        Supporter.remember(state)
         if (view != null) refresh()
     }
 

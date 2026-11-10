@@ -34,7 +34,9 @@ class WallpaperProviderService : Service() {
          */
         override fun getWallpapers(event: Event?): List<Wallpaper> {
             Log.d(TAG, "getWallpapers(${event?.javaClass?.simpleName})")
-            Settings.projectivyAskedAt = System.currentTimeMillis()
+            // Card events come with every move of the remote: the settings file is rewritten once a minute at most
+            val now = System.currentTimeMillis()
+            if (now - Settings.projectivyAskedAt > ASKED_AT_EVERY_MILLIS) Settings.projectivyAskedAt = now
             val mode = Settings.focusedCard
             when (event) {
                 is Event.ProgramCardFocused -> {
@@ -67,7 +69,9 @@ class WallpaperProviderService : Service() {
          * come after the next card's).
          */
         private fun cardWallpaper(card: FocusedCard, mode: String): List<Wallpaper>? {
-            val wallpaper = FocusedWallpapers.wallpaper(this@WallpaperProviderService, card, mode, CARD_WAIT_MILLIS) ?: return null
+            val wallpaper = FocusedWallpapers.wallpaper(this@WallpaperProviderService, card, mode, CARD_WAIT_MILLIS) {
+                focusedCard === card
+            } ?: return null
             if (focusedCard !== card) return null
             showingCard = true
             return listOf(wallpaper)
@@ -113,8 +117,12 @@ class WallpaperProviderService : Service() {
 
     companion object {
         private const val TAG = "SofadropService"
-        /** Longer than drawing takes on a Chromecast with Google TV (3-4 s, 10 s just after Sofadrop starts). */
-        private const val CARD_WAIT_MILLIS = 8000L
+        /**
+         * Longer than drawing takes on a Chromecast with Google TV (3-4 s, 10 s just after Sofadrop starts).
+         * Only the focused card's request waits that long: the others stop waiting once the focus leaves them.
+         */
+        private const val CARD_WAIT_MILLIS = 15000L
+        private const val ASKED_AT_EVERY_MILLIS = 60_000L
 
         /**
          * What Projectivy opens from [wallpaper] (see [ClickTargets]); applied when served, without

@@ -26,7 +26,7 @@
     <string name="focused_card_off">Off</string>
     <string name="focused_card_episode">Episode when known</string>
     <string name="focused_card_series">Series or movie</string>
-    <string name="focused_card_explain">While you\'re on a movie, series or episode in a Projectivy channel, the wallpaper becomes that title. It works with channels of series and movies: the title is looked up on TMDB by the card\'s name, and episodes are recognized when the card shows TMDB\'s image. The first time you stop on a card, its wallpaper takes a few seconds to appear (a bit longer right after the TV starts); after that it\'s instant. It\'s new: if a card doesn\'t show what you expect, send the card log.</string>
+    <string name="focused_card_explain">While you\'re on a movie, series or episode in a Projectivy channel, the wallpaper becomes that title (looked up on TMDB by the card\'s name). The first time on a card it takes a few seconds; after that it\'s instant. It\'s new: if a card shows the wrong title, send the card log.</string>
     <string name="focused_log_title">Card log</string>
     <string name="focused_log_none">No cards yet</string>
     <string name="focused_log_explain">The last cards you were on, what each app said about them and what Sofadrop found. Send it if a card doesn\'t show the right wallpaper: it helps make this work with more apps.</string>
@@ -43,7 +43,6 @@
 
     <!-- Live preview -->
     <string name="preview_label">Preview · %1$s</string>
-    <string name="preview_loading">Generating preview…</string>
     <string name="preview_no_token">No TMDB key in this build</string>
     <string name="preview_no_titles">The selected lists have no titles</string>
     <string name="preview_error">Preview unavailable: %1$s</string>
@@ -182,7 +181,6 @@
     <string name="mdblist_login_ok">MDBList connected as %1$s</string>
     <string name="mdblist_connected">Connected as %1$s · %2$s</string>
     <string name="mdblist_key_mode">API key · %1$s</string>
-    <string name="trakt_unavailable">Not available in this build (missing the app\'s Trakt credentials)</string>
     <!-- Filters -->
     <string name="filters_age_title">Maximum age</string>
     <string name="filters_age_none">No limit</string>
@@ -607,7 +605,7 @@
     <string name="projectivy_get_scan">Scan with your phone to open Projectivy\'s page.</string>
     <string name="click_action_desc_alone">In Sofascreen, the OK button opens the title on screen.</string>
     <string name="general_header">Shared settings</string>
-    <string name="projectivy_status_optional">For Projectivy Launcher Premium</string>
+    <string name="projectivy_status_optional">For Projectivy Launcher Premium or a folder</string>
     <string name="wallpaper_folder_title">Save in a folder</string>
     <string name="wallpaper_folder_off">Off</string>
     <string name="wallpaper_folder_on">In %1$s</string>

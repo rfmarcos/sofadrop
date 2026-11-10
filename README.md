@@ -14,7 +14,7 @@ Sofadrop is free and does two things. Each one has its own needs, so check them 
 
 | | What it needs |
 |---|---|
-| **Wallpapers** on the home screen | [Projectivy Launcher](https://github.com/spocky/miproja1) with **Premium**: third-party wallpaper plugins are a Premium feature. Sofadrop can't tell whether you have it. |
+| **Wallpapers** on the home screen | [Projectivy Launcher](https://github.com/spocky/miproja1) with **Premium**: third-party wallpaper plugins are a Premium feature. Sofadrop can't tell whether you have it. Other launchers that show the images of a folder (Monet Launcher…) can use [*Save in a folder*](#folder) instead. |
 | **Screensaver** (Sofascreen) | Nothing else: no Projectivy, no Premium. How it starts depends on your device. |
 
 | Device | Starts on its own as the screensaver? | How |
@@ -33,6 +33,8 @@ Sofadrop is free and does two things. Each one has its own needs, so check them 
 * ⭐ **The ratings you trust**: IMDb, Rotten Tomatoes (critics and audience), Metacritic, Letterboxd, TMDB, Trakt or MyAnimeList, with their logos, in the order you choose. IMDb, TMDB and Trakt work without any account; the others come from MDBList.
 * 📺 **Where to watch it**: the streaming services that have each title in your country, or the list it came from.
 * ▶️ **Open it from the wallpaper**: the ▶ icon in Projectivy's status bar opens the title on your streaming platforms (Netflix, Prime Video, Disney+, HBO Max, Apple TV…), in Nuvio, Stremio, WuPlay or Jellyfin, or its trailer on YouTube.
+* 🎯 **The card you're on** (beta): in Projectivy's channels (Nuvio's *Continue watching*, Apple TV…), the wallpaper becomes the movie, series or episode you're on.
+* 📁 **Other launchers**: *Save in a folder* keeps a copy of the wallpapers in *Pictures/Sofadrop*, for launchers that rotate a folder's images.
 * ✅ **Watched titles**: with your Trakt or Simkl history, mark what you've seen ("✓ Watched", "▶ Watching · 3/8") or hide it.
 * 🎯 **Filters**: maximum age (or from a year on), minimum TMDB rating, age rating, global hits only, no adult content, no repeats, skip some genres (or use only some), and only titles with a logo or a synopsis in your language. Every list can have its own, and any title can be blocked.
 * 🔎 **Explore your lists**: see each list's titles in order and which ones are used or skipped, and why.
@@ -72,8 +74,10 @@ The left side of the settings shows a **live preview** of a wallpaper with your 
 
 ![Sofadrop settings with the live preview](docs/images/settings_en.jpg)
 
-* **Wallpapers**, for the home screen of Projectivy Launcher (wallpaper plugins are a Premium feature there). Inside: *Use in Projectivy* opens its settings to pick Sofadrop, and each of the settings below, shared or customized.
-* **Screensaver** says whether it's the TV's screensaver. Inside: *Start screensaver* (now, with no setup), *Use as the TV's screensaver*, each of the settings below, shared or customized, then time per wallpaper, transition, slow zoom, clock and its colour, date, brightness and weather. See [Screensaver](#screensaver).
+* **Wallpapers**, for the home screen of Projectivy Launcher (wallpaper plugins are a Premium feature there) or of another launcher through a folder. Inside: *Use in Projectivy* opens its settings to pick Sofadrop, *View wallpapers*, *Focused card*, *Save in a folder*, and each of the settings below, shared or customized.
+  * **Focused card** (beta, Projectivy only): while you're on a movie, series or episode in one of Projectivy's channels, the wallpaper becomes that title, found on TMDB by the card's name (*Episode when known* or always the *Series or movie*). The first time on a card takes a few seconds. If a card shows the wrong title, the *Card log* shows what Sofadrop made of the last cards, to send in an [issue](../../issues).
+  * <a id="folder"></a>**Save in a folder** copies each new set into the TV's *Pictures/Sofadrop* folder, for launchers that show the images of a folder (Monet Launcher…): pick that folder in the launcher's wallpaper settings. There a wallpaper is only an image: it doesn't open its title.
+* **Screensaver** says whether it's the TV's screensaver. Inside: *Start screensaver* (now, with no setup), *Use as the TV's screensaver*, each of the settings below, shared or customized; then the slideshow (time per wallpaper, transition, slow zoom, brightness) and the clock (style, date, time format, position, colour and the weather). See [Screensaver](#screensaver).
 * **Shared settings**, what Wallpapers and Screensaver use unless you customize them. Custom lists or wallpaper details make a second set of wallpapers, with about the same space and time again.
 * **Update now** also shows the status: how many wallpapers you have, when they were updated, or the progress while generating.
 * **View wallpapers**, inside *Wallpapers*, shows the current set full screen (◀ ▶ to browse, **OK** to open the title, ▲ to use it in the preview, ▼ to block it).
@@ -82,7 +86,7 @@ The left side of the settings shows a **live preview** of a wallpaper with your 
   * One screen per service, **TMDB**, **Trakt**, **Simkl** and **MDBList**, to tick lists and connect your account. Trakt and MDBList also take any public list by its URL or `user/list`.
   * **Filters & explore lists**: the filters for every list, then your lists. Open one to see its titles, block one, or give the list its own filters. *Blocked titles* lists the ones you blocked, to unblock them.
 * **Wallpaper details**: style (complete, logo only or backdrop only), position of the text, shading (the backdrop's colour or black for OLED), bottom shading (from high to none) and resolution (1080p or 4K); then by parts: the language of each part, the header under the title (which ratings, in what order, and whether to show the year, runtime, genres and watched badge; hiding details leaves room for more ratings), synopsis length and cast (names only or with their photos), and the footer (streaming services and/or the list source, and the streaming country).
-* **Opening a title**: what the **OK** button opens in the screensaver, and the ▶ icon in Projectivy's status bar (or *About this wallpaper*). Your streaming platforms in the order you pick, then, if the title is on none of them, its trailer (in the language you choose), Nuvio, Stremio or Jellyfin, or nothing.
+* **Opening a title**: what the **OK** button opens in the screensaver, and the ▶ icon in Projectivy's status bar (or *About this wallpaper*). Your streaming platforms in the order you pick, then, if the title is on none of them, its trailer (in the language you choose), Nuvio, Stremio, WuPlay or Jellyfin (or a fork of Nuvio, Stremio or WuPlay), or nothing.
 * **Order**: mixed, or one list after another.
 * **Update every**: how often a new set is generated (6 hours to 7 days). How often the wallpaper *changes on screen* is set in Projectivy itself.
 * **Accounts**: connect TMDB, Trakt, Simkl and MDBList with a QR code, see what each one adds, and update the IMDb ratings data.

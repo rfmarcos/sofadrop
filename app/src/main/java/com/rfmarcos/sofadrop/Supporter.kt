@@ -13,4 +13,15 @@ interface Supporter {
     fun buy(activity: Activity)
 
     fun close()
+
+    companion object {
+        /** Keep what Google Play said, for the screensaver's clock colour (see [Settings.screensaverClockColorShown]). */
+        fun remember(state: State) {
+            when (state) {
+                State.BOUGHT -> Settings.supporterBought = true
+                State.NOT_BOUGHT -> Settings.supporterBought = false
+                State.PENDING, State.UNAVAILABLE -> Unit
+            }
+        }
+    }
 }

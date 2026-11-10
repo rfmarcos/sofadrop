@@ -23,7 +23,7 @@
     <string name="focused_card_off">Desactivado</string>
     <string name="focused_card_episode">Episodio si se reconoce</string>
     <string name="focused_card_series">Serie o película</string>
-    <string name="focused_card_explain">Mientras estás sobre una película, serie o episodio en un canal de Projectivy, el fondo pasa a ser ese título. Funciona con canales de series y películas: se busca en TMDB por el nombre de la tarjeta, y los episodios se reconocen cuando la tarjeta usa la imagen de TMDB. La primera vez que te paras en una tarjeta, su fondo tarda unos segundos en aparecer (algo más nada más encender la tele); después sale al momento. Es nuevo: si una tarjeta no muestra lo que esperas, envía el registro de tarjetas.</string>
+    <string name="focused_card_explain">Mientras estás sobre una película, serie o episodio en un canal de Projectivy, el fondo pasa a ser ese título (se busca en TMDB por el nombre de la tarjeta). La primera vez en una tarjeta tarda unos segundos; después sale al momento. Es nuevo: si una tarjeta muestra otro título, envía el registro de tarjetas.</string>
     <string name="focused_log_title">Registro de tarjetas</string>
     <string name="focused_log_none">Aún no hay tarjetas</string>
     <string name="focused_log_explain">Las últimas tarjetas en las que has estado, qué decía de ellas cada app y qué encontró Sofadrop. Envíalo si una tarjeta no muestra el fondo correcto: ayuda a que funcione con más apps.</string>
@@ -39,7 +39,6 @@
     <string name="preview_empty">Aún no hay fondos. Usa primero «Actualizar ahora».</string>
 
     <string name="preview_label">Vista previa · %1$s</string>
-    <string name="preview_loading">Generando vista previa…</string>
     <string name="preview_no_token">Esta compilación no tiene clave de TMDB</string>
     <string name="preview_no_titles">Las listas elegidas no tienen títulos</string>
     <string name="preview_error">Vista previa no disponible: %1$s</string>
@@ -172,7 +171,6 @@
     <string name="mdblist_login_ok">MDBList conectado como %1$s</string>
     <string name="mdblist_connected">Cuenta: %1$s · %2$s</string>
     <string name="mdblist_key_mode">Clave de API · %1$s</string>
-    <string name="trakt_unavailable">No disponible en esta compilación (faltan las credenciales de Trakt de la app)</string>
     <!-- Filtros -->
     <string name="filters_age_title">Antigüedad máxima</string>
     <string name="filters_age_none">Sin límite</string>
@@ -205,7 +203,7 @@
     <string name="supporter_unavailable">Las compras no están disponibles ahora mismo</string>
     <string name="about_source">Código fuente</string>
     <string name="about_source_scan">Escanéalo con el móvil para abrir la página del proyecto.</string>
-    <string name="about_beta">Probarla en Google Play</string>
+    <string name="about_beta">Pruébala en Google Play</string>
     <string name="about_beta_desc">Sofadrop llega a Google Play y busca testers con Google TV o Android TV</string>
     <string name="about_beta_scan">Escanéalo con el móvil, con la misma cuenta de Google que tienes en la TV.</string>
     <string name="about_credits">Créditos</string>
@@ -589,7 +587,7 @@
     <string name="projectivy_get_scan">Escanéalo con el móvil para abrir la página de Projectivy.</string>
     <string name="click_action_desc_alone">En Sofascreen, el botón OK abre el título que se ve.</string>
     <string name="general_header">Ajustes comunes</string>
-    <string name="projectivy_status_optional">Para Projectivy Launcher Premium</string>
+    <string name="projectivy_status_optional">Para Projectivy Launcher Premium o una carpeta</string>
     <string name="wallpaper_folder_title">Guardar en una carpeta</string>
     <string name="wallpaper_folder_off">Desactivado</string>
     <string name="wallpaper_folder_on">En %1$s</string>

@@ -31,6 +31,9 @@ class WallpapersFragment : OutputFragment() {
         actions += rows()
     }
 
+    // Without Projectivy the wallpapers only go to the folder: no click, and the launcher picks the order
+    override val opensTitles get() = Projectivy.isInstalled(requireContext())
+
     override fun rows(): List<GuidedAction> {
         val context = requireContext()
         val projectivy = Projectivy.isInstalled(context)

@@ -91,6 +91,7 @@ class AboutFragment : BaseSettingsFragment() {
             return
         }
         supporterState = state
+        Supporter.remember(state)
         // Off screen, onResume asks again
         if (view == null) return
         findActionById(ID_SUPPORT)?.title = supporterTitle()

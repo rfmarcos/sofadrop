@@ -93,6 +93,7 @@ object Settings {
     private const val KEY_SCREENSAVER_CLOCK_BOTTOM = "screensaver_clock_bottom"
     private const val KEY_SCREENSAVER_CLOCK_FORMAT = "screensaver_clock_format"
     private const val KEY_SCREENSAVER_CLOCK_COLOR = "screensaver_clock_color"
+    private const val KEY_SUPPORTER_BOUGHT = "_supporter_bought"
     private const val KEY_SCREENSAVER_BRIGHTNESS = "screensaver_brightness"
     private const val KEY_SCREENSAVER_WEATHER = "screensaver_weather"
     private const val KEY_WEATHER_PLACE = "weather_place"
@@ -615,6 +616,18 @@ object Settings {
         get() = preferences.getString(KEY_SCREENSAVER_CLOCK_COLOR, null)?.takeIf { it in CLOCK_COLORS } ?: CLOCK_COLOR_WHITE
         set(value) = preferences.edit { putString(KEY_SCREENSAVER_CLOCK_COLOR, value) }
 
+    /** What Google Play last said about the supporter purchase (see [Supporter.remember]); never in a backup. */
+    var supporterBought: Boolean
+        get() = preferences.getBoolean(KEY_SUPPORTER_BOUGHT, false)
+        set(value) = preferences.edit { putBoolean(KEY_SUPPORTER_BOUGHT, value) }
+
+    /**
+     * The clock's colour on screen. Google Play builds show the chosen one only while the purchase is known: an
+     * imported file doesn't bring a colour for free, and a wrong "not bought" doesn't lose the buyer's choice.
+     */
+    val screensaverClockColorShown: String
+        get() = if (BuildConfig.PLAY && !supporterBought) CLOCK_COLOR_WHITE else screensaverClockColor
+
     /** 24 or 12 hours, or as Android is set (see [CLOCK_FORMATS]). */
     var screensaverClockFormat: String
         get() = preferences.getString(KEY_SCREENSAVER_CLOCK_FORMAT, null)?.takeIf { it in CLOCK_FORMATS } ?: CLOCK_FORMAT_SYSTEM
@@ -665,8 +678,11 @@ object Settings {
     /**
      * True for the preferences a Projectivy backup carries: the user's choices, not internal state or keys.
      * The weather place goes without its coordinates (looked up again when needed): no exact location.
+     * The folder copy stays with each device: an import or restore would otherwise switch it without
+     * filling or emptying Pictures/Sofadrop (and may need a permission that device hasn't granted).
      */
-    fun inBackup(key: String): Boolean = !key.startsWith("_") && key !in SECRET_KEYS && key != KEY_WEATHER_COORDINATES
+    fun inBackup(key: String): Boolean = !key.startsWith("_") && key !in SECRET_KEYS &&
+        key != KEY_WEATHER_COORDINATES && key != KEY_WALLPAPER_FOLDER
 
     fun export(): String = exportJson(preferences.all)
 

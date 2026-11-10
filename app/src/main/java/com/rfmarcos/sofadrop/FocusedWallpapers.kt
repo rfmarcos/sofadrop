@@ -49,6 +49,8 @@ data class FocusedCard(val title: String, val type: Int, val image: String?) {
 object FocusedWallpapers {
     private const val TAG = "FocusedWallpapers"
     const val DIR = "focused"
+    /** How often a waiting request checks that its card still has the focus. */
+    private const val WAIT_SLICE_MILLIS = 200L
     private const val JPEG_QUALITY = 90
     private const val MAX_WIDTH = 1920
     private const val MAX_FILES = 50
@@ -99,9 +101,11 @@ object FocusedWallpapers {
 
     /**
      * The wallpaper for [card] in [mode] ([Settings.FOCUSED_EPISODE] or [Settings.FOCUSED_SERIES]), waiting up
-     * to [waitMillis] for it to be drawn. Until then: the episode's still alone (episode mode), or null.
+     * to [waitMillis] for it to be drawn while [stillWanted]. Until then: the episode's still alone (episode mode), or null.
      */
-    fun wallpaper(context: Context, card: FocusedCard, mode: String, waitMillis: Long = 0): Wallpaper? {
+    fun wallpaper(
+        context: Context, card: FocusedCard, mode: String, waitMillis: Long = 0, stillWanted: () -> Boolean = { true },
+    ): Wallpaper? {
         val prefix = filePrefix()
         cached(context, card, mode, prefix)?.let { return finished(context, it, card) }
         if (card.key in unmatched) return fallback(card, mode)
@@ -125,10 +129,16 @@ object FocusedWallpapers {
             }
         }
         if (waitMillis > 0) {
-            try {
-                task.get(waitMillis, TimeUnit.MILLISECONDS)
-            } catch (_: TimeoutException) {
-            } catch (_: ExecutionException) {
+            // In short slices, so a request for a card the focus has left frees Projectivy's thread at once
+            val deadline = System.currentTimeMillis() + waitMillis
+            while (stillWanted() && !task.isDone) {
+                val left = deadline - System.currentTimeMillis()
+                if (left <= 0) break
+                try {
+                    task.get(minOf(left, WAIT_SLICE_MILLIS), TimeUnit.MILLISECONDS)
+                } catch (_: TimeoutException) {
+                } catch (_: ExecutionException) {
+                }
             }
             cached(context, card, mode, prefix)?.let { return finished(context, it, card) }
         }

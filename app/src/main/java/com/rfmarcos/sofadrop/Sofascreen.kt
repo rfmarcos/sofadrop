@@ -420,7 +420,7 @@ class SofascreenClock(private val context: Context) {
     private fun clockText(pattern: String, sizePx: Float, font: android.graphics.Typeface?) = TextView(context).apply {
         style(this, sizePx, font)
         // Only the digits: the thin date and weather lines read worse in colour
-        setTextColor(Settings.CLOCK_COLORS.getValue(Settings.screensaverClockColor))
+        setTextColor(Settings.CLOCK_COLORS.getValue(Settings.screensaverClockColorShown))
         maxLines = 1
         times += this to pattern
     }

@@ -32,9 +32,6 @@
     <string name="wizard_lists_connect">Connect Trakt or Simkl with your phone to use your watchlist</string>
     <string name="wizard_lists_by_hand">Choose lists one by one</string>
 
-
-
-
     <string name="wizard_done_title">Done</string>
     <string name="wizard_done_lists">Lists: %1$s</string>
     <string name="wizard_done_look">Details: %1$s</string>
@@ -53,7 +50,7 @@
     <string name="setup_undo_desc">adb shell settings put secure screensaver_components %1$s</string>
     <string name="wizard_leave">Leave without changes</string>
     <string name="wizard_welcome_lead">Sofadrop fills your TV with the movies and shows you choose, as a screensaver.</string>
-    <string name="wizard_welcome_premium">Wallpapers: need Projectivy Launcher with Premium.</string>
+    <string name="wizard_welcome_premium">Wallpapers: Projectivy Launcher with Premium, or another launcher through a folder.</string>
     <string name="wizard_welcome_fire_tv">Screensaver: from Fire OS 8.1 on, Fire TV only allows its own, so it\'s started by hand.</string>
     <string name="wizard_welcome_fire_tv_old">Screensaver: it\'s started by hand, or set up from a computer with adb (steps on Sofadrop\'s GitHub page).</string>
     <string name="wizard_screensaver_by_hand">From Fire OS 8.1 on, Fire TV only allows its own: start it by hand from Screensaver, in Sofadrop.</string>

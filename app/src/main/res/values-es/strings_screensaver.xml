@@ -7,14 +7,14 @@
     <string name="screensaver_preparing">Preparando los primeros fondos…</string>
     <string name="sofascreen_start">Iniciar salvapantallas</string>
     <string name="sofascreen_switch_on">Usar como salvapantallas de la TV</string>
-    <string name="screensaver_try_desc">OK abre el título, ← → lo cambian, cualquier otro botón lo detiene</string>
+    <string name="screensaver_try_desc">OK abre el título, ◀ ▶ pasan al fondo anterior o siguiente, cualquier otro botón lo cierra</string>
     <string name="screensaver_system_off">Sin activar</string>
     <string name="screensaver_system_on">Activado: Sofascreen es el salvapantallas de la TV</string>
     <string name="screensaver_system_opens_settings">abre los ajustes de salvapantallas de Android</string>
     <string name="screensaver_system_opens_steps">cómo activarlo</string>
     <string name="screensaver_system_opens_path">abre los ajustes de Android: Preferencias del dispositivo → Salvapantallas</string>
     <string name="screensaver_set_header">Personalizar para el salvapantallas</string>
-    <string name="wallpapers_set_header">Personalizar para fondos</string>
+    <string name="wallpapers_set_header">Personalizar para los fondos</string>
     <string name="screensaver_slideshow_header">Presentación</string>
     <string name="screensaver_clock_header">Reloj</string>
     <string name="screensaver_seconds_title">Tiempo por fondo</string>
@@ -54,7 +54,7 @@
     <string name="screensaver_weather_title">El tiempo</string>
     <string name="screensaver_weather_no_place">Escribe antes una ubicación</string>
     <string name="screensaver_weather_explain">La temperatura y el tiempo bajo el reloj, de Open-Meteo (gratis, sin cuenta), consultados cada 30 minutos. Escribe una ciudad o un pueblo; déjalo vacío para quitarla.</string>
-    <string name="screensaver_location_title">Lugar del tiempo</string>
+    <string name="screensaver_location_title">Ubicación para el tiempo</string>
     <string name="screensaver_location_not_found">No se encontró ningún lugar para \"%1$s\"</string>
     <string name="screensaver_location_failed">No se pudo buscar la ubicación: %1$s</string>
     <string name="weather_clear">Despejado</string>
@@ -98,6 +98,6 @@
     <string name="general_unused_explain">Los fondos de pantalla y el salvapantallas tienen este ajuste personalizado, así que el común no se usa ahora.</string>
     <string name="general_unused_explain_alone">El salvapantallas tiene este ajuste personalizado, así que el común no se usa ahora.</string>
     <string name="screensaver_failed">No se han podido crear los fondos: mira por qué en Sofadrop</string>
-    <string name="trailer_shared">%1$s · compartido entre fondos y salvapantallas</string>
+    <string name="trailer_shared">%1$s · común a fondos y salvapantallas</string>
     <string name="projectivy_screensaver_desc">Si no arranca: en Projectivy, desactiva Ajustes › Apariencia › Modo inactivo del lanzador › «Evitar el protector de pantalla del sistema» y reinicia la TV.</string>
 </resources>

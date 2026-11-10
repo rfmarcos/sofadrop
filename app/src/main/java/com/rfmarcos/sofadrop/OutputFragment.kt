@@ -23,6 +23,9 @@ abstract class OutputFragment : PreviewSettingsFragment() {
 
     protected abstract fun rows(): List<GuidedAction>
 
+    /** Whether something here opens titles and keeps the set's order: not a folder's images, read by another launcher. */
+    protected open val opensTitles: Boolean get() = true
+
     /** Its own status rows, every couple of seconds, row by row so an open list of choices stays open. */
     protected open fun refreshStatus() = Unit
 
@@ -50,10 +53,12 @@ abstract class OutputFragment : PreviewSettingsFragment() {
             choice(ID_OWN_LOOK, R.drawable.ic_act_visibility, R.string.setting_details_title, ownLabel(context, profile.ownLook, DETAILS), OWNS.map { ownLabel(context, it, DETAILS) }),
             action(ID_DETAILS, R.drawable.ic_act_tv, getString(R.string.output_edit_look), DetailsFragment.summary(context, profile))
                 .hasNext(true).build().takeIf { profile.ownLook },
-            choice(ID_OWN_CLICK, R.drawable.ic_act_play, R.string.click_action_title, ownLabel(context, profile.ownClick), OWNS.map { ownLabel(context, it) }),
+            choice(ID_OWN_CLICK, R.drawable.ic_act_play, R.string.click_action_title, ownLabel(context, profile.ownClick), OWNS.map { ownLabel(context, it) })
+                .takeIf { opensTitles },
             action(ID_CLICK, R.drawable.ic_act_play, getString(R.string.output_edit_click), ClickActionFragment.summary(context, profile))
-                .hasNext(true).build().takeIf { profile.ownClick },
-            choice(ID_ORDER, R.drawable.ic_act_shuffle, R.string.screensaver_order_title, orderLabel(context, profile.ownMix), orders),
+                .hasNext(true).build().takeIf { opensTitles && profile.ownClick },
+            choice(ID_ORDER, R.drawable.ic_act_shuffle, R.string.screensaver_order_title, orderLabel(context, profile.ownMix), orders)
+                .takeIf { opensTitles },
             // The general set's state is on the main screen
             action(ID_GENERATE, R.drawable.ic_act_refresh, getString(R.string.action_generate_now), generationStatus())
                 .multilineDescription(true).build().takeIf { showsOwnSet },

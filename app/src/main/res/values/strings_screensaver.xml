@@ -8,14 +8,14 @@
     <string name="screensaver_preparing">Preparing the first wallpapers…</string>
     <string name="sofascreen_start">Start screensaver</string>
     <string name="sofascreen_switch_on">Use as the TV\'s screensaver</string>
-    <string name="screensaver_try_desc">OK opens the title, ← → change it, any other button stops it</string>
+    <string name="screensaver_try_desc">OK opens the title, ◀ ▶ go to the previous or next wallpaper, any other button closes it</string>
     <string name="screensaver_system_off">Not on yet</string>
     <string name="screensaver_system_on">On: Sofascreen is the TV\'s screensaver</string>
     <string name="screensaver_system_opens_settings">opens Android\'s screensaver settings</string>
     <string name="screensaver_system_opens_steps">how to switch it on</string>
     <string name="screensaver_system_opens_path">opens Android\'s settings: Device Preferences → Screen saver</string>
     <string name="screensaver_set_header">Customize for the screensaver</string>
-    <string name="wallpapers_set_header">Customize for wallpapers</string>
+    <string name="wallpapers_set_header">Customize for the wallpapers</string>
     <string name="screensaver_slideshow_header">Slideshow</string>
     <string name="screensaver_clock_header">Clock</string>
     <string name="screensaver_seconds_title">Time per wallpaper</string>

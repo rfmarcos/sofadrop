@@ -7,14 +7,14 @@
     <string name="screensaver_preparing">De eerste achtergronden worden voorbereid…</string>
     <string name="sofascreen_start">Screensaver starten</string>
     <string name="sofascreen_switch_on">Als screensaver van de tv gebruiken</string>
-    <string name="screensaver_try_desc">OK opent de titel, ← → wisselen, elke andere knop stopt hem</string>
+    <string name="screensaver_try_desc">OK opent de titel, ◀ ▶ gaan naar de vorige of volgende achtergrond, elke andere knop sluit hem</string>
     <string name="screensaver_system_off">Nog niet aan</string>
     <string name="screensaver_system_on">Aan: Sofascreen is de screensaver van de tv</string>
     <string name="screensaver_system_opens_settings">opent de screensaverinstellingen van Android</string>
     <string name="screensaver_system_opens_steps">hoe je hem inschakelt</string>
     <string name="screensaver_system_opens_path">opent de instellingen van Android: Apparaatvoorkeuren → Screensaver</string>
     <string name="screensaver_set_header">Aanpassen voor de screensaver</string>
-    <string name="wallpapers_set_header">Aanpassen voor achtergronden</string>
+    <string name="wallpapers_set_header">Aanpassen voor de achtergronden</string>
     <string name="screensaver_slideshow_header">Diavoorstelling</string>
     <string name="screensaver_clock_header">Klok</string>
     <string name="screensaver_seconds_title">Tijd per achtergrond</string>
@@ -48,7 +48,7 @@
     <string name="clock_color_amber">Amber</string>
     <string name="clock_color_blue">Blauw</string>
     <string name="clock_color_pink">Roze</string>
-    <string name="clock_color_turquoise">Turquoise</string>
+    <string name="clock_color_turquoise">Turkoois</string>
     <string name="screensaver_brightness_title">Helderheid</string>
     <string name="screensaver_brightness">%1$d%%</string>
     <string name="screensaver_weather_title">Weer</string>
@@ -69,7 +69,7 @@
     <string name="screensaver_summary_own_lists">Aangepaste lijsten</string>
     <string name="screensaver_summary_own_look">Aangepaste details</string>
     <string name="screensaver_summary_own_both">Aangepaste lijsten en details</string>
-    <string name="screensaver_summary_manual">Handmatig starten</string>
+    <string name="screensaver_summary_manual">Handmatig gestart</string>
     <string name="screensaver_summary_clock">klok</string>
     <string name="screensaver_summary_weather">weer</string>
     <string name="screensaver_system_explain">Kies Sofascreen in de screensaverinstellingen van Android.</string>
