@@ -72,7 +72,7 @@ Then choose **Configure** in the same screen (or open Sofadrop from your apps): 
 
 Sofadrop is coming to Google Play, and to get there it needs testers with a Google TV or Android TV (Fire TV has no Play Store). With your phone or computer, **using the same Google account as your TV**:
 
-1. Join the testers' group: [**groups.google.com/g/sofadrop-testers**](https://groups.google.com/g/sofadrop-testers) → *Join group*.
+1. Join the testers' group: [**groups.google.com/g/sofadrop-testers**](https://groups.google.com/g/sofadrop-testers/about) → *Join group*.
 2. Accept the test: [**play.google.com/apps/testing/com.rfmarcos.sofadrop**](https://play.google.com/apps/testing/com.rfmarcos.sofadrop) → *Become a tester*.
 
 Then Sofadrop updates from the Play Store on your TV, keeping your settings. Please stay in the test for at least 14 days: Google Play asks for 12 testers over 14 days before an app can be published. The Play version has the same features, without the in-app updater, plus an optional one-time purchase for the screensaver clock's colours. To leave, open the second link and choose *Leave the program*.
