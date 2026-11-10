@@ -77,6 +77,9 @@ android {
         }
         create("play") {
             dimension = "store"
+            // One above the GitHub APK of the same release, so Google Play replaces a GitHub install (same key)
+            // when its user joins the test or installs it from the store
+            versionCode = libs.versions.versionCode.get().toInt() + 1
             buildConfigField("boolean", "PLAY", "true")
         }
     }

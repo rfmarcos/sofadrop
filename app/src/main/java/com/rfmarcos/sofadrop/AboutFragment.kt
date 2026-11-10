@@ -128,6 +128,8 @@ class AboutFragment : BaseSettingsFragment() {
         private const val ID_WIZARD = 7L
         private const val ID_SETTINGS_FILE = 8L
         private const val ID_BETA = 9L
-        private const val BETA_URL = "https://play.google.com/apps/testing/com.rfmarcos.sofadrop"
+        // The README's steps: the test's own link only works after joining its Google Group, and the page can
+        // change (e.g. once Sofadrop is published) without a new version
+        private const val BETA_URL = "https://github.com/rfmarcos/sofadrop#google-play-test"
     }
 }

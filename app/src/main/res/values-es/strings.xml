@@ -205,7 +205,7 @@
     <string name="about_source_scan">Escanéalo con el móvil para abrir la página del proyecto.</string>
     <string name="about_beta">Pruébala en Google Play</string>
     <string name="about_beta_desc">Sofadrop llega a Google Play y busca testers con Google TV o Android TV</string>
-    <string name="about_beta_scan">Escanéalo con el móvil, con la misma cuenta de Google que tienes en la TV.</string>
+    <string name="about_beta_scan">Escanéalo con el móvil: la página tiene los dos pasos para unirte, con la misma cuenta de Google que tienes en la TV.</string>
     <string name="about_credits">Créditos</string>
     <string name="about_credits_desc">Este producto usa la API de TMDB pero no está respaldado ni certificado por TMDB (themoviedb.org). Dónde verlo: datos de JustWatch. Sofadrop usa Trakt pero no está respaldado ni certificado por Trakt. Listas e historial de Simkl (simkl.com). Los nombres y logotipos de Trakt, Simkl y MDBList pertenecen a sus propietarios. Listas de MDBList. Fondos para Projectivy Launcher. Notas de MDBList y Trakt. Information courtesy of IMDb (imdb.com), used with permission; los nombres y logotipos de IMDb, Rotten Tomatoes, Metacritic, Letterboxd y MyAnimeList pertenecen a sus propietarios. Sofascreen, el salvapantallas, de schumi2004, con gracias a Sofadrop Screensaver de ilee; el tiempo, de Open-Meteo (open-meteo.com).</string>
     <string name="qr_link_hint">Escanea el código con el móvil</string>
