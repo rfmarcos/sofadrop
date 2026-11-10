@@ -564,7 +564,7 @@
     <string name="accounts_reconnect">Ajustes importados. Conecta de nuevo lo que tenía la otra TV: %1$s. Las cuentas no van en el archivo de ajustes.</string>
     <string name="wallpapers_title">Fondos de pantalla</string>
     <string name="main_more_header">General</string>
-    <string name="projectivy_description">Fondos para la pantalla de inicio de Projectivy Launcher. Los plugins de fondos son una función de su versión Premium. El salvapantallas no lo necesita.</string>
+    <string name="projectivy_description">Fondos para la pantalla de inicio de Projectivy Launcher (los plugins de fondos son una función de su versión Premium), o de otro launcher mediante una carpeta. El salvapantallas no necesita ninguno de los dos.</string>
     <string name="projectivy_status_in_use">En uso en Projectivy</string>
     <string name="projectivy_status_pick">Projectivy instalado: elige Sofadrop</string>
     <string name="projectivy_get">Conseguir Projectivy</string>
@@ -573,6 +573,11 @@
     <string name="click_action_desc_alone">En Sofascreen, el botón OK abre el título que se ve.</string>
     <string name="general_header">Ajustes comunes</string>
     <string name="projectivy_status_optional">Para Projectivy Launcher Premium</string>
+    <string name="wallpaper_folder_title">Guardar en una carpeta</string>
+    <string name="wallpaper_folder_off">Desactivado</string>
+    <string name="wallpaper_folder_on">En %1$s</string>
+    <string name="wallpaper_folder_explain">Una copia de los fondos en la carpeta %1$s de la TV, que se renueva con cada actualización, para launchers que muestran las imágenes de una carpeta, como Monet Launcher: elige esa carpeta en los ajustes de fondo del launcher. Ahí un fondo es solo una imagen: no abre su título.</string>
+    <string name="wallpaper_folder_no_permission">Sin acceso al almacenamiento no se pueden guardar los fondos en una carpeta</string>
     <string name="position_rotate">Rotativa</string>
     <string name="position_rotate_desc">Cada fondo en una posición distinta</string>
     <string name="position_rotation_title">Posiciones de la rotación</string>

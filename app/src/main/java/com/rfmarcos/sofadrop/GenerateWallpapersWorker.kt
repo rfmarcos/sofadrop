@@ -39,8 +39,8 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
     override fun doWork(): Result {
         Settings.init(applicationContext)
         if (!profile.isScreensaver) Updater.check()
-        // Without Projectivy nothing shows the wallpapers' set while the screensaver has its own
-        if (!profile.isScreensaver && Profile.SCREENSAVER.separate && !Projectivy.isInstalled(applicationContext)) {
+        // Without Projectivy or the folder nothing shows the wallpapers' set while the screensaver has its own
+        if (!profile.isScreensaver && Profile.SCREENSAVER.separate && !WallpaperFolder.shown(applicationContext)) {
             profile.generating = false
             runForScreensaver(applicationContext)
             return Result.success()
@@ -113,7 +113,10 @@ class GenerateWallpapersWorker(context: Context, params: WorkerParameters) : Wor
                 applicationContext.getString(R.string.notice_list_unavailable, unavailable.joinToString(", ")).takeIf { unavailable.isNotEmpty() },
                 applicationContext.getString(R.string.error_simkl_premium).takeIf { listErrors.any { it is SimklPremiumException } },
             ).joinToString(" · ")
-            if (!profile.isScreensaver) notifyProjectivy(applicationContext)
+            if (!profile.isScreensaver) {
+                notifyProjectivy(applicationContext)
+                WallpaperFolder.update(applicationContext)
+            }
             Log.i(TAG, "Generated ${stored.size} wallpapers${" for the screensaver".takeIf { profile.isScreensaver }.orEmpty()} (${Settings.language}) in ${System.currentTimeMillis() - start} ms")
             // What a generation costs TMDB (a preview open at the same time counts too)
             val (api, images, network) = TmdbClient.requestCounts().zip(requests) { now, before -> now - before }

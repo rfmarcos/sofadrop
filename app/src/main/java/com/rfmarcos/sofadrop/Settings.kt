@@ -81,6 +81,7 @@ object Settings {
     private const val KEY_WATCH_SOURCE = "watch_source"
     private const val KEY_BLOCKED = "blocked_titles"
     private const val KEY_MIX_LISTS = "mix_lists"
+    private const val KEY_WALLPAPER_FOLDER = "wallpaper_folder"
     private const val KEY_SCREENSAVER_SHUFFLE = "screensaver_shuffle"
     private const val KEY_ORDER_MOVED = "order_moved"
     private const val KEY_SCREENSAVER_SECONDS = "screensaver_seconds"
@@ -272,6 +273,11 @@ object Settings {
     var mixLists: Boolean
         get() = preferences.getBoolean(KEY_MIX_LISTS, true)
         set(value) = preferences.edit { putBoolean(KEY_MIX_LISTS, value) }
+
+    /** A copy of the wallpapers in Pictures/Sofadrop, for other launchers (see [WallpaperFolder]). */
+    var wallpaperFolder: Boolean
+        get() = preferences.getBoolean(KEY_WALLPAPER_FOLDER, false)
+        set(value) = preferences.edit { putBoolean(KEY_WALLPAPER_FOLDER, value) }
 
     /** Titles that never show, from any list, with the name they were blocked with ("Title (2020)"). */
     val blocked: Map<TitleRef, String>

@@ -37,7 +37,7 @@ class WallpaperFactory(context: Context, val width: Int, val profile: Profile) {
             WallpaperRenderer(appContext, width, Languages.texts(Settings.language), profile.overviewLines,
                 profile.headerOrder, profile.minRatings, profile.style, castPhotos,
                 profile.showProviders && !profile.sourceFallback && profile.sourceInline, position, profile.shade, profile.bottomShade,
-                fullScreen = profile.isScreensaver || !Projectivy.isInstalled(appContext))
+                fullScreen = profile.isScreensaver || !WallpaperFolder.shown(appContext))
         }
     }
 

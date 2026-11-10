@@ -14,9 +14,10 @@ import androidx.leanback.widget.GuidedAction
  */
 class SettingsFragment : PreviewSettingsFragment() {
 
-    private val hasProjectivy by lazy { Projectivy.isInstalled(requireContext()) }
+    /** Something shows the wallpapers: Projectivy, or another launcher through the folder. */
+    private val hasProjectivy get() = WallpaperFolder.shown(requireContext())
 
-    override val showsProjectivyNotice get() = hasProjectivy && Projectivy.inUse(requireContext())
+    override val showsProjectivyNotice get() = Projectivy.isInstalled(requireContext()) && Projectivy.inUse(requireContext())
 
     private var startPlaced = false
 

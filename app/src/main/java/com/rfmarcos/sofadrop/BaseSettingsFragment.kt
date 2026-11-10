@@ -210,9 +210,9 @@ abstract class BaseSettingsFragment : GuidedStepSupportFragment() {
     }
 
     /** State of [set]: progress, error, pending changes or when it was made. */
-    /** The set this screen is about. Without Projectivy, once the screensaver has its own nobody makes the other. */
+    /** The set this screen is about. Without Projectivy or the folder, once the screensaver has its own nobody makes the other. */
     protected val shownSet: Profile
-        get() = if (profile.isGeneral && Profile.SCREENSAVER.separate && !Projectivy.isInstalled(requireContext())) Profile.SCREENSAVER
+        get() = if (profile.isGeneral && Profile.SCREENSAVER.separate && !WallpaperFolder.shown(requireContext())) Profile.SCREENSAVER
         else profile.source
 
     protected fun generationStatus(set: Profile = shownSet): String {

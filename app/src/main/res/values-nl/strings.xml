@@ -572,7 +572,7 @@
     <string name="accounts_reconnect">Instellingen geïmporteerd. Verbind opnieuw wat de andere tv had: %1$s. Accounts staan niet in het instellingenbestand.</string>
     <string name="wallpapers_title">Achtergronden</string>
     <string name="main_more_header">Algemeen</string>
-    <string name="projectivy_description">Achtergronden voor het startscherm van Projectivy Launcher. Achtergrondplug-ins zijn een Premium-functie. De screensaver heeft het niet nodig.</string>
+    <string name="projectivy_description">Achtergronden voor het startscherm van Projectivy Launcher (achtergrondplug-ins zijn een Premium-functie), of van een andere launcher via een map. De screensaver heeft geen van beide nodig.</string>
     <string name="projectivy_status_in_use">In gebruik in Projectivy</string>
     <string name="projectivy_status_pick">Projectivy geïnstalleerd: kies Sofadrop</string>
     <string name="projectivy_get">Projectivy downloaden</string>
@@ -581,6 +581,11 @@
     <string name="click_action_desc_alone">In Sofascreen opent de OK-knop de titel die je ziet.</string>
     <string name="general_header">Gedeelde instellingen</string>
     <string name="projectivy_status_optional">Voor Projectivy Launcher Premium</string>
+    <string name="wallpaper_folder_title">Opslaan in een map</string>
+    <string name="wallpaper_folder_off">Uit</string>
+    <string name="wallpaper_folder_on">In %1$s</string>
+    <string name="wallpaper_folder_explain">Een kopie van de achtergronden in de map %1$s van de tv, vernieuwd bij elke update, voor launchers die de afbeeldingen uit een map tonen, zoals Monet Launcher: kies die map in de achtergrondinstellingen van de launcher. Daar is een achtergrond alleen een afbeelding: hij opent de titel niet.</string>
+    <string name="wallpaper_folder_no_permission">Zonder toegang tot de opslag kunnen de achtergronden niet in een map worden opgeslagen</string>
     <string name="position_rotate">Wisselend</string>
     <string name="position_rotate_desc">Elke achtergrond op een andere plek</string>
     <string name="position_rotation_title">Wisselende posities</string>

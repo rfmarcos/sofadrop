@@ -582,7 +582,7 @@
     <string name="accounts_reconnect">Settings imported. Connect again what the other TV had: %1$s. Accounts aren\'t in the settings file.</string>
     <string name="wallpapers_title">Wallpapers</string>
     <string name="main_more_header">General</string>
-    <string name="projectivy_description">Wallpapers for the home screen of Projectivy Launcher. Wallpaper plugins are one of its Premium features. The screensaver doesn\'t need it.</string>
+    <string name="projectivy_description">Wallpapers for the home screen of Projectivy Launcher (wallpaper plugins are one of its Premium features), or of another launcher through a folder. The screensaver doesn\'t need either.</string>
     <string name="projectivy_status_in_use">In use in Projectivy</string>
     <string name="projectivy_status_pick">Projectivy installed: choose Sofadrop</string>
     <string name="projectivy_get">Get Projectivy</string>
@@ -591,6 +591,11 @@
     <string name="click_action_desc_alone">In Sofascreen, the OK button opens the title on screen.</string>
     <string name="general_header">Shared settings</string>
     <string name="projectivy_status_optional">For Projectivy Launcher Premium</string>
+    <string name="wallpaper_folder_title">Save in a folder</string>
+    <string name="wallpaper_folder_off">Off</string>
+    <string name="wallpaper_folder_on">In %1$s</string>
+    <string name="wallpaper_folder_explain">A copy of the wallpapers in the TV\'s %1$s folder, replaced with each update, for launchers that show the images of a folder, such as Monet Launcher: pick that folder in the launcher\'s wallpaper settings. There a wallpaper is only an image: it doesn\'t open its title.</string>
+    <string name="wallpaper_folder_no_permission">Without storage access the wallpapers can\'t be saved in a folder</string>
     <string name="position_rotate">Rotating</string>
     <string name="position_rotate_desc">Each wallpaper in a different position</string>
     <string name="position_rotation_title">Rotating positions</string>
