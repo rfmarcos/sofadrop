@@ -2,6 +2,13 @@
 
 **Movie & TV backdrops for Projectivy Launcher.**
 
+[![Release](https://img.shields.io/github/v/release/rfmarcos/sofadrop?label=release&style=flat-square&labelColor=0F0F1F&color=FB8B2F)](https://github.com/rfmarcos/sofadrop/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/rfmarcos/sofadrop/total?label=downloads&style=flat-square&labelColor=0F0F1F&color=F76B3B)](https://github.com/rfmarcos/sofadrop/releases)
+[![Downloader code](https://img.shields.io/badge/Downloader-7882519-F44C46?style=flat-square&labelColor=0F0F1F)](#-installation)
+[![Google Play beta](https://img.shields.io/badge/Google%20Play-beta-E33553?style=flat-square&labelColor=0F0F1F&logo=googleplay&logoColor=white)](#google-play-test)
+[![License](https://img.shields.io/badge/license-Apache--2.0-C62660?style=flat-square&labelColor=0F0F1F)](LICENSE)
+[![Ko-fi](https://img.shields.io/badge/support-Ko--fi-A8186E?style=flat-square&labelColor=0F0F1F&logo=kofi&logoColor=white)](https://ko-fi.com/rfmarcos)
+
 Sofadrop is a wallpaper plugin for [Projectivy Launcher](https://github.com/spocky/miproja1) (Android TV) that turns your home screen into a rotating showcase of **movies and TV shows** from the lists you choose: what's trending, your Trakt or Simkl lists, any public Trakt or MDBList list… Everything is generated **on your TV** and set up from inside the launcher, with a live preview.
 
 ![Sofadrop on Projectivy's home screen](docs/images/projectivy_home_en.jpg)
