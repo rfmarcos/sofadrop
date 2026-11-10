@@ -200,7 +200,7 @@ class SettingsFragment : PreviewSettingsFragment() {
             return
         }
         updateDescription(ID_APP_UPDATE, getString(R.string.update_downloading, Settings.updateVersion))
-        background({ Updater.install(context) }) { result ->
+        background({ UpdateInstaller.install(context) }) { result ->
             result.onFailure {
                 updateDescription(ID_APP_UPDATE, getString(R.string.update_failed, it.message ?: it.javaClass.simpleName))
             }

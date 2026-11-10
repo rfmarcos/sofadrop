@@ -611,7 +611,7 @@ object Settings {
         get() = preferences.getBoolean(KEY_SCREENSAVER_DATE, true)
         set(value) = preferences.edit { putBoolean(KEY_SCREENSAVER_DATE, value) }
 
-    /** The digits' colour, see [CLOCK_COLORS]; [ScreensaverFragment] says who can change it. */
+    /** The clock's colour (digits, date and weather), see [CLOCK_COLORS]; [ScreensaverFragment] says who can change it. */
     var screensaverClockColor: String
         get() = preferences.getString(KEY_SCREENSAVER_CLOCK_COLOR, null)?.takeIf { it in CLOCK_COLORS } ?: CLOCK_COLOR_WHITE
         set(value) = preferences.edit { putString(KEY_SCREENSAVER_CLOCK_COLOR, value) }
@@ -622,11 +622,20 @@ object Settings {
         set(value) = preferences.edit { putBoolean(KEY_SUPPORTER_BOUGHT, value) }
 
     /**
+     * Only Google Play builds offer the clock's colours, as the supporter purchase, and the Dev build, to test them
+     * and take the store's screenshots. GitHub releases don't show them at all.
+     */
+    val CLOCK_COLORS_OFFERED = BuildConfig.PLAY || BuildConfig.DEBUG
+
+    /**
      * The clock's colour on screen. Google Play builds show the chosen one only while the purchase is known: an
      * imported file doesn't bring a colour for free, and a wrong "not bought" doesn't lose the buyer's choice.
      */
     val screensaverClockColorShown: String
-        get() = if (BuildConfig.PLAY && !supporterBought) CLOCK_COLOR_WHITE else screensaverClockColor
+        get() = when {
+            !CLOCK_COLORS_OFFERED || BuildConfig.PLAY && !supporterBought -> CLOCK_COLOR_WHITE
+            else -> screensaverClockColor
+        }
 
     /** 24 or 12 hours, or as Android is set (see [CLOCK_FORMATS]). */
     var screensaverClockFormat: String

@@ -4,4 +4,10 @@
     <!-- Updates come from the GitHub releases: the system installer still asks the user -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <application>
+        <receiver
+            android:name=".UpdateInstaller$InstallResultReceiver"
+            android:exported="false" />
+    </application>
+
 </manifest>

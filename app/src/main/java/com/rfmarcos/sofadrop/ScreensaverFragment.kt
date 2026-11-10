@@ -191,7 +191,7 @@ class ScreensaverFragment : OutputFragment() {
                 // Only says something where it can't be switched on if it was, from a computer
                 .takeIf { ScreensaverSetupFragment.canSwitchOn(context) || ScreensaverSetupFragment.isActive(context) == true },
 
-        ) + setRows() + listOf(
+        ) + setRows() + listOfNotNull(
             header(ID_HEADER_SLIDESHOW, getString(R.string.screensaver_slideshow_header)),
             choice(ID_SECONDS, R.drawable.ic_act_schedule, R.string.screensaver_seconds_title, secondsLabel(context, Settings.screensaverSeconds),
                 Settings.SCREENSAVER_SECONDS_OPTIONS.map { secondsLabel(context, it) }),
@@ -222,8 +222,9 @@ class ScreensaverFragment : OutputFragment() {
         )
     }
 
-    /** The clock's colours, or what unlocks them. */
-    private fun colorRow(clockOn: Boolean): GuidedAction {
+    /** The clock's colours, or what unlocks them; none in GitHub builds (see [Settings.screensaverClockColorShown]). */
+    private fun colorRow(clockOn: Boolean): GuidedAction? {
+        if (!Settings.CLOCK_COLORS_OFFERED) return null
         val context = requireContext()
         if (colorsLocked) {
             val pending = supporterState == Supporter.State.PENDING

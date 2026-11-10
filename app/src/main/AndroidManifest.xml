@@ -103,10 +103,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".Updater$InstallResultReceiver"
-            android:exported="false" />
-
         <activity
             android:name=".PreviewActivity"
             android:exported="false"

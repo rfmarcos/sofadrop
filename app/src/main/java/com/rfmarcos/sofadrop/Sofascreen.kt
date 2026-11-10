@@ -419,16 +419,14 @@ class SofascreenClock(private val context: Context) {
 
     private fun clockText(pattern: String, sizePx: Float, font: android.graphics.Typeface?) = TextView(context).apply {
         style(this, sizePx, font)
-        // Only the digits: the thin date and weather lines read worse in colour
-        setTextColor(Settings.CLOCK_COLORS.getValue(Settings.screensaverClockColorShown))
         maxLines = 1
         times += this to pattern
     }
 
-    /** Rounded, slightly see-through white, like the light date it replaces. */
+    /** Rounded and slightly see-through, like the light date it replaces. */
     private fun divider(height: Float) = View(context).apply {
         background = GradientDrawable().apply {
-            setColor(Color.argb(190, 255, 255, 255))
+            setColor(clockColor() and 0xFFFFFF or (190 shl 24))
             cornerRadius = height * 0.002f
         }
     }
@@ -448,10 +446,13 @@ class SofascreenClock(private val context: Context) {
         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         typeface = font
         setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx)
-        setTextColor(Color.WHITE)
+        // The whole block in the clock's colour: digits, date and weather
+        setTextColor(clockColor())
         includeFontPadding = false
         setShadowLayer(sizePx * 0.08f, 0f, sizePx * 0.02f, Color.argb(150, 0, 0, 0))
     }
+
+    private fun clockColor() = Settings.CLOCK_COLORS.getValue(Settings.screensaverClockColorShown)
 
     /** "MA·26·OKT", "MON·OCT·26": weekday, day and month in the order of the language, without their dots. */
     private fun dateText(): String {
